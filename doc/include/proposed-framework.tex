@@ -1,13 +1,20 @@
-Assume we have a thermal model of the multiprocessor system under consideration. For a particular outcome of the parameters $\vU(\o)$, the model transforms an arbitrary dynamic power profile $\profilePdyn$ to the corresponding temperature profile $\profileT$ as follows:
+\subsection{Power Model}
+The total dissipation of power is composed of the dynamic power and leakage power.
+
+\subsection{Thermal Model}
+Based on the thermal specification $\specification$, an equivalent thermal RC circuit of the multiprocessor system under consideration is constructed.
+
+\subsection{Statistical Model}
+Denote the model developed so far by
 \begin{equation} \elabel{model}
-  \mT(\o) = \model{\mP_\dyn}.
+  \mT = \model{\mP_\dyn | \vU},
 \end{equation}
-Note that $\mT(\o)$ is a \rv\ since the parametrization $\vU(\o)$ of the model is uncertain; however, the transformation itself is purely deterministic. Next, due to the imperfection of the modeling and measurement processes, a temperature profile $\mT_\meas$ from the given data set $\data$ is assumed to deviate from the model prediction in \eref{model} even if the vector $\vU(\o)$ was known:
+which, for a given outcome of the parameters $\vU$, transforms an arbitrary dynamic power profile $\profilePdyn$ to the corresponding temperature profile $\profileT$. In our settings, $\vU$ is a \rv; therefore, $\mT$ is a \rv\ as well. Moreover, due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the given data set $\data$ is assumed to deviate from the model prediction in \eref{model} even if $\vU$ was deterministic. Consequently, $\mT^{(i)}_\meas$ is modeled as
 \[
-  \mT_\meas(\o) = \mT(\o) + \mnoise(\o) = \model{\mP_\dyn} + \mnoise(\o)
+  \mT^{(i)}_\meas = \mT^{(i)} + \mnoise^{(i)} = \model{\mP_\dyn | \vU^{(i)}} + \mnoise^{(i)}
 \]
-where $\mnoise(\o) = \left( \vnoise_1(\o), \cdots, \vnoise_{\nsteps}(\o) \right) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. The noise term is typically assumed to be a Gaussian white noise and to be independent from the rest of the model \cite{marzouk2007, el-moselhy2012}. Therefore, each column vector $\vnoise_i(\o)$, $i = 1, \dotsc, \nsteps$, is modeled as
+where $\vU^{(i)}$ is a copy of $\vU$ that belongs to the $i$th die, and $\mnoise^{(i)} = ( \vnoise^{(i)}_1, \dotsc, \vnoise^{(i)}_{\nsteps} ) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. Such a noise is typically assumed to be a Gaussian white noise and to be independent from the parametrization $\vU^{(i)}$, $\forall i$ \cite{marzouk2007, el-moselhy2012}. Therefore, each column vector $\vnoise^{(i)}_j$, $j = 1, \dotsc, \nsteps$, of $\mnoise^{(i)}$ is modeled as
 \[
-  \vnoise_i(\o) \sim \normal{\vZero}{\mSigma_i}
+  \vnoise^{(i)}_j \sim \normal{\vZero}{\mSigma^{(i)}_j}
 \]
-where $\mSigma_i \in \real^{\ncores \times \ncores}$ is a covariance matrix.
+where $\mSigma^{(i)}_j \in \real^{\ncores \times \ncores}$ is a covariance matrix.

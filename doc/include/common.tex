@@ -8,6 +8,7 @@
 % Text
 \newcommand{\rv}{r.v.}
 \newcommand{\rvs}{r.v.'s}
+\newcommand{\pdf}{p.d.f.}
 
 \newcommand{\ie}{\emph{i.e.}}
 \newcommand{\eg}{\emph{e.g.}}
@@ -24,39 +25,62 @@
 % Sets
 \newcommand{\real}{\mathbb{R}}
 
+\renewcommand{\L}[1]{L^{#1}}
+
 % Linear algebra
 \newcommand{\m}[1]{\mathbf{#1}}
 \renewcommand{\v}[1]{\mathbf{#1}}
 
-\newcommand{\vZero}{\mathbf{0}}
+\newcommand{\vZero}{0}
+
+\makeatletter
+\def\iprod#1{\@ifnextchar\bgroup{\iprodWithTwoArguments{#1}}{\iprodWithOneArgument{#1}}}
+\def\iprodWithTwoArguments#1#2{\langle #1, #2 \rangle}
+\def\iprodWithOneArgument#1{\langle #1 \rangle}
+\makeatother
+
+\newcommand{\norm}[1]{\| #1 \|}
 
 % Theory of probability
 \newcommand{\outcomes}{\Omega}
 \renewcommand{\o}{\omega}
 \newcommand{\salgebra}{\mathcal{F}}
-\newcommand{\pmeasure}{\mathcal{P}}
+\newcommand{\pmeasure}{\mathbb{P}}
 
-\newcommand{\U}{U}
-\newcommand{\vU}{\v{U}}
+\newcommand{\pspace}{(\outcomes, \salgebra, \pmeasure)}
+\newcommand{\lpspace}{\L{2}\pspace}
+
+\newcommand{\U}{\theta}
+\newcommand{\vU}{\Theta}
 
 \newcommand{\normal}[2]{\mathcal{N}\left(#1, #2\right)}
 
+\makeatletter
+\def\f#1{\@ifnextchar\bgroup{\fWithTwoArguments{#1}}{\fWithOneArgument{#1}}}
+\def\fWithTwoArguments#1#2{p_{#1}\left( #2 \right)}
+\def\fWithOneArgument#1{p\left( #1 \right)}
+
+\def\E#1{\@ifnextchar\bgroup{\EWithTwoArguments{#1}}{\EWithOneArgument{#1}}}
+\def\EWithTwoArguments#1#2{E_{#1}\left[ #2 \right]}
+\def\EWithOneArgument#1{E\left[ #1 \right]}
+\makeatother
+
 % System
-\newcommand{\model}[1]{\mathcal{M}\left(#1\right | \vU(\o))}
+\newcommand{\model}[1]{\mathcal{M}( #1 )}
 
 % Temperature
 \newcommand{\specification}{\mathcal{S}}
 
-\newcommand{\T}{\Theta}
-\newcommand{\vT}{\boldsymbol\Theta}
-\newcommand{\mT}{\boldsymbol\Theta}
+\newcommand{\T}{T}
+\newcommand{\vT}{\T}
+\newcommand{\mT}{\T}
 \newcommand{\amb}{\text{amb}}
 \newcommand{\meas}{\text{meas}}
 
 % Power
 \renewcommand{\P}{P}
-\newcommand{\vP}{\v{P}}
-\newcommand{\mP}{\m{P}}
+\newcommand{\vP}{\P}
+\newcommand{\mP}{\P}
 \newcommand{\dyn}{\text{dyn}}
 \newcommand{\leak}{\text{leak}}
 
@@ -66,7 +90,7 @@
 \newcommand{\period}{\tau}
 
 % Profiles
-\newcommand{\partition}{\boldsymbol{\Delta}}
+\newcommand{\partition}{\Delta}
 \newcommand{\profile}[1]{\left(\partition, #1\right)}
 
 \makeatletter
@@ -83,19 +107,19 @@
 
 \newcommand{\profileTmeas}{\profile{\mT_\meas}}
 
-\newcommand{\profilePT}{\profile{\mP, \mT}}
-\newcommand{\profilePdynT}{\profile{\mP_\dyn, \mT}}
-
 \newcommand{\data}{\mathcal{D}}
 
 % Uncertainties
-\newcommand{\noise}{\N}
-\newcommand{\mnoise}{\v{N}}
-\newcommand{\vnoise}{\m{N}}
+\newcommand{\noise}{N}
+\newcommand{\mnoise}{\noise}
+\newcommand{\vnoise}{\noise}
 
-\newcommand{\mSigma}{\boldsymbol\Sigma}
+\newcommand{\mSigma}{\Sigma}
+
+% Polynomial chaos
+\newcommand{\pcb}{\Phi}
 
 % Numbers
-\newcommand{\ncores}{{N_\text{p}}}
-\newcommand{\nsteps}{N_\text{s}}
-\newcommand{\ndata}{N_\text{d}}
+\newcommand{\ncores}{{n_\text{p}}}
+\newcommand{\nsteps}{n_\text{s}}
+\newcommand{\ndata}{n_\text{d}}

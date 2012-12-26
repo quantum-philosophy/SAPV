@@ -1,0 +1,21 @@
+\subsection{Bayesian Inference}
+As mentioned in \sref{introduction}, the data analysis performed in this work is based on Bayes' rule \cite{gelman2004}:
+\[
+  \f{\U | \data} = \frac{\f{\data | \U} \f{\U}}{\f{\data}}
+\]
+where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function (\pdf) and a conditional \pdf\ \cite{durrett2010}, respectively. $\f{\U}$ is known as the prior distribution of the parameters $\vU$, $\f{\U | \data}$ is the corresponding posterior distribution, $\f{\data | \U}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
+
+\subsection{Polynomial Chaos}
+Denote $\lpspace$ the space of square-integrable \rvs\ defined on $\pspace$. Let $X$ be a \rv\ and denote $\f{x}$ the density of $X$. For clarity of presentation, $X$ is assumed to be one-dimensional. $\lpspace$ is a Hilbert space with the inner product defined as
+\begin{equation} \elabel{inner-product}
+  \iprod{f(X)}{g(X)} = \E{f(X) g(X)} = \int f(x) g(x) \f{x} dx
+\end{equation}
+where $\E{\cdot}$ denotes the expected value with respect to $\f{x}$. The corresponding norm of the space is then $\norm{\cdot} = \sqrt{\iprod{\cdot, \cdot}}$. Let $f(X)$ be a functional of $X$. If $f(X) \in \lpspace$, $f(X)$ admits the following expansion, which is convergent in the mean-square sense \cite{maitre2010}:
+\[
+  f(X) = \sum_{i = 0}^\infty \iprod{f(X)}{\pcb_i(X)} \pcb_i(X).
+\]
+In the above decomposition, $\{ \pcb_i \}_{i = 0}^\infty$ is a basis in $\lpspace$ composed of univariate polynomials orthogonal with respect to $\f{x}$; in other words,
+\[
+  \iprod{\pcb_i(X), \pcb_j(X)} = \norm{\pcb_i}^2 \delta_{ij}
+\]
+where $\delta_{ij}$ is the Kronecker delta function. The multidimensional construction of PC expansions is straightforward and is based on tensor products of the one-dimensional counterparts; see, \eg, \cite{maitre2010}. In the $n$-dimensional case, the inner product in \eref{inner-product} is an $n$-dimensional integral, and the basis functionals $\{ \pcb_i \}_{i = 0}^\infty$ are polynomials of $n$ variables.

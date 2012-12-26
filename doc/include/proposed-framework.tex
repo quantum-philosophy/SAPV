@@ -1,0 +1,13 @@
+Assume we have a thermal model of the multiprocessor system under consideration. For a particular outcome of the parameters $\vU(\o)$, the model transforms an arbitrary dynamic power profile $\profilePdyn$ to the corresponding temperature profile $\profileT$ as follows:
+\begin{equation} \elabel{model}
+  \mT(\o) = \model{\mP_\dyn}.
+\end{equation}
+Note that $\mT(\o)$ is a \rv\ since the parametrization $\vU(\o)$ of the model is uncertain; however, the transformation itself is purely deterministic. Next, due to the imperfection of the modeling and measurement processes, a temperature profile $\mT_\meas$ from the given data set $\data$ is assumed to deviate from the model prediction in \eref{model} even if the vector $\vU(\o)$ was known:
+\[
+  \mT_\meas(\o) = \mT(\o) + \mnoise(\o) = \model{\mP_\dyn} + \mnoise(\o)
+\]
+where $\mnoise(\o) = \left( \vnoise_1(\o), \cdots, \vnoise_{\nsteps}(\o) \right) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. The noise term is typically assumed to be a Gaussian white noise and to be independent from the rest of the model \cite{marzouk2007, el-moselhy2012}. Therefore, each column vector $\vnoise_i(\o)$, $i = 1, \dotsc, \nsteps$, is modeled as
+\[
+  \vnoise_i(\o) \sim \normal{\vZero}{\mSigma_i}
+\]
+where $\mSigma_i \in \real^{\ncores \times \ncores}$ is a covariance matrix.

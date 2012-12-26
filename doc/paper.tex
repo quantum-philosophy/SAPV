@@ -1,10 +1,10 @@
 \documentclass[conference]{IEEEtran}
-\input{include/common}
+\input{include/common.tex}
 
 \bibliography{include/references.bib}
 
 \begin{document}
-  \title{Temperature-based Uncertainty Quantification of Process Variations for Multiprocessor Systems}
+  \title{Temperature-based Uncertainty Quantification of Process Variation for Multiprocessor Systems}
 
   \author{
     \IEEEauthorblockN{Ivan Ukhov}
@@ -26,8 +26,18 @@
     \input{include/abstract.tex}
   \end{abstract}
 
-  \section{Introduction and Prior Work}
+  \section{Introduction and Prior Work} \slabel{introduction}
   \input{include/introduction.tex}
+
+  \section{Problem Formulation} \slabel{problem-formulation}
+  \input{include/problem-formulation.tex}
+
+  \section{Proposed Framework} \slabel{proposed-framework}
+  \input{include/proposed-framework.tex}
+
+  \section{Experimental Results} \slabel{experimental-results}
+
+  \section{Conclusion} \slabel{conclusion}
 
   \printbibliography
 \end{document}

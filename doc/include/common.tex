@@ -20,3 +20,82 @@
 
 \newcommand{\elabel}[1]{\label{equ:#1}}
 \newcommand{\slabel}[1]{\label{sec:#1}}
+
+% Sets
+\newcommand{\real}{\mathbb{R}}
+
+% Linear algebra
+\newcommand{\m}[1]{\mathbf{#1}}
+\renewcommand{\v}[1]{\mathbf{#1}}
+
+\newcommand{\vZero}{\mathbf{0}}
+
+% Theory of probability
+\newcommand{\outcomes}{\Omega}
+\renewcommand{\o}{\omega}
+\newcommand{\salgebra}{\mathcal{F}}
+\newcommand{\pmeasure}{\mathcal{P}}
+
+\newcommand{\U}{U}
+\newcommand{\vU}{\v{U}}
+
+\newcommand{\normal}[2]{\mathcal{N}\left(#1, #2\right)}
+
+% System
+\newcommand{\model}[1]{\mathcal{M}\left(#1\right | \vU(\o))}
+
+% Temperature
+\newcommand{\specification}{\mathcal{S}}
+
+\newcommand{\T}{\Theta}
+\newcommand{\vT}{\boldsymbol\Theta}
+\newcommand{\mT}{\boldsymbol\Theta}
+\newcommand{\amb}{\text{amb}}
+\newcommand{\meas}{\text{meas}}
+
+% Power
+\renewcommand{\P}{P}
+\newcommand{\vP}{\v{P}}
+\newcommand{\mP}{\m{P}}
+\newcommand{\dyn}{\text{dyn}}
+\newcommand{\leak}{\text{leak}}
+
+% Time
+\renewcommand{\t}{t}
+\newcommand{\dt}{\Delta \t}
+\newcommand{\period}{\tau}
+
+% Profiles
+\newcommand{\partition}{\boldsymbol{\Delta}}
+\newcommand{\profile}[1]{\left(\partition, #1\right)}
+
+\makeatletter
+\def\profileP{\@ifnextchar\bgroup{\profilePWithArgument}{\profilePWithoutArgument}}
+\def\profilePWithArgument#1{\profile{\mP(#1)}}
+\def\profilePWithoutArgument{\profile{\mP}}
+
+\newcommand{\profilePdyn}{\profile{\mP_\dyn}}
+
+\def\profileT{\@ifnextchar\bgroup{\profileTWithArgument}{\profileTWithoutArgument}}
+\def\profileTWithArgument#1{\profile{\mT(#1)}}
+\def\profileTWithoutArgument{\profile{\mT}}
+\makeatother
+
+\newcommand{\profileTmeas}{\profile{\mT_\meas}}
+
+\newcommand{\profilePT}{\profile{\mP, \mT}}
+\newcommand{\profilePdynT}{\profile{\mP_\dyn, \mT}}
+
+\newcommand{\data}{\mathcal{D}}
+
+% Uncertainties
+\newcommand{\noise}{\N}
+\newcommand{\mnoise}{\v{N}}
+\newcommand{\vnoise}{\m{N}}
+
+\newcommand{\mSigma}{\boldsymbol\Sigma}
+
+% Numbers
+\newcommand{\ncores}{{N_\text{p}}}
+\newcommand{\nsteps}{N_\text{s}}
+\newcommand{\ndata}{N_\text{d}}

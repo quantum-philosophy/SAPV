@@ -1,20 +1,36 @@
 \subsection{Power Model}
-The total dissipation of power is composed of the dynamic power and leakage power.
+The total dissipation of power is composed of the dynamic power and leakage power. The rest as usual.
 
 \subsection{Thermal Model}
-Based on the thermal specification $\specification$, an equivalent thermal RC circuit of the multiprocessor system under consideration is constructed.
+Based on the thermal specification $\specification$, an equivalent thermal RC circuit of the multiprocessor system under consideration is constructed. The rest as usual.
 
 \subsection{Statistical Model}
-Denote the model developed so far by
+The parameters $\vU$ are known to have high spatial correlations that bear radial structures \cite{cheng2011}. Thus, we model $\vU$ as a stochastic process $\vU(\r)$ indexed by the radial distance $\r$ between the die and the center of the wafer. Denote the forward model developed so far by
 \begin{equation} \elabel{model}
-  \mT = \model{\mP_\dyn | \vU},
+  \mT(\r) = \model{\mP_\dyn | \vU(\r)},
 \end{equation}
-which, for a given outcome of the parameters $\vU$, transforms an arbitrary dynamic power profile $\profilePdyn$ to the corresponding temperature profile $\profileT$. In our settings, $\vU$ is a \rv; therefore, $\mT$ is a \rv\ as well. Moreover, due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the given data set $\data$ is assumed to deviate from the model prediction in \eref{model} even if $\vU$ was deterministic. Consequently, $\mT^{(i)}_\meas$ is modeled as
+which, for a given outcome of the parameters $\vU(\r)$, transforms an arbitrary dynamic power profile $\profilePdyn$ to the corresponding temperature profile $\profileT$. Note, the model also performs thinning of the data if needed. In our settings, $\vU(\r)$ is a random quantity; therefore, $\mT$ is. Moreover, due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the given data set $\data$ is assumed to deviate from the model prediction in \eref{model} even if $\vU(\r)$ was deterministic. To this end, $\mT^{(i)}_\meas$ is modeled as
 \[
-  \mT^{(i)}_\meas = \mT^{(i)} + \mnoise^{(i)} = \model{\mP_\dyn | \vU^{(i)}} + \mnoise^{(i)}
+  \mT^{(i)}_\meas = \mT(\r_i) + \mnoise^{(i)} = \model{\mP_\dyn | \vU(\r_i)} + \mnoise^{(i)}
 \]
-where $\vU^{(i)}$ is a copy of $\vU$ that belongs to the $i$th die, and $\mnoise^{(i)} = ( \vnoise^{(i)}_1, \dotsc, \vnoise^{(i)}_{\nsteps} ) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. Such a noise is typically assumed to be a Gaussian white noise and to be independent from the parametrization $\vU^{(i)}$, $\forall i$ \cite{marzouk2007, el-moselhy2012}. Therefore, each column vector $\vnoise^{(i)}_j$, $j = 1, \dotsc, \nsteps$, of $\mnoise^{(i)}$ is modeled as
+where $\mnoise^{(i)} = ( \vnoise^{(i)}_1, \dotsc, \vnoise^{(i)}_{\nsteps} ) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. Such a noise is typically assumed to be a Gaussian white noise and to be independent from the parametrization $\vU(\r)$ \cite{marzouk2007, el-moselhy2012}. Therefore, each column vector $\vnoise^{(i)}_j$, $j = 1, \dotsc, \nsteps$, of $\mnoise^{(i)}$ is modeled as
 \[
-  \vnoise^{(i)}_j \sim \normal{\vZero}{\mSigma^{(i)}_j}
+  \vnoise^{(i)}_j \sim \normal{\vZero}{\mSigma_\noise}
 \]
-where $\mSigma^{(i)}_j \in \real^{\ncores \times \ncores}$ is a covariance matrix.
+where $\mSigma_\noise \in \real^{\ncores \times \ncores}$ is the covariance matrix of the noise, which is assumed to have the same magnitude for all measurements. Now, we can form the likelihood function $\f{\data | \vU}$ of the data $\data$, which, intuitively speaking, gives the probability of observing $\data$:
+\begin{align*}
+  & \f{\data | \vU(\r)} = \prod_{i = 1}^{\ndata} \f{\mnoise^{(i)} | \vU(\r_i)} = \prod_{i = 1}^{\ndata} \prod_{j = 1}^{\nsteps} \f{\vnoise^{(i)}_j | \vU(\r_i)} \\
+  & = \prod_{i = 1}^{\ndata} \prod_{j = 1}^{\nsteps} |2 \pi \mSigma_\noise|^{-\frac{1}{2}} \exp\left( -\left(\vnoise_j^{(i)}\right)^T \mSigma^{-1}_\noise \noise_j^{(i)} \right) \\
+  & = |2 \pi \mSigma_\noise|^{-\frac{\ndata \nsteps}{2}} \exp\left( -\sum_{i = 1}^{\ndata} \sum_{j = 1}^{\nsteps} \left(\vnoise_j^{(i)}\right)^T \mSigma^{-1}_\noise \noise_j^{(i)} \right)
+\end{align*}
+where $|\cdot|$ stands for the matrix determinant and
+\[
+  \vnoise_j^{(i)} = \mT^{(i)}_{\meas, j} - \mT(\r_i)_j = \mT^{(i)}_{\meas, j} - \model{\mP_\dyn | \vU(\r_i)}_j.
+\]
+It can be seen that the forward model should be evaluated as many times as many observations we have, \ie, $\ndata$ times.
+
+Now, we need to identify the stochastic process $\vU(\r)$ in order to specify the prior distribution, which the density $\f{\vU(\r)}$ in \eref{bayes} corresponds to. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\vU(\r)$ is assumed to be a Gaussian process. As previously mentioned, due to the particularities of the manufacturing process, such uncertainties often possess radial structures; thus, we assume the following covariance function of $\vU(\r)$ \cite{maitre2010}:
+\begin{equation} \elabel{covariance-function}
+  \cov{\vU_i(\r)}{\vU_i(\r')} = \sigma_i^2 \exp\left(-\frac{|\r - \r'|}{\eta_i}\right)
+\end{equation}
+where $\sigma_i^2$ and $\eta_i$ are the variance and correlation length of the $i$th variable in $\vU(\r)$.

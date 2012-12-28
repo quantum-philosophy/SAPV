@@ -27,7 +27,7 @@
 
 \renewcommand{\L}[1]{L^{#1}}
 
-% Linear algebra
+% Algebra
 \newcommand{\m}[1]{\mathbf{#1}}
 \renewcommand{\v}[1]{\mathbf{#1}}
 
@@ -40,30 +40,45 @@
 \makeatother
 
 \newcommand{\norm}[1]{\| #1 \|}
+\renewcommand{\d}{\text{d}}
 
 % Theory of probability
-\newcommand{\outcomes}{\Omega}
 \renewcommand{\o}{\omega}
+
+\newcommand{\outcomes}{\Omega}
 \newcommand{\salgebra}{\mathcal{F}}
 \newcommand{\pmeasure}{\mathbb{P}}
-
 \newcommand{\pspace}{(\outcomes, \salgebra, \pmeasure)}
-\newcommand{\lpspace}{\L{2}\pspace}
 
-\newcommand{\U}{\theta}
+\newcommand{\bsalgebra}{\mathcal{B}(\real)}
+\newcommand{\gpmeasure}{\mathbb{P}_\Z}
+\newcommand{\gpspace}{(\real, \bsalgebra, \gpmeasure)}
+\newcommand{\bspace}{(\real, \bsalgebra)}
+
+\newcommand{\lgpspace}{\L{2}\gpspace}
+\renewcommand{\lg}{\L{2}(\gpmeasure)}
+
+\renewcommand{\u}{\theta}
+\newcommand{\U}{\Theta}
 \newcommand{\vU}{\Theta}
 
 \newcommand{\normal}[2]{\mathcal{N}\left(#1, #2\right)}
 
+\newcommand{\z}{z}
+\newcommand{\Z}{Z}
+\newcommand{\vZ}{Z}
+
 \makeatletter
 \def\f#1{\@ifnextchar\bgroup{\fWithTwoArguments{#1}}{\fWithOneArgument{#1}}}
-\def\fWithTwoArguments#1#2{p_{#1}\left( #2 \right)}
-\def\fWithOneArgument#1{p\left( #1 \right)}
+\def\fWithTwoArguments#1#2{p_{#1}( #2 )}
+\def\fWithOneArgument#1{p( #1 )}
 
 \def\E#1{\@ifnextchar\bgroup{\EWithTwoArguments{#1}}{\EWithOneArgument{#1}}}
 \def\EWithTwoArguments#1#2{E_{#1}\left[ #2 \right]}
 \def\EWithOneArgument#1{E\left[ #1 \right]}
 \makeatother
+
+\newcommand{\cov}[2]{\text{Cov}\left[ #1, #2 \right]}
 
 % System
 \newcommand{\model}[1]{\mathcal{M}( #1 )}
@@ -89,23 +104,27 @@
 \newcommand{\dt}{\Delta \t}
 \newcommand{\period}{\tau}
 
+% Space
+\renewcommand{\r}{r}
+
 % Profiles
-\newcommand{\partition}{\Delta}
-\newcommand{\profile}[1]{\left(\partition, #1\right)}
+\newcommand{\profile}[1]{( #1, \partition{#1} )}
 
 \makeatletter
+\def\partition#1{\@ifnextchar\bgroup{\partitionWithTwoArguments{#1}}{\partitionWithOneArgument{#1}}}
+\def\partitionWithTwoArguments#1#2{\Delta_{#1}^{#2}}
+\def\partitionWithOneArgument#1{\Delta_{#1}}
+
 \def\profileP{\@ifnextchar\bgroup{\profilePWithArgument}{\profilePWithoutArgument}}
 \def\profilePWithArgument#1{\profile{\mP(#1)}}
 \def\profilePWithoutArgument{\profile{\mP}}
 
-\newcommand{\profilePdyn}{\profile{\mP_\dyn}}
+\newcommand{\profilePdyn}{(\mP_\dyn, \partition{\mP})}
 
 \def\profileT{\@ifnextchar\bgroup{\profileTWithArgument}{\profileTWithoutArgument}}
 \def\profileTWithArgument#1{\profile{\mT(#1)}}
 \def\profileTWithoutArgument{\profile{\mT}}
 \makeatother
-
-\newcommand{\profileTmeas}{\profile{\mT_\meas}}
 
 \newcommand{\data}{\mathcal{D}}
 
@@ -117,7 +136,7 @@
 \newcommand{\mSigma}{\Sigma}
 
 % Polynomial chaos
-\newcommand{\pcb}{\Phi}
+\newcommand{\pcb}{H}
 
 % Numbers
 \newcommand{\ncores}{{n_\text{p}}}

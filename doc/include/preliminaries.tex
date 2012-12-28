@@ -1,21 +1,26 @@
 \subsection{Bayesian Inference}
-As mentioned in \sref{introduction}, the data analysis performed in this work is based on Bayes' rule \cite{gelman2004}:
-\[
-  \f{\U | \data} = \frac{\f{\data | \U} \f{\U}}{\f{\data}}
-\]
-where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function (\pdf) and a conditional \pdf\ \cite{durrett2010}, respectively. $\f{\U}$ is known as the prior distribution of the parameters $\vU$, $\f{\U | \data}$ is the corresponding posterior distribution, $\f{\data | \U}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
+Let $\vU$ be a set of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\vU$ given a data set the corresponding observations and some prior believes about $\vU$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
+\begin{equation} \elabel{bayes}
+  \f{\u | \data} = \frac{\f{\data | \u} \f{\u}}{\f{\data}}
+\end{equation}
+where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function (\pdf) and a conditional \pdf\ \cite{durrett2010}, respectively. $\f{\u}$ is known as the prior distribution of the parameters $\vU$, $\f{\u | \data}$ is the corresponding posterior distribution, $\f{\data | \u}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
 
 \subsection{Polynomial Chaos}
-Denote $\lpspace$ the space of square-integrable \rvs\ defined on $\pspace$. Let $X$ be a \rv\ and denote $\f{x}$ the density of $X$. For clarity of presentation, $X$ is assumed to be one-dimensional. $\lpspace$ is a Hilbert space with the inner product defined as
-\begin{equation} \elabel{inner-product}
-  \iprod{f(X)}{g(X)} = \E{f(X) g(X)} = \int f(x) g(x) \f{x} dx
-\end{equation}
-where $\E{\cdot}$ denotes the expected value with respect to $\f{x}$. The corresponding norm of the space is then $\norm{\cdot} = \sqrt{\iprod{\cdot, \cdot}}$. Let $f(X)$ be a functional of $X$. If $f(X) \in \lpspace$, $f(X)$ admits the following expansion, which is convergent in the mean-square sense \cite{maitre2010}:
+For clarity, the construction below is given for the one-dimensional case. The extension, based on tensor products, to multiple dimensions is immediate; see, \eg, \cite{maitre2010}.
+
+Let $\Z: \outcomes \to \real$ be a standard Gaussian \rv\ and denote $\gpmeasure$ and $\f{\Z}{\z}$ the distribution and density of $\Z$, respectively. $\Z$ induces the measure $\gpmeasure$ on the Borel space $\bspace$ leading to the probability space $\gpspace$. $\gpspace$ is a Hilbert space wherein the associated inner product and norm are defined as
+\begin{align}
+  & \iprod{f}{g} = \E{f(\Z) g(\Z)} = \int_\real f(\z) g(\z) \f{\Z}{\z} \d\z, \elabel{inner-product} \\
+  & \norm{f}^2 = \iprod{f, f} \nonumber,
+\end{align}
+respectively, where $\E{\cdot}$ stands for the mathematical expectation. Let $\lg = \lgpspace$ be the space of square-integrable \rvs\ defined on $\gpspace$. Any $f \in \lg$ admits the following expansion convergent in the space $\lg$ \cite{maitre2010}:
 \[
-  f(X) = \sum_{i = 0}^\infty \iprod{f(X)}{\pcb_i(X)} \pcb_i(X).
+  f(\Z) = \sum_{i = 0}^\infty \iprod{f}{\pcb_i} \pcb_i(\Z)
 \]
-In the above decomposition, $\{ \pcb_i \}_{i = 0}^\infty$ is a basis in $\lpspace$ composed of univariate polynomials orthogonal with respect to $\f{x}$; in other words,
+where $\{ \pcb_i \}_{i = 0}^\infty$ is the basis composed of Hermite polynomials. The polynomials are orthogonal with respect to $\gpmeasure$, that is,
 \[
-  \iprod{\pcb_i(X), \pcb_j(X)} = \norm{\pcb_i}^2 \delta_{ij}
+  \iprod{\pcb_i}{\pcb_j} = \norm{\pcb_i}^2 \delta_{ij} = i! \: \delta_{ij}
 \]
-where $\delta_{ij}$ is the Kronecker delta function. The multidimensional construction of PC expansions is straightforward and is based on tensor products of the one-dimensional counterparts; see, \eg, \cite{maitre2010}. In the $n$-dimensional case, the inner product in \eref{inner-product} is an $n$-dimensional integral, and the basis functionals $\{ \pcb_i \}_{i = 0}^\infty$ are polynomials of $n$ variables.
+where $\delta_{ij}$ is the Kronecker delta function.
+
+In $n$ dimensions, the inner product in \eref{inner-product} is an $n$-dimensional integral, and the basis functionals are products of $n$ Hermite polynomials; see, \eg, \cite{maitre2010}. We shall keep the notation above for the multidimensional case as well.

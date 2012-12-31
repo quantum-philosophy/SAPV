@@ -31,13 +31,8 @@
 \newcommand{\m}[1]{\mathbf{#1}}
 \renewcommand{\v}[1]{\mathbf{#1}}
 
-\newcommand{\vZero}{0}
-
-\makeatletter
-\def\iprod#1{\@ifnextchar\bgroup{\iprodWithTwoArguments{#1}}{\iprodWithOneArgument{#1}}}
-\def\iprodWithTwoArguments#1#2{\langle #1, #2 \rangle}
-\def\iprodWithOneArgument#1{\langle #1 \rangle}
-\makeatother
+\newcommand{\iprod}[1]{\langle #1 \rangle}
+\newcommand{\sprod}[1]{\left( #1 \right)}
 
 \newcommand{\norm}[1]{\| #1 \|}
 \renewcommand{\d}{\text{d}}
@@ -46,26 +41,24 @@
 \renewcommand{\o}{\omega}
 
 \newcommand{\outcomes}{\Omega}
-\newcommand{\salgebra}{\mathcal{F}}
-\newcommand{\pmeasure}{\mathbb{P}}
-\newcommand{\pspace}{(\outcomes, \salgebra, \pmeasure)}
+\newcommand{\sigmaAlgebra}{\mathcal{F}}
+\newcommand{\probabilityMeasure}{\mathbb{P}}
+\newcommand{\probabilitySpace}{(\outcomes, \sigmaAlgebra, \probabilityMeasure)}
 
-\newcommand{\bsalgebra}{\mathcal{B}(\real)}
-\newcommand{\gpmeasure}{\mathbb{P}_\Z}
-\newcommand{\gpspace}{(\real, \bsalgebra, \gpmeasure)}
-\newcommand{\bspace}{(\real, \bsalgebra)}
-
-\newcommand{\lgpspace}{\L{2}\gpspace}
-\renewcommand{\lg}{\L{2}(\gpmeasure)}
+\newcommand{\borelSigmaAlgebra}{\mathcal{B}}
+\newcommand{\gaussianProbabilityMeasure}{\mathbb{P}_\vZ}
+\newcommand{\gaussianProbabilitySpace}[1][]{(\real^{#1}, \borelSigmaAlgebra^{#1}, \gaussianProbabilityMeasure)}
+\newcommand{\borelSpace}[1][]{(\real^{#1}, \borelSigmaAlgebra)}
+\newcommand{\hilbertSpace}{\mathcal{H}}
 
 \renewcommand{\u}{\theta}
 \newcommand{\U}{\Theta}
-\newcommand{\vU}{\Theta}
 
-\newcommand{\normal}[2]{\mathcal{N}\left(#1, #2\right)}
+\newcommand{\gaussian}[2]{\mathcal{N}\left(#1, #2\right)}
+\newcommand{\gaussianp}[2]{\mathcal{N}\left(#1, #2\right)}
 
-\newcommand{\z}{z}
 \newcommand{\Z}{Z}
+\newcommand{\vz}{z}
 \newcommand{\vZ}{Z}
 
 \makeatletter
@@ -73,12 +66,18 @@
 \def\fWithTwoArguments#1#2{p_{#1}( #2 )}
 \def\fWithOneArgument#1{p( #1 )}
 
-\def\E#1{\@ifnextchar\bgroup{\EWithTwoArguments{#1}}{\EWithOneArgument{#1}}}
-\def\EWithTwoArguments#1#2{E_{#1}\left[ #2 \right]}
-\def\EWithOneArgument#1{E\left[ #1 \right]}
+\def\fMean{\@ifnextchar\bgroup{\fMeanWithArgument}{\fMeanWithoutArgument}}
+\def\fMeanWithArgument#1{\mu(#1)}
+\def\fMeanWithoutArgument{\mu}
+
+\def\fCov{\@ifnextchar\bgroup{\fCovWithArgument}{\fCovWithoutArgument}}
+\def\fCovWithArgument#1{K(#1)}
+\def\fCovWithoutArgument{K}
 \makeatother
 
-\newcommand{\cov}[2]{\text{Cov}\left[ #1, #2 \right]}
+\newcommand{\E}[1]{\mathbb{E}\left( #1 \right)}
+\newcommand{\Cov}[1]{\mathbb{C}\text{ov}\left( #1 \right)}
+\newcommand{\mCov}{\Sigma}
 
 % System
 \newcommand{\model}[1]{\mathcal{M}( #1 )}
@@ -110,11 +109,9 @@
 % Profiles
 \newcommand{\profile}[1]{( #1, \partition{#1} )}
 
-\makeatletter
-\def\partition#1{\@ifnextchar\bgroup{\partitionWithTwoArguments{#1}}{\partitionWithOneArgument{#1}}}
-\def\partitionWithTwoArguments#1#2{\Delta_{#1}^{#2}}
-\def\partitionWithOneArgument#1{\Delta_{#1}}
+\newcommand{\partition}[1]{\tau[#1]}
 
+\makeatletter
 \def\profileP{\@ifnextchar\bgroup{\profilePWithArgument}{\profilePWithoutArgument}}
 \def\profilePWithArgument#1{\profile{\mP(#1)}}
 \def\profilePWithoutArgument{\profile{\mP}}
@@ -133,10 +130,11 @@
 \newcommand{\mnoise}{\noise}
 \newcommand{\vnoise}{\noise}
 
-\newcommand{\mSigma}{\Sigma}
-
 % Polynomial chaos
 \newcommand{\pcb}{H}
+
+% Karhunen-Loeve expansion
+\newcommand{\klb}{\phi}
 
 % Numbers
 \newcommand{\ncores}{{n_\text{p}}}

@@ -1,37 +1,37 @@
 \subsection{Bayesian Inference}
 Let $\U$ be a set of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\U$ given a data set the corresponding observations and some prior believes about $\U$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
 \begin{equation} \elabel{bayes}
-  \text{Posterior} = \f{\u | \data} = \frac{\f{\data | \u} \f{\u}}{\f{\data}} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Evidence}}
+  \f{\u | \data} = \frac{\f{\data | \u} \f{\u}}{\f{\data}} \propto \f{\data | \u} \f{\u}
 \end{equation}
-where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function (\pdf) and a conditional \pdf\ \cite{durrett2010}, respectively. $\f{\u}$ is known as the prior distribution of the parameters $\U$, $\f{\u | \data}$ is the corresponding posterior distribution, $\f{\data | \u}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
+where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function (\pdf) and a conditional \pdf\ \cite{durrett2010}, respectively. $\f{\u}$ is known as the prior of the parameters $\U$, $\f{\u | \data}$ is the corresponding posterior, $\f{\data | \u}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
 
 \subsection{Polynomial Chaos}
-Let $\vZ: \outcomes \to \real^n$ be a standard $n$-dimensional Gaussian \rv\ defined on $\probabilitySpace$ and denote by $\gaussianProbabilityMeasure$ and $\f{\vZ}{\vz}$ the distribution and density of $\vZ$, respectively. $\vZ$ induces the measure $\gaussianProbabilityMeasure$ on the Borel space $\borelSpace[n]$ leading to the probability space $\hilbertSpace = \gaussianProbabilitySpace[n]$. $\hilbertSpace$ is a Hilbert space wherein the associated (weighted) inner product and norm are defined as, for any $f, g \in \hilbertSpace: \real^n \to \real$,
+Let $\Z: \outcomes \to \real$ be a standard Gaussian \rv\ defined on $\probabilitySpace$ and denote by $\gaussianProbabilityMeasure$ and $\f{\Z}{\z}$ the distribution and density of $\Z$, respectively. $\Z$ induces the measure $\gaussianProbabilityMeasure$ on the Borel space $\borelSpace$ leading to the probability space $\hilbertSpace = \gaussianProbabilitySpace$. $\hilbertSpace$ is a Hilbert space wherein the associated (weighted) inner product and norm are defined as, for any $f, g \in \hilbertSpace: \real \to \real$,
 \begin{align}
-  & \iprod{f, g}_\hilbertSpace = \E{f(\vZ) g(\vZ)} = \int_{\real^n} f(\vz) g(\vz) \f{\vZ}{\vz} \d\vz, \elabel{inner-product} \\
+  & \iprod{f, g}_\hilbertSpace = \E{f(\Z) g(\Z)} = \int_\real f(\z) g(\z) \f{\Z}{\z} \d\z, \elabel{inner-product} \\
   & \norm{f}_\hilbertSpace^2 = \iprod{f, f}_\hilbertSpace \nonumber,
 \end{align}
-respectively, where $\E{\cdot}$ denotes the mathematical expectation. Let $\L{2}(\hilbertSpace)$ be the space of square-integrable \rvs\ defined on $\hilbertSpace$. Any $f \in \L{2}(\hilbertSpace): \real^n \to \real$ admits the following expansion convergent in the space $\L{2}(\hilbertSpace)$ \cite{maitre2010}:
+respectively, where $\E{\cdot}$ denotes the mathematical expectation. Let $\L{2}(\hilbertSpace)$ be the space of square-integrable \rvs\ defined on $\hilbertSpace$. Any $f \in \L{2}(\hilbertSpace): \real \to \real$ admits the following expansion convergent in the space $\L{2}(\hilbertSpace)$ \cite{maitre2010}:
 \[
-  f(\vZ) = \sum_{i = 0}^\infty \iprod{f, \pcb_i}_\hilbertSpace \pcb_i(\vZ)
+  f(\Z) = \sum_{i = 0}^\infty \iprod{f, \pcb_i}_\hilbertSpace \pcb_i(\Z)
 \]
-where $\{ \pcb_i \}_{i = 0}^\infty$ is a basis composed of $n$-variate polynomials, which are products of (univariate) Hermite polynomials. The polynomials are orthogonal with respect to $\gaussianProbabilityMeasure$, that is,
+where $\{ \pcb_i \}_{i = 0}^\infty$ is a basis composed of Hermite polynomials. The polynomials are orthogonal with respect to $\gaussianProbabilityMeasure$, that is,
 \[
-  \iprod{\pcb_i, \pcb_j}_\hilbertSpace = \norm{\pcb_i}_\hilbertSpace^2 \delta_{ij}
+  \iprod{\pcb_i, \pcb_j}_\hilbertSpace = \norm{\pcb_i}_\hilbertSpace^2 \delta_{ij} = i! \; \delta_{ij}
 \]
-where $\delta_{ij}$ is the Kronecker delta function. For further details, refer to, \eg, \cite{maitre2010}.
+where $\delta_{ij}$ is the Kronecker delta function. The tensor-product-based extension to multiple dimensions is straightforward; in the $n$-dimensional setting, \eref{inner-product} involves $n$-dimensional integration, and the basis functionals $\{ \vpcb_i \}_{i = 1}^\infty$ are $n$-variate polynomials constructed as products of $n$ (univariate) Hermite polynomials, \ie, $\vpcb_i(\Z_1, \dotsc, \Z_n) = \prod_{j = 1}^n \pcb_{i_j}(\Z_j)$. For further details, refer to, \eg, \cite{maitre2010}.
 
 \subsection{Karhunen-Lo\`{e}ve Expansion}
-Let $\U(\r): \L{2}(\real, \borelSigmaAlgebra, \probabilityMeasure) \times D \to \real$ be a square-integrable, centered Gaussian process defined over a spatial domain $D$. The covariance function $\fCov{\r, \r'}$ of $\U(\r)$ is bounded, symmetric, and nonnegative-definite by definition; therefore, $\fCov{\r, \r'}$ admits the following decomposition \cite{maitre2010}:
+Let $X: \outcomes \times \domain \to \real$ be a square-integrable, centered Gaussian process defined over a spatial domain $\domain$, which we denote by $X(\r)$, $\r \in \domain$. The covariance function $\fCov{\r, \r'} := \Cov{X(\r), X(\r')}$ of $X(\r)$ is bounded, symmetric, and nonnegative-definite by definition; therefore, $\fCov{\r, \r'}$ admits the following decomposition \cite{maitre2010}:
 \[
   \fCov{\r, \r'} = \sum_{i = 1}^\infty \lambda_i \: \klb_i(\r) \: \klb_i(\r')
 \]
 where $\lambda_i \geq 0$ and $\klb_i(r)$ are the eigenvalues and eigenfunctions of $\fCov{\r, \r'}$, respectively; the latter are orthogonal. The eigenpairs are found by solving
 \begin{equation} \elabel{kl-eigenpairs}
-  \int_D \fCov{\r, \r'} \: \klb_i (\r) \: \d\r = \lambda_i \: \klb_i(\r').
+  \int_\domain \fCov{\r, \r'} \: \klb_i (\r) \: \d\r = \lambda_i \: \klb_i(\r').
 \end{equation}
-The stochastic process $\U(\r)$ can then be expanded into the following Fourier-like series:
+The stochastic process $X(\r)$ can then be expanded into the following Fourier-like series:
 \begin{equation} \elabel{kl-expansion}
-  \U(\r) = \sum_{i = 1}^\infty \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
+  X(\r) = \sum_{i = 1}^\infty \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
 \end{equation}
 where $\Z_i$, $\forall i$, are independent \rvs\ following the standard Gaussian distribution. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $k$ such that $\lambda_k / \sum_{i = 1}^k \lambda_i$ is below than a predefined threshold.

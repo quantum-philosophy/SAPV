@@ -1,17 +1,11 @@
-\subsection{Power Model}
-The total dissipation of power is composed of the dynamic power and leakage power. The rest is as usual.
-
-\subsection{Thermal Model}
-Based on the thermal specification $\specification$, an equivalent thermal RC circuit of the multiprocessor system under consideration is constructed. The rest is as usual.
-
 \subsection{Statistical Model}
-Since, at each point of the continuum of spatial locations on the wafer, the \rv\ $\U$ can potentially take a different value, \eg, the effective channel length of devices are known to vary across the wafer \cite{cheng2011}, $\U$ is infinite-dimensional. Thus, we model $\U$ as a stochastic process $\U(\r)$ indexed by the location parameter $\r$. Denote the forward model developed so far by
+Since, at each point of the continuum of spatial locations on the wafer, $\U$ can potentially take a different value, $\U$ is infinite-dimensional. We model $\U$ as a square-integrable stochastic process $\U: \omega \times \domain \to \real$ defined over a spacial domain $\domain$ corresponding to the wafer. Assume we have already constructed a forward model of the multiprocessor system under consideration and denote this model by
 \begin{equation} \elabel{model}
-  \mT(\r) = \model{\mP_\dyn | \u(\r)},
+  \mT(\r) = \model{\mP_\dyn | \u, \r}
 \end{equation}
-which, for a given outcome $\u(\r)$ of the parameters $\U(\r)$, transforms an arbitrary dynamic power profile $\profilePdyn$ to the corresponding temperature profile $\profileT$. Note, the model also performs thinning of the output temperature to match the partition $\partition{\mT}$ of $\data$. Since $\U(\r)$ is a random element, so $\mT(\r)$ is. Moreover, even if $\U(\r)$ was given, due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the data set $\data$ is assumed to deviate from the model prediction in \eref{model}. To account for this, $\mT^{(i)}_\meas$ is modeled as
+where, for an outcome $\u: \domain \to \real$ of the process $\U$ and a spatial location $\r \in \domain$, an arbitrary dynamic power profile $\profilePdyn$ is transformed into the corresponding temperature profile $\profileT$. Note, the model also performs thinning of the output temperature to match the partition $\partition{\mT}$ of $\data$. Since $\U(\r)$ is a random element, so $\mT(\r)$ is. Moreover, even if $\U(\r)$ was given, due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the data set $\data$ is assumed to deviate from the model prediction in \eref{model}. To account for this, $\mT^{(i)}_\meas$ is modeled as
 \[
-  \mT^{(i)}_\meas = \mT(\r_i) + \mnoise^{(i)} = \model{\mP_\dyn | \u(\r_i)} + \mnoise^{(i)}
+  \mT^{(i)}_\meas = \mT(\r_i) + \mnoise^{(i)} = \model{\mP_\dyn | \u, \r_i} + \mnoise^{(i)}
 \]
 where $\mnoise^{(i)} = (\vnoise^{(i)}_{jk}) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. Such a noise is typically assumed to be a white Gaussian noise and to be independent from the parametrization $\U(\r)$ \cite{marzouk2007, el-moselhy2012}. Therefore, $\noise^{(i)}_{jk}$ is modeled as
 \[
@@ -19,26 +13,36 @@ where $\mnoise^{(i)} = (\vnoise^{(i)}_{jk}) \in \real^{\ncores \times \nsteps}$ 
 \]
 where, imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. Now, we can form the likelihood function $\f{\data | \u}$ of the data $\data$, which, intuitively speaking, gives the probability of observing $\data$:
 \begin{align*}
-  & \f{\data | \u} = \prod_{i = 1}^{\ndata} \prod_{j = 1}^{\ncores} \prod_{k = 1}^{\nsteps} \f{\mT^{(i)}_{\meas, jk} | \u, \r_i} \\
-  & = \prod_{i = 1}^{\ndata} \prod_{j = 1}^{\ncores} \prod_{k = 1}^{\nsteps} \frac{1}{\sqrt{2 \pi} \sigma_\noise} \exp\left( -\frac{1}{2 \sigma^2_\noise} \left(\noise_{jk}^{(i)}\right)^2 \right) \\
-  & = \frac{1}{(\sqrt{2 \pi} \sigma_\noise)^{\ndata \ncores \nsteps}} \exp\left( -\frac{1}{2 \sigma^2_\noise} \sum_{i = 1}^{\ndata} \sum_{j = 1}^{\ncores} \sum_{k = 1}^{\nsteps} \left(\noise_{jk}^{(i)}\right)^2 \right)
+  \f{\data | \u} & = \prod_{i = 1}^{\ndata} \f{\mT^{(i)}_\meas | \u, \r_i} \\
+  & = \left(2 \pi \sigma_\noise^2\right)^{-\frac{\ndcs}{2}} \exp\left( -\frac{1}{2 \sigma^2_\noise} \sum_{i = 1}^\ndata \| \mnoise^{(i)} \|_F^2 \right)
 \end{align*}
-where $\noise^{(i)}_{jk}$ are the elements of the matrix
+where $\ndcs = \ndata \ncores \nsteps$, $\| \cdot \|_F$ is the Frobenius norm, and
 \[
-  \vnoise^{(i)} = \mT^{(i)}_{\meas} - \mT(\r_i) = \mT^{(i)}_{\meas} - \model{\mP_\dyn | \u(\r_i)}.
+  \mnoise^{(i)} = \mT^{(i)}_{\meas} - \mT(\r_i) = \mT^{(i)}_{\meas} - \model{\mP_\dyn | \u, \r_i}.
 \]
 It can be seen that the forward model should be evaluated as many times as many observations we have, \ie, $\ndata$ times.
 
-Now, we need to identify the stochastic process $\U(\r)$ in order to specify the prior distribution, which the density $\f{\u}$ in \eref{bayes} corresponds to. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\U(\r)$ is assumed to be a Gaussian process \cite{rasmussen2006}:
+Now, we need to identify the stochastic process $\U(\r)$ in order to specify the prior, which the density $\f{\u}$ in \eref{bayes} corresponds to. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\U(\r)$ is assumed to be a Gaussian process \cite{rasmussen2006}:
 \[
   \U(\r) \sim \gaussianp{\fMean{\r}}{\fCov{\r, \r'}}
 \]
-where $\fMean{\r} = \E{\U(\r)}$ and $\fCov{\r, \r'} = \Cov{\U(\r), \U(\r')}$ are the expectation and covariance functions of $\U(\r)$. Due to the particularities of the manufacturing process, such uncertainties often bear radial structures \cite{cheng2011}; thus, we assume that $\r$ represents the Euclidean distance from the center of the wafer to the center of the die, and the covariance function of $\U(\r)$ is given as follows \cite{maitre2010}:
+where $\fMean{\r} := \E{\U(\r)}$ and $\fCov{\r, \r'}$ are the expectation and covariance functions of $\U(\r)$. Due to the particularities of the manufacturing process, such uncertainties often bear radial structures \cite{cheng2011}; thus, we assume that $\r$ represents the Euclidean distance from the center of the wafer to the center of the die, and the covariance function of $\U(\r)$ belongs to the squared exponential family of covariance functions \cite{rasmussen2006}:
 \begin{equation} \elabel{covariance-function}
-  \fCov{\r, \r'} = \sigma^2_\U \exp\left(-\frac{|\r - \r'|}{\eta}\right)
+  \fCov{\r, \r'} = \sigma^2_\U \exp\left(-\frac{1}{2 \ell}(\r - \r')^2\right)
 \end{equation}
-where $\sigma^2_\U$ stands for variance, and $\eta$ is the correlation length. Now, let $\r = (\r_i) \in \real^n$ be a vector of spatial locations that we are interested in. Then the prior over these locations is
-\[
-  \f{\u, \r} = \frac{1}{\sqrt{|2 \pi \mCov|}} \exp\left(-\frac{s^T \mCov^{-1} s}{2} \right)
-\]
-where $s = (s_i) \in \real^n$ is a vector computed as $s_i = \u(\r_i) - \fMean{\r_i}$, $\mCov = (\mCov_{ij}) \in \real^{n \times n}$ is a covariance matrix defined as $\mCov_{ij} = \fCov{\r_i, \r_j}$, and $|\cdot|$, applied to a matrix, denotes the matrix determinant.
+where $\sigma^2_\U$ stands for variance, and $\ell > 0$ is the correlation length. Now, let $\r = (\r_i) \in \real^n$ be a vector of spatial locations. Then the prior over these locations is
+\begin{align*}
+  \f{\u | \r} & = \left(|2 \pi \mCov|\right)^{-\frac{1}{2}} \exp\left(-\frac{1}{2} v^T \mCov^{-1} v \right)
+\end{align*}
+where $v = (v_i) \in \real^n$ is a (column) vector computed as $v_i = \u(\r_i) - \fMean{\r_i}$, $\mCov = (\mCov_{ij}) \in \real^{n \times n}$ is a covariance matrix evaluated as $\mCov_{ij} = \fCov{\r_i, \r_j}$, and $|\cdot|$, applied to a matrix, denotes the matrix determinant.
+
+Finally, the posterior is
+\begin{align*}
+  \f{\u | \data, \r} = \frac{\f{\data | \u} \f{\u | \r}}{\f{\data | \r}}
+\end{align*}
+
+\subsection{Power Model}
+The total dissipation of power is composed of the dynamic power and leakage power. The rest is as usual.
+
+\subsection{Thermal Model}
+Based on the thermal specification $\specification$, an equivalent thermal RC circuit of the multiprocessor system under consideration is constructed. The rest is as usual.

@@ -1,12 +1,12 @@
 \subsection{Bayesian Inference}
 Let $\U$ be a set of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\U$ given a data set the corresponding observations and some prior believes about $\U$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
 \begin{equation} \elabel{bayes}
-  \f{\u | \data} = \frac{\f{\data | \u} \f{\u}}{\f{\data}} \propto \f{\data | \u} \f{\u}
+  \text{Prior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Evidence}}, \;\; \f{\u | \data} = \frac{\f{\data | \u} \f{\u}}{\f{\data}},
 \end{equation}
-where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function (\pdf) and a conditional \pdf\ \cite{durrett2010}, respectively. $\f{\u}$ is known as the prior of the parameters $\U$, $\f{\u | \data}$ is the corresponding posterior, $\f{\data | \u}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
+where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function and a conditional probability density function, respectively. $\f{\u}$ is known as the prior of the parameters $\U$, $\f{\u | \data}$ is the corresponding posterior, $\f{\data | \u}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
 
 \subsection{Polynomial Chaos}
-Let $\Z: \outcomes \to \real$ be a standard Gaussian \rv\ defined on $\probabilitySpace$ and denote by $\gaussianProbabilityMeasure$ and $\f{\Z}{\z}$ the distribution and density of $\Z$, respectively. $\Z$ induces the measure $\gaussianProbabilityMeasure$ on the Borel space $\borelSpace$ leading to the probability space $\hilbertSpace = \gaussianProbabilitySpace$. $\hilbertSpace$ is a Hilbert space wherein the associated (weighted) inner product and norm are defined as, for any $f, g \in \hilbertSpace: \real \to \real$,
+Let $\Z: \outcomes \to \real$ be a standard Gaussian \rv\ defined on $\probabilitySpace$ and denote by $\gaussianProbabilityMeasure$ and $\f{\Z}{\z}$ the distribution and density of $\Z$, respectively. $\Z$ induces the measure $\gaussianProbabilityMeasure$ on the Borel space $\borelSpace$ leading to the probability space $\hilbertSpace = \gaussianProbabilitySpace$ \cite{durrett2010}. $\hilbertSpace$ is a Hilbert space wherein the associated (weighted) inner product and norm are defined as, for any $f, g \in \hilbertSpace: \real \to \real$,
 \begin{align}
   & \iprod{f, g}_\hilbertSpace = \E{f(\Z) g(\Z)} = \int_\real f(\z) g(\z) \f{\Z}{\z} \d\z, \elabel{inner-product} \\
   & \norm{f}_\hilbertSpace^2 = \iprod{f, f}_\hilbertSpace \nonumber,

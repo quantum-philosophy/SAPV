@@ -5,6 +5,8 @@
 
 \usepackage[maxnames=5, sorting=none]{biblatex}
 
+\renewcommand*{\bibfont}{\small}
+
 % Text
 \newcommand{\rv}{r.v.}
 \newcommand{\rvs}{r.v.'s}
@@ -30,12 +32,16 @@
 % Algebra
 \newcommand{\m}[1]{\mathbf{#1}}
 \renewcommand{\v}[1]{\mathbf{#1}}
+\renewcommand{\vec}[1]{\text{vec}(#1)}
 
 \newcommand{\iprod}[1]{\langle #1 \rangle}
 \newcommand{\sprod}[1]{\left( #1 \right)}
 
 \newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\fnorm}[1]{\| #1 \|_F}
 \renewcommand{\d}{\text{d}}
+
+\newcommand{\mI}{I}
 
 % Theory of probability
 \renewcommand{\o}{\omega}
@@ -52,6 +58,7 @@
 \newcommand{\hilbertSpace}{\mathcal{H}}
 
 \renewcommand{\u}{u}
+\newcommand{\vu}{\v{u}}
 \newcommand{\U}{U}
 
 \newcommand{\gaussian}[2]{\mathcal{N}\left(#1, #2\right)}
@@ -72,29 +79,34 @@
 \def\fMeanWithoutArgument{\mu}
 
 \def\fCov{\@ifnextchar\bgroup{\fCovWithArgument}{\fCovWithoutArgument}}
-\def\fCovWithArgument#1{K(#1)}
-\def\fCovWithoutArgument{K}
+\def\fCovWithArgument#1{k(#1)}
+\def\fCovWithoutArgument{k}
 \makeatother
 
 \newcommand{\E}[1]{\mathbb{E}\left( #1 \right)}
 \newcommand{\Cov}[1]{\mathbb{C}\text{ov}\left( #1 \right)}
-\newcommand{\mCov}{\Sigma}
+\newcommand{\mCov}{K}
+\newcommand{\vfMean}{\boldsymbol\mu}
 
 % System
-\newcommand{\model}[1]{\mathcal{M}( #1 )}
+\makeatletter
+\def\model{\@ifnextchar\bgroup{\modelWithArgument}{\modelWithoutArgument}}
+\def\modelWithArgument#1{\mathcal{M}(#1)}
+\def\modelWithoutArgument{\mathcal{M}}
+\makeatother
 
 % Temperature
 \newcommand{\specification}{\mathcal{S}}
 
-\newcommand{\T}{T}
-\newcommand{\vT}{\T}
+\newcommand{\T}{\Theta}
+\newcommand{\vT}{\boldsymbol\theta}
 \newcommand{\mT}{\T}
 \newcommand{\amb}{\text{amb}}
 \newcommand{\meas}{\text{meas}}
 
 % Power
 \renewcommand{\P}{P}
-\newcommand{\vP}{\P}
+\newcommand{\vP}{\v{p}}
 \newcommand{\mP}{\P}
 \newcommand{\dyn}{\text{dyn}}
 \newcommand{\leak}{\text{leak}}
@@ -106,6 +118,7 @@
 
 % Space
 \renewcommand{\r}{r}
+\newcommand{\vr}{\v{r}}
 
 % Profiles
 \newcommand{\profile}[1]{( #1, \partition{#1} )}

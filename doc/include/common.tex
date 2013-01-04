@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amssymb}
 \usepackage{amsmath}
+\usepackage{cases}
 
 \usepackage[maxnames=5, sorting=none]{biblatex}
 
@@ -24,50 +25,48 @@
 \newcommand{\elabel}[1]{\label{equ:#1}}
 \newcommand{\slabel}[1]{\label{sec:#1}}
 
-% Sets
+% Spaces
 \newcommand{\real}{\mathbb{R}}
-
 \renewcommand{\L}[1]{L^{#1}}
 
-% Algebra
+\newcommand{\borelSigmaAlgebra}{\mathcal{B}}
+\newcommand{\borelSpace}[1][]{(\real^{#1}, \borelSigmaAlgebra^{#1})}
+
+% Linear algebra
 \newcommand{\m}[1]{\mathbf{#1}}
 \renewcommand{\v}[1]{\mathbf{#1}}
-\renewcommand{\vec}[1]{\text{vec}(#1)}
+\newcommand{\vectorize}[1]{\text{vec}(#1)}
 
 \newcommand{\iprod}[1]{\langle #1 \rangle}
 \newcommand{\sprod}[1]{\left( #1 \right)}
 
 \newcommand{\norm}[1]{\| #1 \|}
 \newcommand{\fnorm}[1]{\| #1 \|_F}
-\renewcommand{\d}{\text{d}}
+\renewcommand{\d}{d}
 
 \newcommand{\mI}{I}
 
-% Theory of probability
+% Probability theory
 \renewcommand{\o}{\omega}
-
 \newcommand{\outcomes}{\Omega}
 \newcommand{\sigmaAlgebra}{\mathcal{F}}
 \newcommand{\probabilityMeasure}{\mathbb{P}}
 \newcommand{\probabilitySpace}{(\outcomes, \sigmaAlgebra, \probabilityMeasure)}
 
-\newcommand{\borelSigmaAlgebra}{\mathcal{B}}
 \newcommand{\gaussianProbabilityMeasure}{\mathbb{P}_\vZ}
 \newcommand{\gaussianProbabilitySpace}[1][]{(\real^{#1}, \borelSigmaAlgebra^{#1}, \gaussianProbabilityMeasure)}
-\newcommand{\borelSpace}[1][]{(\real^{#1}, \borelSigmaAlgebra)}
-\newcommand{\hilbertSpace}{\mathcal{H}}
 
 \renewcommand{\u}{u}
 \newcommand{\vu}{\v{u}}
 \newcommand{\U}{U}
+\newcommand{\vU}{\v{U}}
 
 \newcommand{\gaussian}[2]{\mathcal{N}\left(#1, #2\right)}
-\newcommand{\gaussianp}[2]{\mathcal{N}\left(#1, #2\right)}
 
 \newcommand{\z}{z}
 \newcommand{\Z}{Z}
-\newcommand{\vz}{z}
-\newcommand{\vZ}{Z}
+\newcommand{\vz}{\v{z}}
+\newcommand{\vZ}{\v{Z}}
 
 \makeatletter
 \def\f#1{\@ifnextchar\bgroup{\fWithTwoArguments{#1}}{\fWithOneArgument{#1}}}
@@ -85,7 +84,8 @@
 
 \newcommand{\E}[1]{\mathbb{E}\left( #1 \right)}
 \newcommand{\Cov}[1]{\mathbb{C}\text{ov}\left( #1 \right)}
-\newcommand{\mCov}{K}
+
+\newcommand{\mCov}{\m{K}}
 \newcommand{\vfMean}{\boldsymbol\mu}
 
 % System
@@ -100,21 +100,25 @@
 
 \newcommand{\T}{\Theta}
 \newcommand{\vT}{\boldsymbol\theta}
-\newcommand{\mT}{\T}
+\newcommand{\mT}{\boldsymbol\T}
 \newcommand{\amb}{\text{amb}}
 \newcommand{\meas}{\text{meas}}
+
+\newcommand{\vX}{\v{x}}
+\newcommand{\mC}{\m{C}}
+\newcommand{\mG}{\m{G}}
+\newcommand{\mM}{\m{M}}
 
 % Power
 \renewcommand{\P}{P}
 \newcommand{\vP}{\v{p}}
-\newcommand{\mP}{\P}
+\newcommand{\mP}{\m{\P}}
 \newcommand{\dyn}{\text{dyn}}
 \newcommand{\leak}{\text{leak}}
 
 % Time
 \renewcommand{\t}{t}
 \newcommand{\dt}{\Delta \t}
-\newcommand{\period}{\tau}
 
 % Space
 \renewcommand{\r}{r}
@@ -141,8 +145,8 @@
 
 % Uncertainties
 \newcommand{\noise}{N}
-\newcommand{\mnoise}{\noise}
-\newcommand{\vnoise}{\noise}
+\newcommand{\mnoise}{\m{\noise}}
+\newcommand{\vnoise}{\v{\noise}}
 
 % Polynomial chaos
 \newcommand{\pcb}{\phi}
@@ -157,3 +161,6 @@
 \newcommand{\ncores}{{n_\text{p}}}
 \newcommand{\nsteps}{{n_\text{s}}}
 \newcommand{\ndcs}{{n_\text{dps}}}
+\newcommand{\nnodes}{{n_\text{n}}}
+\newcommand{\nterms}{{n_\text{e}}}
+\newcommand{\norder}{{n_\text{o}}}

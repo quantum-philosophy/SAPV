@@ -1,28 +1,33 @@
-\subsection{Bayesian Inference}
+\subsection{Bayesian Inference} \slabel{bayesian-inference}
 Let $\U$ be a set of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\U$ given a data set the corresponding observations and some prior believes about $\U$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
 \begin{equation} \elabel{bayes}
   \text{Prior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Evidence}}, \;\; \f{\u | \data} = \frac{\f{\data | \u} \f{\u}}{\f{\data}},
 \end{equation}
 where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function and a conditional probability density function, respectively. $\f{\u}$ is known as the prior of the parameters $\U$, $\f{\u | \data}$ is the corresponding posterior, $\f{\data | \u}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
 
+For certain combinations of likelihood functions and prior densities, which usually appear in relatively simple problems, it is possible to obtain closed-form expressions for the corresponding posteriors; they can even fall into one of the standard families of probability distributions. However, it is rarely the case for challenging but typically more interesting problems. For instance, when modeling a physical process, the likelihood function can easily involve a system of differential equations, which is our scenario as we shall discuss in \sref{thermal-model}. In such a situation, in order to be able to draw samples from the posterior, one usually relies on sampling techniques. In this paper, we shall utilize MCMC sampling, namely the Metropolis-Hastings algorithm \cite{gelman2004}.
+
 \subsection{Polynomial Chaos}
-Let $\Z: \outcomes \to \real$ be a standard Gaussian \rv\ defined on $\probabilitySpace$ and denote by $\gaussianProbabilityMeasure$ and $\f{\Z}{\z}$ the distribution and density of $\Z$, respectively. $\Z$ induces the measure $\gaussianProbabilityMeasure$ on the Borel space $\borelSpace$ leading to the probability space $\hilbertSpace = \gaussianProbabilitySpace$ \cite{durrett2010}. $\hilbertSpace$ is a Hilbert space wherein the associated (weighted) inner product and norm are defined as, for any $f, g \in \hilbertSpace: \real \to \real$,
+Let $\vZ = (\Z_i): \outcomes \to \real^n$ be a standard $n$-dimensional Gaussian \rv\ defined on $\probabilitySpace$ and denote by $\gaussianProbabilityMeasure$ and $\f{\vZ}{\vz}$ the distribution and density of $\vZ$, respectively. $\vZ$ induces the measure $\gaussianProbabilityMeasure$ on the Borel space $\borelSpace[n]$ resulting in the probability space $\gaussianProbabilitySpace[n]$ \cite{durrett2010}. Let $\L{2}(\real^n)$ be the space of square-integrable functionals defined on $\gaussianProbabilitySpace[n]$. $\L{2}(\real^n)$ is a Hilbert space endowed the following (weighted) inner product and norm, for all $f, g \in \L{2}(\real^n): \real^n \to \real$:
 \begin{align}
-  & \iprod{f, g}_\hilbertSpace = \E{f(\Z) g(\Z)} = \int_\real f(\z) g(\z) \f{\Z}{\z} \d\z, \elabel{inner-product} \\
-  & \norm{f}_\hilbertSpace^2 = \iprod{f, f}_\hilbertSpace \nonumber,
+  & \iprod{f, g} = \int_{\real^n} f(\vz) g(\vz) \f{\vZ}{\vz} \d\vz = \E{f(\vZ) g(\vZ)}, \elabel{inner-product} \\
+  & \norm{f}^2 = \iprod{f, f} \nonumber,
 \end{align}
-respectively, where $\E{\cdot}$ denotes the mathematical expectation. Let $\L{2}(\hilbertSpace)$ be the space of square-integrable \rvs\ defined on $\hilbertSpace$. Any $f \in \L{2}(\hilbertSpace): \real \to \real$ admits the following expansion convergent in the space $\L{2}(\hilbertSpace)$ \cite{maitre2010}:
+where $\E{\cdot}$ denotes the mathematical expectation. Any $f \in \L{2}(\real^n): \real^n \to \real$ admits the following expansion convergent in the mean-square sense \cite{maitre2010}:
+\begin{equation} \elabel{pc-expansion}
+  f(\vZ) = \sum_{i = 0}^\infty \iprod{f, \vpcb_i} \vpcb_i(\vZ)
+\end{equation}
+where $\{ \vpcb_i \}_{i = 0}^\infty$ is a basis composed of $n$-variate polynomials orthogonal with respect to $\gaussianProbabilityMeasure$, that is,
 \[
-  f(\Z) = \sum_{i = 0}^\infty \iprod{f, \pcb_i}_\hilbertSpace \pcb_i(\Z)
+  \iprod{\vpcb_i, \vpcb_j} = \norm{\vpcb_i}^2 \delta_{ij}
 \]
-where $\{ \pcb_i \}_{i = 0}^\infty$ is a basis composed of Hermite polynomials. The polynomials are orthogonal with respect to $\gaussianProbabilityMeasure$, that is,
+where $\delta_{ij}$ is the Kronecker delta function. Each polynomial $\vpcb_i$ is a product of $n$ (univariate) Hermite polynomials $\pcb_i$, \ie, $\vpcb_i(\vZ) := \vpcb_i(\Z_1, \dotsc, \Z_n) = \prod_{j = 1}^n \pcb_{i_j}(\Z_j)$. To make \eref{pc-expansion} tractable for computations, the expansion is truncated. A common strategy to perform such a truncation is to keep polynomials up to some predefined total order $\norder$; in this case, the total number of expansion terms $\nterms$ is
 \[
-  \iprod{\pcb_i, \pcb_j}_\hilbertSpace = \norm{\pcb_i}_\hilbertSpace^2 \delta_{ij} = i! \; \delta_{ij}
+  \nterms = {n + \norder \choose n} + 1.
 \]
-where $\delta_{ij}$ is the Kronecker delta function. The tensor-product-based extension to multiple dimensions is straightforward; in the $n$-dimensional setting, \eref{inner-product} involves $n$-dimensional integration, and the basis functionals $\{ \vpcb_i \}_{i = 1}^\infty$ are $n$-variate polynomials constructed as products of $n$ (univariate) Hermite polynomials, \ie, $\vpcb_i(\Z_1, \dotsc, \Z_n) = \prod_{j = 1}^n \pcb_{i_j}(\Z_j)$. For further details, refer to, \eg, \cite{maitre2010}.
 
 \subsection{Karhunen-Lo\`{e}ve Expansion}
-Let $X: \outcomes \times \domain \to \real$ be a square-integrable, centered Gaussian process defined over a spatial domain $\domain$, which we denote by $X(\r)$, $\r \in \domain$. The covariance function $\fCov{\r, \r'} := \Cov{X(\r), X(\r')}$ of $X(\r)$ is bounded, symmetric, and nonnegative-definite by definition; therefore, $\fCov{\r, \r'}$ admits the following decomposition \cite{maitre2010}:
+Let $X: \outcomes \times \domain \to \real$ be a square-integrable, centered Gaussian process defined over a bounded spatial domain $\domain$, which we denote by $X(\r)$, $\r \in \domain$. The covariance function $\fCov{\r, \r'} := \Cov{X(\r), X(\r')}$ of $X(\r)$ is bounded, symmetric, and nonnegative-definite by definition; therefore, $\fCov{\r, \r'}$ admits the following decomposition \cite{maitre2010}:
 \[
   \fCov{\r, \r'} = \sum_{i = 1}^\infty \lambda_i \: \klb_i(\r) \: \klb_i(\r')
 \]
@@ -34,4 +39,4 @@ The stochastic process $X(\r)$ can then be expanded into the following Fourier-l
 \begin{equation} \elabel{kl-expansion}
   X(\r) = \sum_{i = 1}^\infty \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
 \end{equation}
-where $\Z_i$, $\forall i$, are independent \rvs\ following the standard Gaussian distribution. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $k$ such that $\lambda_k / \sum_{i = 1}^k \lambda_i$ is below than a predefined threshold.
+where $\Z_i$, $\forall i$, are independent \rvs\ following the standard Gaussian distribution. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $n$ such that $\lambda_n / \sum_{i = 1}^n \lambda_i$ is below than a predefined threshold.

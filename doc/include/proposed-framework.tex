@@ -1,67 +1,14 @@
-\subsection{Power Model}
-The total dissipation of power is composed of the dynamic power and leakage power:
-\[
-  \vP(\t, \vT) = \vP_\dyn(\t) + \vP_\leak(\vT).
-\]
-
-\subsection{Thermal Model}
-Based on the thermal specification $\specification$, an equivalent thermal RC circuit of the multiprocessor system under consideration is constructed. The rest is as usual.
-
-\subsection{Statistical Model}
-Since, at each point of the continuum of spatial locations on the wafer, $\U$ can potentially take a different value, $\U$ is infinite-dimensional. We model $\U$ as a square-integrable stochastic process $\U: \omega \times \domain \to \real$ defined over a spacial domain $\domain$ corresponding to the wafer. Denote the forward model developed so far by
-\begin{equation} \elabel{model}
-  \mT(\r) = \model{\mP_\dyn, \r | \u}
+\subsection{Power Model} \slabel{power-model}
+The total power of a system with $\ncores$ processing elements at time $\t$ is composed of the dynamic and leakage parts:
+\begin{equation} \elabel{total-power}
+  \vP(\t, \vT(\t), \u) = \vP_\dyn(\t) + \vP_\leak(\vT(\t), \u)
 \end{equation}
-which, for an outcome $\u: \domain \to \real$ of the process $\U$, transforms an arbitrary dynamic power profile $\profilePdyn$ into the corresponding temperature profile $\profileT$ computed at location $\r \in \domain$. Note, $\model$ also performs thinning of the output temperature to match the partition $\partition{\mT}$ of $\data$. Since $\U(\r)$ is a random element, so $\mT(\r)$ is. Moreover, even if $\U(\r)$ was given, due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the data set $\data$ is assumed to deviate from the model prediction in \eref{model}. To account for this, $\mT^{(i)}_\meas$ is modeled as
-\[
-  \mT^{(i)}_\meas = \mT(\r_i) + \mnoise^{(i)} = \model{\mP_\dyn, \r_i | \u} + \mnoise^{(i)}
-\]
-where $\mnoise^{(i)} = (\vnoise^{(i)}_{jk}) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. Such a noise is typically assumed to be a white Gaussian noise and to be independent from the parametrization $\U(\r)$ \cite{marzouk2007, el-moselhy2012}. Therefore, $\noise^{(i)}_{jk}$ is modeled as
-\[
-  \noise^{(i)}_{jk} \sim \gaussian{0}{\sigma^2_\noise}
-\]
-where, imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. Now, we can form the likelihood function $\f{\data | \u}$ of the data $\data$, which, intuitively speaking, gives the probability of observing $\data$:
-\begin{align}
-  \f{\data | \u} & = \prod_{i = 1}^{\ndata} \f{\mT^{(i)}_\meas, \r_i | \u} \nonumber \\
-  & = \left(2 \pi \sigma_\noise^2\right)^{-\frac{\ndcs}{2}} \exp\left( -\frac{1}{2 \sigma^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2 \right) \elabel{likelihood}
-\end{align}
-where $\ndcs = \ndata \ncores \nsteps$, $\fnorm{\cdot}$ is the Frobenius norm, and
-\[
-  \mnoise^{(i)} = \mT^{(i)}_{\meas} - \mT(\r_i) = \mT^{(i)}_{\meas} - \model{\mP_\dyn, \r_i | \u}.
-\]
-The likelihood function in \eref{likelihood} corresponds to the density of a Gaussian vector with $\ndcs$ independent components:
-\[
-  \data | \u \sim \gaussian{\vec{\model{\mP_\dyn, \vr | \u}}}{\sigma_\noise^2 \mI_\ndcs}
-\]
-where $\vec{\cdot}$ stands for the vectorization of a matrix or a set of matrices, \ie, columns of matrices are successively stacked into a single vector. In the notation above, the left-hand side is a shortcut for $\vec{\{ \mT_\meas^{(i)} \}_{i = 1}^\ndata} | \u$, and the right-hand side means that the forward model $\model$ is to be evaluated for each $\r_i$ in $\vr$, and the resulting matrices are then vectorized.
+where $\vP, \vT \in \real^\ncores$ are vectors of power and temperature, respectively, and $\u$ is an outcome of the parametrization $\U$. The dynamic part, $\vP_\dyn$, is temperature-independent whereas the leakage part, $\vP_\leak$, is a strong function of the operating temperature. The influence of process variation on the dynamic power is known to be negligibly small \cite{srivastava2010}; therefore, only leakage is assumed to be dependent on $\U$.
 
-Now, we need to identify the stochastic process $\U(\r)$ in order to specify the prior, which the density $\f{\u}$ in \eref{bayes} corresponds to. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\U(\r)$ is assumed to be a Gaussian process \cite{rasmussen2006}:
-\[
-  \U(\r) \sim \gaussianp{\fMean{\r}}{\fCov{\r, \r'}}
-\]
-where $\fMean{\r} := \E{\U(\r)}$ and $\fCov{\r, \r'}$ are the expectation and covariance functions of $\U(\r)$. Due to the particularities of the manufacturing process, such uncertainties often bear radial structures \cite{cheng2011}; thus, we assume that $\r$ represents the Euclidean distance from the center of the wafer to the center of the die, and the covariance function of $\U(\r)$ belongs to the squared exponential family of covariance functions \cite{rasmussen2006}:
-\begin{equation} \elabel{covariance-function}
-  \fCov{\r, \r'} = \sigma^2_\U \exp\left(-\frac{1}{2 \ell}(\r - \r')^2\right)
-\end{equation}
-where $\sigma^2_\U$ stands for variance, and $\ell > 0$ is the correlation length. Now, let $\vr^* = (\r^*_i) \in \real^n$ be a vector of spatial locations of interest. Then the prior over these locations is
-\begin{equation} \elabel{prior}
-  \f{\u | \vr^*} = \left(|2 \pi \mCov|\right)^{-\frac{1}{2}} \exp\left(-\frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean) \right)
-\end{equation}
-where $\vu = \u(\vr^*) := (u(\r^*_i)) \in \real^n$, $\vfMean = \fMean{\vr^*} := (\fMean{\r^*_i}) \in \real^n$, $\mCov = (\fCov{\r^*_i, \r^*_j}) \in \real^{n \times n}$, and $|\cdot|$, applied to a matrix, denotes the matrix determinant. Equivalently,
-\[
-  \u | \vr^* \sim \gaussian{\vfMean}{\mCov}
-\]
-where $\u | \vr^*$ stands for $\u(\vr^*)$.
+\subsection{Thermal Model} \slabel{thermal-model}
+\input{include/proposed-framework/thermal-model.tex}
 
-Due to the forward model $\model$ involved in \eref{likelihood}, there is no convenient, closed-form expression for the posterior density $\f{\u | \data}$ in \eref{bayes}. In such a situation, in order to draw samples from the posterior, one usually resides on sampling techniques. In this paper, we utilize MCMC sampling, namely the Metropolis-Hastings algorithm \cite{gelman2004}. To this end, we combine \eref{likelihood} with \eref{prior} and compute the logarithm of the posterior up to a constant summand:
-\begin{align*}
-  & \log \f{\u | \data, \vr^*} = \log \f{\data | \u} + \log \f{\u | \vr} + c_1 \\
-  & = -\frac{1}{2 \sigma^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2 -\frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean) + c_2 \\
-  & = - A(\u | \data) - B(\u | \vr^*) + c_2
-\end{align*}
-where $c_1$ and $c_2$ are constants with respect to $\u$, which are irrelevant for our purposes, and
-\begin{align*}
-  & A(\u | \data ) = \frac{1}{2 \sigma^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mT^{(i)}_{\meas} - \model{\mP_\dyn, \r_i | \u}}^2, \\
-  & B(\u | \vr^*) = \frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean).
-\end{align*}
-It is worth being noted that $A(\u | \data)$ poses a significant computational challenge as it requires $\ndata$ evaluations of $\model$ for each outcome $\u$.
+\subsection{Statistical Model} \slabel{statistical-model}
+\input{include/proposed-framework/statistical-model.tex}
+
+\subsection{Surrogate Model} \slabel{surrogate-model}

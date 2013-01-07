@@ -7,36 +7,40 @@ where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function 
 
 For certain combinations of likelihood functions and prior densities, which usually appear in relatively simple problems, it is possible to obtain closed-form expressions for the corresponding posteriors; they can even fall into one of the standard families of probability distributions. However, it is rarely the case for challenging but typically more interesting problems. For instance, when modeling a physical process, the likelihood function can easily involve a system of differential equations, which is our scenario as we shall discuss in \sref{thermal-model}. In such a situation, in order to be able to draw samples from the posterior, one usually relies on sampling techniques. In this paper, we shall utilize MCMC sampling, namely the Metropolis-Hastings algorithm \cite{gelman2004}.
 
-\subsection{Polynomial Chaos}
-Let $\vZ = (\Z_i): \outcomes \to \real^n$ be a standard $n$-dimensional Gaussian \rv\ defined on $\probabilitySpace$ and denote by $\gaussianProbabilityMeasure$ and $\f{\vZ}{\vz}$ the distribution and density of $\vZ$, respectively. $\vZ$ induces the measure $\gaussianProbabilityMeasure$ on the Borel space $\borelSpace[n]$ resulting in the probability space $\gaussianProbabilitySpace[n]$ \cite{durrett2010}. Let $\L{2}(\real^n)$ be the space of square-integrable functionals defined on $\gaussianProbabilitySpace[n]$. $\L{2}(\real^n)$ is a Hilbert space endowed the following (weighted) inner product and norm, for all $f, g \in \L{2}(\real^n): \real^n \to \real$:
-\begin{align}
-  & \iprod{f, g} = \int_{\real^n} f(\vz) g(\vz) \f{\vZ}{\vz} \d\vz = \E{f(\vZ) g(\vZ)}, \elabel{inner-product} \\
-  & \norm{f}^2 = \iprod{f, f} \nonumber,
-\end{align}
-where $\E{\cdot}$ denotes the mathematical expectation. Any $f \in \L{2}(\real^n): \real^n \to \real$ admits the following expansion convergent in the mean-square sense \cite{maitre2010}:
-\begin{equation} \elabel{pc-expansion}
-  f(\vZ) = \sum_{i = 0}^\infty \iprod{f, \vpcb_i} \vpcb_i(\vZ)
-\end{equation}
-where $\{ \vpcb_i \}_{i = 0}^\infty$ is a basis composed of $n$-variate polynomials orthogonal with respect to $\gaussianProbabilityMeasure$, that is,
-\[
-  \iprod{\vpcb_i, \vpcb_j} = \norm{\vpcb_i}^2 \delta_{ij}
-\]
-where $\delta_{ij}$ is the Kronecker delta function. Each polynomial $\vpcb_i$ is a product of $n$ (univariate) Hermite polynomials $\pcb_i$, \ie, $\vpcb_i(\vZ) := \vpcb_i(\Z_1, \dotsc, \Z_n) = \prod_{j = 1}^n \pcb_{i_j}(\Z_j)$. To make \eref{pc-expansion} tractable for computations, the expansion is truncated. A common strategy to perform such a truncation is to keep polynomials up to some predefined total order $\norder$; in this case, the total number of expansion terms $\nterms$ is
-\[
-  \nterms = {n + \norder \choose n} + 1.
-\]
-
-\subsection{Karhunen-Lo\`{e}ve Expansion}
-Let $X: \outcomes \times \domain \to \real$ be a square-integrable, centered Gaussian process defined over a bounded spatial domain $\domain$, which we denote by $X(\r)$, $\r \in \domain$. The covariance function $\fCov{\r, \r'} := \Cov{X(\r), X(\r')}$ of $X(\r)$ is bounded, symmetric, and nonnegative-definite by definition; therefore, $\fCov{\r, \r'}$ admits the following decomposition \cite{maitre2010}:
+\subsection{Karhunen-Lo\`{e}ve Expansion} \slabel{kl-expansion}
+Let $\H = \L{2}\probabilitySpace$ be the space of square-integrable functions defined on $\probabilitySpace$. $\H$ is a Hilbert space endowed the following (weighted) inner product and norm, for all $f, g \in \H: \outcomes \to \real$:
+\begin{align*}
+  & \iprod{f, g}_\H = \int_{\outcomes} f(\o) g(\o) \d\probabilityMeasure(\o) \;\;\; \text{and} \\
+  & \norm{f}^2_\H = \iprod{f, f}_\H,
+\end{align*}
+respectively. Let $X: \outcomes \times \domain \to \real$ be a stochastic process in $\H$ defined over a bounded domain $\domain$. Let the covariance function $\fCov{\r, \r'} := \Cov{X(\r), X(\r')}$, $\r, \r' \in \domain$, of $X$ be continuous. Then, by Mercer's theorem, $\fCov{\r, \r'}$ admits the following decomposition \cite{maitre2010}:
 \[
   \fCov{\r, \r'} = \sum_{i = 1}^\infty \lambda_i \: \klb_i(\r) \: \klb_i(\r')
 \]
-where $\lambda_i \geq 0$ and $\klb_i(r)$ are the eigenvalues and eigenfunctions of $\fCov{\r, \r'}$, respectively; the latter are orthogonal. The eigenpairs are found by solving
+where $\lambda_i \geq 0$ and $\klb_i(r)$ are the eigenvalues and eigenfunctions of $\fCov{\r, \r'}$, respectively. The latter are orthogonal:
+\[
+  \iprod{\klb_i, \klb_j}_\H = \delta_{ij}
+\]
+where $\delta_{ij}$ is the Kronecker delta function. The eigenpairs are found by solving
 \begin{equation} \elabel{kl-eigenpairs}
   \int_\domain \fCov{\r, \r'} \: \klb_i (\r) \: \d\r = \lambda_i \: \klb_i(\r').
 \end{equation}
-The stochastic process $X(\r)$ can then be expanded into the following Fourier-like series:
+The stochastic process $X$ can then be expanded into the following Fourier-like series:
 \begin{equation} \elabel{kl-expansion}
-  X(\r) = \sum_{i = 1}^\infty \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
+  X(\r) = \E{X(\r)} + \sum_{i = 1}^\infty \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
 \end{equation}
-where $\Z_i$, $\forall i$, are independent \rvs\ following the standard Gaussian distribution. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $n$ such that $\lambda_n / \sum_{i = 1}^n \lambda_i$ is below than a predefined threshold.
+where $\E{\cdot}$ denotes the mathematical expectation, and $\Z_i$ are uncorrelated \rvs. When $X$ is Gaussian, $\Z_i$ are independent standard Gaussian \rvs. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $n$ such that $\lambda_n / \sum_{i = 1}^n \lambda_i$ is below a predefined threshold.
+
+\subsection{Polynomial Chaos} \slabel{pc-expansion}
+Let $f: \vZ \mapsto f(\vZ)$ be a real-valued function in $\H$ of $n$ independent standard Gaussian \rvs\ $\vZ = (\Z_i): \outcomes \to \real^n$. Then $f$ admits the following expansion convergent in the mean-square sense \cite{maitre2010}:
+\begin{equation} \elabel{pc-expansion}
+  f(\vZ) = \sum_{i = 0}^\infty \iprod{f, \vpcb_i}_\H \vpcb_i(\vZ)
+\end{equation}
+where $\{ \vpcb_i \}_{i = 0}^\infty$ is a basis composed of $n$-variate polynomials orthogonal with respect to the distribution of $\vZ$, that is,
+\[
+  \iprod{\vpcb_i, \vpcb_j}_\H = \norm{\vpcb_i}^2_\H \delta_{ij}.
+\]
+Each polynomial $\vpcb_i$ is a product of $n$ (univariate) Hermite polynomials $\pcb_i$: $\vpcb_i(\vZ) = \prod_{j = 1}^n \pcb_{i_j}(\Z_j)$. To make \eref{pc-expansion} tractable for computations, the expansion is truncated. A common strategy to perform such a truncation is to keep polynomials up to some predefined total order $\norder$; in this case, the total number of expansion terms $\nterms$ is
+\[
+  \nterms = {n + \norder \choose n} - 1.
+\]

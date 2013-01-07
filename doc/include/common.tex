@@ -28,9 +28,7 @@
 % Spaces
 \newcommand{\real}{\mathbb{R}}
 \renewcommand{\L}[1]{L^{#1}}
-
-\newcommand{\borelSigmaAlgebra}{\mathcal{B}}
-\newcommand{\borelSpace}[1][]{(\real^{#1}, \borelSigmaAlgebra^{#1})}
+\renewcommand{\H}{{\L{2}(\outcomes)}}
 
 % Linear algebra
 \newcommand{\m}[1]{\mathbf{#1}}
@@ -40,28 +38,29 @@
 \newcommand{\iprod}[1]{\langle #1 \rangle}
 \newcommand{\sprod}[1]{\left( #1 \right)}
 
+\newcommand{\abs}[1]{| #1 |}
 \newcommand{\norm}[1]{\| #1 \|}
 \newcommand{\fnorm}[1]{\| #1 \|_F}
 \renewcommand{\d}{d}
 
-\newcommand{\mI}{I}
+\newcommand{\mI}{\m{I}}
+
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
 
 % Probability theory
 \renewcommand{\o}{\omega}
 \newcommand{\outcomes}{\Omega}
 \newcommand{\sigmaAlgebra}{\mathcal{F}}
-\newcommand{\probabilityMeasure}{\mathbb{P}}
+\newcommand{\probabilityMeasure}{\mathcal{P}}
 \newcommand{\probabilitySpace}{(\outcomes, \sigmaAlgebra, \probabilityMeasure)}
-
-\newcommand{\gaussianProbabilityMeasure}{\mathbb{P}_\vZ}
-\newcommand{\gaussianProbabilitySpace}[1][]{(\real^{#1}, \borelSigmaAlgebra^{#1}, \gaussianProbabilityMeasure)}
 
 \renewcommand{\u}{u}
 \newcommand{\vu}{\v{u}}
 \newcommand{\U}{U}
 \newcommand{\vU}{\v{U}}
 
-\newcommand{\gaussian}[2]{\mathcal{N}\left(#1, #2\right)}
+\newcommand{\gaussian}[2]{\mathcal{N}\left( #1, #2 \right)}
+\newcommand{\sichisquared}[2]{\text{Scale-inv-}\chi^2\left( #1, #2 \right)}
 
 \newcommand{\z}{z}
 \newcommand{\Z}{Z}
@@ -88,6 +87,9 @@
 \newcommand{\mCov}{\m{K}}
 \newcommand{\vfMean}{\boldsymbol\mu}
 
+\newcommand{\param}{\sigma}
+\newcommand{\Param}{\Theta}
+
 % System
 \makeatletter
 \def\model{\@ifnextchar\bgroup{\modelWithArgument}{\modelWithoutArgument}}
@@ -98,21 +100,21 @@
 % Temperature
 \newcommand{\specification}{\mathcal{S}}
 
-\newcommand{\T}{\Theta}
-\newcommand{\vT}{\boldsymbol\theta}
-\newcommand{\mT}{\boldsymbol\T}
+\newcommand{\T}{T}
+\newcommand{\vT}{\v{T}}
+\newcommand{\mT}{\mathbb{T}}
 \newcommand{\amb}{\text{amb}}
 \newcommand{\meas}{\text{meas}}
 
-\newcommand{\vX}{\v{x}}
+\newcommand{\vX}{\v{X}}
 \newcommand{\mC}{\m{C}}
 \newcommand{\mG}{\m{G}}
 \newcommand{\mM}{\m{M}}
 
 % Power
 \renewcommand{\P}{P}
-\newcommand{\vP}{\v{p}}
-\newcommand{\mP}{\m{\P}}
+\newcommand{\vP}{\v{P}}
+\newcommand{\mP}{\mathbb{\P}}
 \newcommand{\dyn}{\text{dyn}}
 \newcommand{\leak}{\text{leak}}
 
@@ -156,6 +158,12 @@
 \newcommand{\klb}{\psi}
 \newcommand{\domain}{D}
 
+\makeatletter
+\def\klapprox#1{\@ifnextchar\bgroup{\klapproxWithTwoArguments{#1}}{\klapproxWithOneArgument{#1}}}
+\def\klapproxWithTwoArguments#1#2{\mathcal{K}_{#1}( #2 )}
+\def\klapproxWithOneArgument#1{\mathcal{K}_{#1}}
+\makeatother
+
 % Numbers
 \newcommand{\ndata}{{n_\text{d}}}
 \newcommand{\ncores}{{n_\text{p}}}
@@ -164,3 +172,4 @@
 \newcommand{\nnodes}{{n_\text{n}}}
 \newcommand{\nterms}{{n_\text{e}}}
 \newcommand{\norder}{{n_\text{o}}}
+\newcommand{\nvars}{{n_\text{v}}}

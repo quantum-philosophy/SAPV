@@ -1,57 +1,80 @@
-Since, at each point of the continuum of spatial locations on the wafer, $\U$ can potentially take a different value, $\U$ is infinite-dimensional. We model $\U$ as a square-integrable stochastic process $\U: \omega \times \domain \to \real$ defined over a spacial domain $\domain$ corresponding to the wafer. Denote the forward model developed in \sref{power-model} and \sref{thermal-model} by
+Since, at each point of the continuum of spatial locations on the wafer, $\U$ can potentially take a different value, $\U$ is infinite-dimensional. We model $\U$ as a stochastic process $\U: \outcomes \times \domain \to \real$ in $\H$ defined over a spacial domain $\domain$ corresponding to the wafer. Denote the forward model developed in \sref{power-model} and \sref{thermal-model} by
 \begin{equation} \elabel{model}
-  \mT(\r) = \model{\mP_\dyn, \r | \u}
+  \mT(\r) = \model{\u, \r}
 \end{equation}
-which, for an outcome $\u: \domain \to \real$ of the process $\U$, transforms an arbitrary dynamic power profile $\profilePdyn$ into the corresponding temperature profile $\profileT$ computed at location $\r \in \domain$. Note, $\model$ also performs thinning of the output temperature to match the partition $\partition{\mT}$ of $\data$. Since $\U(\r)$ is a random element, so $\mT(\r)$ is. Moreover, even if $\U(\r)$ was given (fixed), due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the data set $\data$ is assumed to deviate from the model prediction in \eref{model}. To account for this, $\mT^{(i)}_\meas$ is modeled as
+which, for an outcome $\u: \domain \to \real$ of the process $\U$, transforms the test dynamic power profile $\profilePdyn$ into the corresponding temperature profile $\profileT$ computed at location $\r \in \domain$. Note, $\model$ also performs thinning of the output temperature to match the partition $\partition{\mT}$ of $\data$.
+
+\subsubsection{Additive noise}
+Due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the data set $\data$ is assumed to deviate from the model prediction in \eref{model}. To account for this, $\mT^{(i)}_\meas$ is modeled as
 \[
-  \mT^{(i)}_\meas = \mT(\r_i) + \mnoise^{(i)} = \model{\mP_\dyn, \r_i | \u} + \mnoise^{(i)}
+  \mT^{(i)}_\meas = \mT(\r_i) + \mnoise^{(i)} = \model{\u, \r_i} + \mnoise^{(i)}
 \]
-where $\mnoise^{(i)} = (\noise^{(i)}_{jk}) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. Such a noise is typically assumed to be a white Gaussian noise and to be independent from the parametrization $\U(\r)$ \cite{marzouk2007, el-moselhy2012}. Therefore, $\noise^{(i)}_{jk}$ is modeled as
+where $\mnoise^{(i)} = (\noise^{(i)}_{jk}) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. The noise is typically assumed to be a white Gaussian noise and to be independent from the parametrization $\U$ \cite{marzouk2007, el-moselhy2012}. Therefore, $\noise^{(i)}_{jk}$ is modeled as
 \[
-  \noise^{(i)}_{jk} \sim \gaussian{0}{\sigma^2_\noise}
+  \noise^{(i)}_{jk} | \param^2_\noise \sim \gaussian{0}{\param^2_\noise}
 \]
-where, imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. Now, we can form the likelihood function $\f{\data | \u}$ of the data $\data$, which, intuitively speaking, gives the probability of observing $\data$:
+where $\param^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements.
+
+\subsubsection{The likelihood function}
+The noise above yields the following likelihood $\f{\data | \u}$ of the data $\data$, which, intuitively speaking, gives the probability of observing $\data$:
 \begin{align}
-  \f{\data | \u} & = \prod_{i = 1}^{\ndata} \f{\mT^{(i)}_\meas, \r_i | \u} \nonumber \\
-  & = \left(2 \pi \sigma_\noise^2\right)^{-\frac{\ndcs}{2}} \exp\left( -\frac{1}{2 \sigma^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2 \right) \elabel{likelihood}
+  \f{\data | \u} & = \prod_{i = 1}^{\ndata} \f{\mT^{(i)}_\meas| \u, \r_i} \nonumber \\
+  & \propto \frac{1}{\param_\noise^\ndcs} \exp\left( -\frac{1}{2 \param^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2 \right) \elabel{likelihood}
 \end{align}
 where $\ndcs = \ndata \ncores \nsteps$, $\fnorm{\cdot}$ is the Frobenius norm, and
 \[
-  \mnoise^{(i)} = \mT^{(i)}_{\meas} - \mT(\r_i) = \mT^{(i)}_{\meas} - \model{\mP_\dyn, \r_i | \u}.
+  \mnoise^{(i)} = \mT^{(i)}_{\meas} - \mT(\r_i) = \mT^{(i)}_{\meas} - \model{\u, \r_i}.
 \]
-The likelihood function in \eref{likelihood} corresponds to the density of a Gaussian vector with $\ndcs$ independent components:
-\[
-  \data | \u \sim \gaussian{\vectorize{\model{\mP_\dyn, \vr | \u}}}{\sigma_\noise^2 \mI_\ndcs}
-\]
-where $\vectorize{\cdot}$ stands for the vectorization of a matrix or a set of matrices, \ie, columns of matrices are successively stacked into a single vector. In the notation above, the left-hand side is a shortcut for $\vectorize{\{ \mT_\meas^{(i)} \}_{i = 1}^\ndata} | \u$, and the right-hand side means that the forward model $\model$ is to be evaluated for each $\r_i$ in $\vr$, and the resulting matrices are then vectorized.
 
-Now, we need to identify the stochastic process $\U(\r)$ in order to specify the prior, which the density $\f{\u}$ in \eref{bayes} corresponds to. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\U(\r)$ is assumed to be a Gaussian process \cite{rasmussen2006}:
+\subsubsection{Stochastic process}
+We need to identify $\U$ in order to specify the prior in \eref{bayes}. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\U$ is assumed to be a Gaussian process \cite{rasmussen2006}:
 \[
-  \U(\r) \sim \gaussian{\fMean{\r}}{\fCov{\r, \r'}}
+  \U \sim \gaussian{\fMean{\cdot}}{\fCov{\cdot, \cdot}}
 \]
-where $\fMean{\r} := \E{\U(\r)}$ and $\fCov{\r, \r'}$ are the expectation and covariance functions of $\U(\r)$. Due to the particularities of the manufacturing process, such uncertainties often bear radial structures \cite{cheng2011}; thus, we assume that $\r$ represents the Euclidean distance from the center of the wafer to the center of the die, and the covariance function of $\U(\r)$ belongs to the squared exponential family of covariance functions \cite{rasmussen2006}:
+where $\fMean{\r} := \E{\U(\r)}$ and $\fCov{\r, \r'}$, $\forall \r, \r' \in \domain$, are the mean and covariance functions of $\U$. Due to the particularities of the manufacturing process, such uncertainties often bear radial structures \cite{cheng2011}; thus, we assume that $\r$ represents the Euclidean distance from the center of the wafer to the center of the die, and the covariance function of $\U$ is exponential \cite{maitre2010}:
 \begin{equation} \elabel{covariance-function}
-  \fCov{\r, \r'} = \sigma^2_\U \exp\left(-\frac{1}{2 \ell}(\r - \r')^2\right)
+  \fCov{\r, \r'} = \param_\U^2 \exp\left(-\frac{\abs{\r - \r'}}{\ell}\right)
 \end{equation}
-where $\sigma^2_\U$ stands for variance, and $\ell > 0$ is the correlation length. Now, let $\vr^* = (\r^*_i) \in \real^n$ be a vector of spatial locations of interest. Then the prior over these locations is
-\begin{equation} \elabel{prior}
-  \f{\u | \vr^*} = \left(|2 \pi \mCov|\right)^{-\frac{1}{2}} \exp\left(-\frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean) \right)
-\end{equation}
-where $\vu = \u(\vr^*) := (u(\r^*_i)) \in \real^n$, $\vfMean = \fMean{\vr^*} := (\fMean{\r^*_i}) \in \real^n$, $\mCov = (\fCov{\r^*_i, \r^*_j}) \in \real^{n \times n}$, and $|\cdot|$, applied to a matrix, denotes the matrix determinant. Equivalently,
-\[
-  \u | \vr^* \sim \gaussian{\vfMean}{\mCov}
-\]
-where $\u | \vr^*$ stands for $\u(\vr^*)$.
+where $\param_\U^2$ and $\ell > 0$ parametrize the function and stand for the variance and correlation length, respectively.
 
-Due to the forward model $\model$ involved in \eref{likelihood}, there is no convenient expression for the posterior density $\f{\u | \data}$ in \eref{bayes}. As mentioned in \sref{bayesian-inference}, to overcome the difficulty, we utilize the Metropolis-Hastings algorithm \cite{gelman2004}. To this end, we combine \eref{likelihood} with \eref{prior} and compute, up to a constant summand, the logarithm of the posterior:
+\subsubsection{Model reduction}
+The infinite-dimensional object $\U$ is reduced to the finite-dimensional case using the KL expansion introduced in \sref{kl-expansion}:
+\begin{equation} \elabel{kl-approximation}
+  \U(\r) \approx \klapprox{\U}{\vZ, \r} := \fMean + \sum_{i = 1}^\nvars \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
+\end{equation}
+where $\{ (\lambda_i, \klb_i) \}$ are the first $\nvars$ eigenpairs of $\fCov{\cdot, \cdot}$, $\Z_i$ are standard Gaussians, and the mean function $\fMean{\cdot}$ is modeled as a constant equal to the nominal value $\fMean$ of $\U$. To summarize, we have replaced the parametrization $\U$, given as a stochastic process, with the parametrization $\vZ = (\Z_i) \in \real^\nvars$, given as an $\nvars$-dimensional vector of \rvs. Assuming $\ell$ and $\fMean$ be given, we define a new parametrization of the model as follows:
+\[
+  \Param = \left\{ \Z_1, \dotsc, \Z_\nvars, \param^2_\U, \param^2_\noise \right\},
+\]
+
+\subsubsection{The prior}
+The parameters in $\Param$ are assumed to have the following priors \cite{marzouk2009}:
 \begin{align*}
-  & \log \f{\u | \data, \vr^*} = \log \f{\data | \u} + \log \f{\u | \vr} + c_1 \\
-  & = -\frac{1}{2 \sigma^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2 -\frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean) + c_2 \\
-  & = - A(\u | \data) - B(\u | \vr^*) + c_2
+  & \Z_i | \param^2_\U \sim \gaussian{0}{\param^2_\U}, \\
+  & \param^2_\U \sim \sichisquared{\nu_\U}{\tau^2_\U}, \\
+  & \param^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}.
 \end{align*}
-where $c_1$ and $c_2$ are constants with respect to $\u$, which are irrelevant for our purposes, and
-\begin{align*}
-  & A(\u | \data ) = \frac{1}{2 \sigma^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mT^{(i)}_{\meas} - \model{\mP_\dyn, \r_i | \u}}^2, \\
-  & B(\u | \vr^*) = \frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean).
-\end{align*}
-It is worth being noted that $A(\u | \data)$ poses a significant computational challenge as it requires $\ndata$ evaluations of $\model$ for each sample of $\U$.
+The prior for $\Z_i$ is due to the definition of a KL expansion for Gaussian processes (see \sref{kl-expansion}) and due to the multiplier $\param^2_\U$ of the covariance function. The last two priors, the scaled inverse chi-squared distributions, are a common, in Bayesian settings, choice for variance of a Gaussian model \cite{gelman2004}. The parameters $\nu_\noise$, $\nu_\U$, $\tau^2$, and $\tau^2_\U$ should be set according to the prior beliefs. In our experiments, we fix $\nu_\noise = \nu_\U = 2$ and $\tau^2_\noise = \tau^2_\U = 1$, which results in a heavy-tailed distribution allowing one for having a rather limited prior knowledge.
+
+% Now, let $\vr^* = (\r^*_i) \in \real^n$ be a vector of spatial locations of interest. Then the prior over these locations is
+% \begin{equation} \elabel{prior}
+%   \f{\u | \vr^*} = \left(|2 \pi \mCov|\right)^{-\frac{1}{2}} \exp\left(-\frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean) \right)
+% \end{equation}
+% where $\vu = \u(\vr^*) := (u(\r^*_i)) \in \real^n$, $\vfMean = \fMean{\vr^*} := (\fMean{\r^*_i}) \in \real^n$, $\mCov = (\fCov{\r^*_i, \r^*_j}) \in \real^{n \times n}$, and $|\cdot|$, applied to a matrix, denotes the matrix determinant. Equivalently,
+% \[
+%   \u | \vr^* \sim \gaussian{\vfMean}{\mCov}
+% \]
+% where $\u | \vr^*$ stands for $\u(\vr^*)$.
+%
+% Due to the forward model $\model$ involved in \eref{likelihood}, there is no convenient expression for the posterior density $\f{\u | \data}$, which would allow one for a straightforward sampling from the posterior. To overcome the difficulty, we utilize the Metropolis-Hastings algorithm \cite{gelman2004}. To this end, we combine \eref{likelihood} with \eref{prior} and compute, up to a constant summand, the logarithm of the posterior:
+% \begin{align*}
+%   & \log \f{\u | \data, \vr^*} = \log \f{\data | \u} + \log \f{\u | \vr} + c_1 \\
+%   & = -\frac{1}{2 \param^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2 -\frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean) + c_2 \\
+%   & = - A(\u | \data) - B(\u | \vr^*) + c_2
+% \end{align*}
+% where $c_1$ and $c_2$ are constants with respect to $\u$, which are irrelevant for our purposes, and
+% \begin{align*}
+%   & A(\u | \data ) = \frac{1}{2 \param^2_\noise} \sum_{i = 1}^\ndata \fnorm{\mT^{(i)}_{\meas} - \model{\r_i | \u}}^2, \\
+%   & B(\u | \vr^*) = \frac{1}{2} (\vu - \vfMean)^T \mCov^{-1} (\vu - \vfMean).
+% \end{align*}
+% It is worth being noted that $A(\u | \data)$ poses a significant computational challenge as it requires $\ndata$ evaluations of $\model$ for each sample of $\U$.

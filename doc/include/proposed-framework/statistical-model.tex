@@ -35,14 +35,14 @@ where $\fMean{\r} := \E{\U(\r)}$ and $\fCov{\r, \r'}$, $\forall \r, \r' \in \dom
 \begin{equation} \elabel{covariance-function}
   \fCov{\r, \r'} = \param_\U^2 \exp\left(-\frac{\abs{\r - \r'}}{\ell}\right)
 \end{equation}
-where $\param_\U^2$ and $\ell > 0$ parametrize the function and stand for the variance and correlation length, respectively.
+where $\param_\U^2$ represents the variance of $\U$, and $\ell > 0$ is known as the correlation length; the later is assumed to be given while the former is a subject of our inference.
 
 \subsubsection{Model reduction}
 The infinite-dimensional object $\U$ is reduced to the finite-dimensional case using the KL expansion introduced in \sref{kl-expansion}:
 \begin{equation} \elabel{kl-approximation}
   \U(\r) \approx \klapprox{\U}{\vZ, \r} := \fMean + \sum_{i = 1}^\nvars \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
 \end{equation}
-where $\{ (\lambda_i, \klb_i) \}$ are the first $\nvars$ eigenpairs of $\fCov{\cdot, \cdot}$, $\Z_i$ are standard Gaussians, and the mean function $\fMean{\cdot}$ is modeled as a constant equal to the nominal value $\fMean$ of $\U$. To summarize, we have replaced the parametrization $\U$, given as a stochastic process, with the parametrization $\vZ = (\Z_i) \in \real^\nvars$, given as an $\nvars$-dimensional vector of \rvs. Assuming $\ell$ and $\fMean$ be given, we define a new parametrization of the model as follows:
+where $\{ (\lambda_i, \klb_i) \}$ are the first $\nvars$ eigenpairs of $\fCov{\cdot, \cdot}$, $\Z_i$ are standard Gaussians, and the mean function $\fMean{\cdot}$ is modeled as a constant equal to the nominal value $\fMean$ of $\U$. To summarize, we have replaced the parametrization $\U$, given as a stochastic process, with the parametrization $\vZ = (\Z_i) \in \real^\nvars$, given as an $\nvars$-dimensional vector of \rvs. Consequently, we define the new parametrization of the model as follows:
 \[
   \Param = \left\{ \Z_1, \dotsc, \Z_\nvars, \param^2_\U, \param^2_\noise \right\},
 \]

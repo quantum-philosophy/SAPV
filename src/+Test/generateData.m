@@ -18,15 +18,10 @@ hotspotLine = sprintf('sampling_intvl %e', samplingInterval);
 %
 schedule = Schedule.Dense(platform, application);
 
-plot(schedule);
-display(schedule);
-
 %% Obtain the dynamic power profile.
 %
 power = DynamicPower(samplingInterval);
-
 Pdyn = power.compute(schedule);
-power.display(Pdyn);
 
 %% Initialize the leakage model.
 %
@@ -35,35 +30,10 @@ leakage = LeakagePower(Pdyn, ...
   'order', [ 1, 2 ], ...
   'scale', [ 1, 1, 1; 1, 1, 1 ]);
 
+process = ProcessVariation.Continuous(floorplan);
+
 %% Compute the corresponding temperature profile.
 %
 hotspot = HotSpot.Analytic(floorplan, hotspotConfig, hotspotLine);
-display(hotspot);
 
 [ T, Pleak ] = hotspot.computeWithLeakage(Pdyn, leakage);
-
-%% Display everything.
-%
-time = hotspot.samplingInterval * (1:size(Pdyn, 2));
-
-figure;
-
-subplot(2, 1, 1);
-
-Plot.title('Temperature profile');
-Plot.label('Time, s', 'Temperature, C');
-Plot.limit(time);
-for i = 1:hotspot.processorCount
-  line(time, T(i, :), 'Color', Color.pick(i));
-end
-
-subplot(2, 1, 2);
-
-Plot.title('Power profile');
-Plot.label('Time, s', 'Power, W');
-Plot.limit(time);
-for i = 1:hotspot.processorCount
-  color = Color.pick(i);
-  line(time, Pdyn(i, :), 'Color', color);
-  line(time, Pleak(i, :), 'Color', color, 'LineStyle', '--');
-end

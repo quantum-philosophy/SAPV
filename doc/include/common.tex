@@ -64,8 +64,8 @@
 
 \newcommand{\z}{z}
 \newcommand{\Z}{Z}
-\newcommand{\vz}{\v{z}}
-\newcommand{\vZ}{\v{Z}}
+\newcommand{\vz}{z}
+\newcommand{\vZ}{Z}
 
 \makeatletter
 \def\f#1{\@ifnextchar\bgroup{\fWithTwoArguments{#1}}{\fWithOneArgument{#1}}}
@@ -109,7 +109,7 @@
 \newcommand{\vX}{\v{X}}
 \newcommand{\mC}{\m{C}}
 \newcommand{\mG}{\m{G}}
-\newcommand{\mM}{\m{M}}
+\newcommand{\mM}{\m{B}}
 
 % Power
 \renewcommand{\P}{P}
@@ -124,7 +124,6 @@
 
 % Space
 \renewcommand{\r}{r}
-\newcommand{\vr}{\v{r}}
 
 % Profiles
 \newcommand{\profile}[1]{( #1, \partition{#1} )}
@@ -158,15 +157,10 @@
 \newcommand{\klb}{\psi}
 \newcommand{\domain}{D}
 
-\makeatletter
-\def\klapprox#1{\@ifnextchar\bgroup{\klapproxWithTwoArguments{#1}}{\klapproxWithOneArgument{#1}}}
-\def\klapproxWithTwoArguments#1#2{\mathcal{K}_{#1}( #2 )}
-\def\klapproxWithOneArgument#1{\mathcal{K}_{#1}}
-\makeatother
-
 % Numbers
 \newcommand{\ndata}{{n_\text{d}}}
 \newcommand{\ncores}{{n_\text{p}}}
+\newcommand{\npsteps}{{n_\text{s}'}}
 \newcommand{\nsteps}{{n_\text{s}}}
 \newcommand{\ndcs}{{n_\text{dps}}}
 \newcommand{\nnodes}{{n_\text{n}}}

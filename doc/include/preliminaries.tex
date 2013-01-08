@@ -1,11 +1,11 @@
 \subsection{Bayesian Inference} \slabel{bayesian-inference}
-Let $\U$ be a set of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\U$ given a data set the corresponding observations and some prior believes about $\U$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
+Let $\Param$ be a set of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\Param$ given a data set the corresponding observations and some prior believes about $\Param$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
 \begin{equation} \elabel{bayes}
-  \text{Prior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Evidence}}, \;\; \f{\u | \data} = \frac{\f{\data | \u} \f{\u}}{\f{\data}},
+  \text{Prior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Evidence}}, \;\; \f{\param | \data} = \frac{\f{\data | \param} \f{\param}}{\f{\data}},
 \end{equation}
-where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function and a conditional probability density function, respectively. $\f{\u}$ is known as the prior of the parameters $\U$, $\f{\u | \data}$ is the corresponding posterior, $\f{\data | \u}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
+where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function and a conditional probability density function, respectively. $\f{\param}$ is known as the prior of the parameters $\Param$, $\f{\param | \data}$ is the corresponding posterior, $\f{\data | \param}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
 
-For certain combinations of likelihood functions and prior densities, which usually appear in relatively simple problems, it is possible to obtain closed-form expressions for the corresponding posteriors; they can even fall into one of the standard families of probability distributions. However, it is rarely the case for challenging but typically more interesting problems. For instance, when modeling a physical process, the likelihood function can easily involve a system of differential equations, which is our scenario as we shall discuss in \sref{thermal-model}. In such a situation, in order to be able to draw samples from the posterior, one usually relies on sampling techniques. In this paper, we shall utilize MCMC sampling, namely the Metropolis-Hastings algorithm \cite{gelman2004}.
+For certain combinations of likelihood functions and prior densities, which usually appear in relatively simple problems, it is possible to obtain closed-form expressions for the corresponding posteriors; they can even fall into one of the standard families of probability distributions. However, it is rarely the case for challenging but typically more interesting problems. For instance, when modeling a physical process, the likelihood function can easily involve a system of differential equations, which is our scenario as we shall discuss in \sref{thermal-model}. In such a situation, in order to be able to draw samples from the posterior, one usually relies on sampling techniques. In this paper, we shall utilize MCMC sampling, namely the Metropolis-Hastings (MH) algorithm \cite{gelman2004}.
 
 \subsection{Karhunen-Lo\`{e}ve Expansion} \slabel{kl-expansion}
 Let $\H = \L{2}\probabilitySpace$ be the space of square-integrable functions defined on $\probabilitySpace$. $\H$ is a Hilbert space endowed the following (weighted) inner product and norm, for all $f, g \in \H: \outcomes \to \real$:
@@ -13,11 +13,11 @@ Let $\H = \L{2}\probabilitySpace$ be the space of square-integrable functions de
   & \iprod{f, g}_\H = \int_{\outcomes} f(\o) g(\o) \d\probabilityMeasure(\o) \;\;\; \text{and} \\
   & \norm{f}^2_\H = \iprod{f, f}_\H,
 \end{align*}
-respectively. Let $X: \outcomes \times \domain \to \real$ be a stochastic process in $\H$ defined over a bounded domain $\domain$. Let the covariance function $\fCov{\r, \r'} := \Cov{X(\r), X(\r')}$, $\r, \r' \in \domain$, of $X$ be continuous. Then, by Mercer's theorem, $\fCov{\r, \r'}$ admits the following decomposition \cite{maitre2010}:
+respectively. Let $\U: \outcomes \times \domain \to \real$ be a stochastic process in $\H$ defined over a bounded domain $\domain$. Let the covariance function $\fCov{\r, \r'} := \Cov{\U(\r), \U(\r')}$, $\r, \r' \in \domain$, of $\U$ be continuous. Then, by Mercer's theorem, $\fCov{\r, \r'}$ admits the following decomposition \cite{maitre2010}:
 \[
   \fCov{\r, \r'} = \sum_{i = 1}^\infty \lambda_i \: \klb_i(\r) \: \klb_i(\r')
 \]
-where $\lambda_i \geq 0$ and $\klb_i(r)$ are the eigenvalues and eigenfunctions of $\fCov{\r, \r'}$, respectively. The latter are orthogonal:
+where $\lambda_i \geq 0$ and $\klb_i(r)$ are the eigenvalues and eigenfunctions of $\fCov{\r, \r'}$, respectively. The latter are orthonormal:
 \[
   \iprod{\klb_i, \klb_j}_\H = \delta_{ij}
 \]
@@ -25,18 +25,22 @@ where $\delta_{ij}$ is the Kronecker delta function. The eigenpairs are found by
 \begin{equation} \elabel{kl-eigenpairs}
   \int_\domain \fCov{\r, \r'} \: \klb_i (\r) \: \d\r = \lambda_i \: \klb_i(\r').
 \end{equation}
-The stochastic process $X$ can then be expanded into the following Fourier-like series:
+The stochastic process $\U$ can then be expanded into the following Fourier-like series:
 \begin{equation} \elabel{kl-expansion}
-  X(\r) = \E{X(\r)} + \sum_{i = 1}^\infty \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
+  \U(\r) = \E{\U(\r)} + \sum_{i = 1}^\infty \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
 \end{equation}
-where $\E{\cdot}$ denotes the mathematical expectation, and $\Z_i$ are uncorrelated \rvs. When $X$ is Gaussian, $\Z_i$ are independent standard Gaussian \rvs. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $\nvars$ such that $\lambda_\nvars / \sum_{i = 1}^\nvars \lambda_i$ is below a predefined threshold.
+where $\E{\cdot}$ denotes the mathematical expectation, and $\Z_i$ are uncorrelated \rvs. When $\U$ is Gaussian, $\Z_i$ are independent standard Gaussian \rvs. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $\nvars$ such that $\lambda_\nvars / \sum_{i = 1}^\nvars \lambda_i$ is below a predefined threshold.
 
 \subsection{Polynomial Chaos} \slabel{pc-expansion}
 Let $f: \vZ \mapsto f(\vZ)$ be a real-valued function in $\H$ of $\nvars$ independent standard Gaussian \rvs\ $\vZ = (\Z_i): \outcomes \to \real^\nvars$. Then $f$ admits the following expansion convergent in the mean-square sense \cite{maitre2010}:
 \begin{equation} \elabel{pc-expansion}
-  f(\vZ) = \sum_{i = 0}^\infty \iprod{f, \vpcb_i}_\H \vpcb_i(\vZ)
+  f(\vZ) = \sum_{i = 0}^\infty \hat{f}_i \vpcb_i(\vZ)
 \end{equation}
-where $\{ \vpcb_i \}_{i = 0}^\infty$ is a basis composed of $\nvars$-variate polynomials orthogonal with respect to the distribution of $\vZ$, that is,
+where the coefficients $\hat{f}_i$ are
+\begin{equation} \elabel{pc-coefficient}
+  \hat{f}_i  = \frac{\iprod{f, \vpcb_i}_\H}{\norm{\vpcb_i}^2_\H},
+\end{equation}
+and $\{ \vpcb_i \}_{i = 0}^\infty$ is a basis composed of $\nvars$-variate polynomials orthogonal with respect to the distribution of $\vZ$, that is,
 \[
   \iprod{\vpcb_i, \vpcb_j}_\H = \norm{\vpcb_i}^2_\H \delta_{ij}.
 \]

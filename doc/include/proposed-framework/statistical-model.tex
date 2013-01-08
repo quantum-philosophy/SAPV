@@ -11,9 +11,9 @@ where $\sigma_\U^2$ represents the variance of $\U$, and $\ell > 0$ is known as 
 \subsubsection{Model reduction}
 The infinite-dimensional object $\U$ is reduced to the finite-dimensional case using the KL expansion introduced in \sref{kl-expansion}:
 \begin{equation} \elabel{kl-approximation}
-  \U(\r) \approx \klapprox{\U}{\vZ, \r} := \fMean + \sum_{i = 1}^\nvars \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
+  \U(\r) \approx \fMean + \sigma_\U \sum_{i = 1}^\nvars \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
 \end{equation}
-where $\{ (\lambda_i, \klb_i) \}$ are the first $\nvars$ eigenpairs of $\fCov{\cdot, \cdot}$, and $\Z_i$ are standard Gaussians. It can be seen that the stochastic process $\U$ has been replaced with an $\nvars$-dimensional vector of \rvs\ $\vZ = (\Z_i) \in \real^\nvars$.
+where we treat the variance $\sigma^2_\U$ in \eref{covariance-function} separately, and, thus, $\{ (\lambda_i, \klb_i) \}$ are the first $\nvars$ eigenpairs of $\sigma^{-2}_\U \fCov{\cdot, \cdot}$ instead of $\fCov{\cdot, \cdot}$. It can be seen that the stochastic process $\U$ has been replaced with an $\nvars$-dimensional \rv\ $\vZ = (\Z_i) \in \real^\nvars$.
 
 \subsubsection{Additive noise}
 Denote the forward model developed in \sref{power-model} and \sref{thermal-model} by
@@ -49,20 +49,20 @@ Note, $\model{\param, \cdot}$ now denotes the forward model.
 \subsubsection{The prior}
 The parameters in $\Param$ are assumed to have the following priors \cite{marzouk2009}:
 \begin{align}
-  & \Z_i | \sigma^2_\U \sim \gaussian{0}{\sigma^2_\U}, \elabel{z-prior} \\
+  & \Z_i \sim \gaussian{0}{1}, \elabel{z-prior} \\
   & \sigma^2_\U \sim \sichisquared{\nu_\U}{\tau^2_\U}, \elabel{sigma2-u-prior}\\
   & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \elabel{sigma2-noise-prior}
 \end{align}
-The prior for $\Z_i$ is due to the definition of a KL expansion for Gaussian processes (see \sref{kl-expansion}) and due to the multiplier $\sigma^2_\U$ of the covariance function. The last two priors, the scaled inverse chi-squared distributions, are a common, in Bayesian settings, choice for the variance of a Gaussian model \cite{gelman2004}. The parameters $\nu_\U$ and $\nu_\noise$, representing the degree of beliefs, and $\tau^2_\U$ and $\tau^2_\U$, representing the presumable values of $\sigma^2_\U$ and $\sigma^2_\noise$, should be set according to the prior knowledge. In the absence of such knowledge, a non-informative prior can be chosen for $\sigma^2_\U$ and $\sigma^2_\noise$. Taking the product of \eref{z-prior}--\eref{sigma2-noise-prior},
+The prior for $\Z_i$ is due to the definition of a KL expansion for Gaussian processes (see \sref{kl-expansion}). The last two priors, the scaled inverse chi-squared distributions, are a common, in Bayesian settings, choice for the variance of a Gaussian model \cite{gelman2004}. The parameters $\nu_\U$ and $\nu_\noise$, representing the degree of beliefs, and $\tau^2_\U$ and $\tau^2_\U$, representing the presumable values of $\sigma^2_\U$ and $\sigma^2_\noise$, should be set according to the prior knowledge. In the absence of such knowledge, a non-informative prior can be chosen for $\sigma^2_\U$ and $\sigma^2_\noise$. Taking the product of \eref{z-prior}--\eref{sigma2-noise-prior}, we have
 \begin{align}
-  & \f{\param} = \prod_{i = 1}^\nvars \f{\Z_i | \sigma^2_\U} \; \f{\sigma^2_\U} \; \f{\sigma^2_\noise} \elabel{prior} \\
-  & \propto \frac{1}{\sigma_\U^{\nvars + \nu_\U + 2} \sigma_\noise^{\nu_\noise + 2}} \exp\left( -\frac{\vZ^T\vZ + \nu_\U \tau_\U^2}{2 \sigma^2_\U} - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \right). \nonumber
+  & \f{\param} = \prod_{i = 1}^\nvars \f{\Z_i} \; \f{\sigma^2_\U} \; \f{\sigma^2_\noise} \elabel{prior} \\
+  & \propto \frac{1}{\sigma_\U^{\nu_\U + 2} \sigma_\noise^{\nu_\noise + 2}} \exp\left( -\frac{\vZ^T\vZ}{2} -\frac{\nu_\U \tau_\U^2}{2 \sigma^2_\U} - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \right). \nonumber
 \end{align}
 
 \subsubsection{The posterior}
-Since we intend to use the Metropolis-Hasting algorithm for sampling, it is sufficient to find the posterior distribution up to a constant, with respect to $\Param$. In particular, this renders the normalization constant in \eref{bayes} irrelevant. Taking the product of \eref{likelihood} and \eref{prior} and transferring it into the logarithmic space, the posterior is
-\begin{align*}
-  & c_1 \ln \f{\Param | \data} + c_2 = -\frac{\sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2}{\sigma^2_\noise} -\frac{\vZ^T\vZ + \nu_\U \tau_\U^2}{\sigma^2_\U} \\
-  & {} - \frac{\nu_\noise \tau_\noise^2}{\sigma^2_\noise} -(\ndcs + \nu_\noise + 2) \log \sigma^2_\noise - (\nvars + \nu_\U + 2) \log \sigma^2_\U
-\end{align*}
-where $c_1 > 0$ and $c_2$ are some constants. It is worth being noted that the expression above poses a significant computational challenge as it requires $\ndata$ evaluations of $\model$ for each sample of $\Param$.
+Since we intend to use the MH algorithm for sampling, it is sufficient to find the posterior distribution up to a constant, with respect to $\param$. In particular, this renders the normalization constant in \eref{bayes} irrelevant. Taking the product of \eref{likelihood} and \eref{prior} and transferring it into the logarithmic space, the posterior is
+\begin{align}
+  & c_1 \ln \f{\param | \data} + c_2 = -\frac{\sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2}{\sigma^2_\noise} - \vZ^T\vZ - \frac{\nu_\U \tau_\U^2}{\sigma^2_\U}  \elabel{log-posterior} \\
+  & {} - \frac{\nu_\noise \tau_\noise^2}{\sigma^2_\noise} -(\ndcs + \nu_\noise + 2) \log \sigma^2_\noise - (\nu_\U + 2) \log \sigma^2_\U \nonumber
+\end{align}
+where $c_1 > 0$ and $c_2$ are some constants. Now, the MH formalism can be applied to \eref{log-posterior}. Note, however, the expression poses a significant computational challenge as it requires $\ndata$ evaluations of $\model$ for each sample of $\Param$.

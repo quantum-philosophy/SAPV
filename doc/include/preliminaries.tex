@@ -29,18 +29,18 @@ The stochastic process $X$ can then be expanded into the following Fourier-like 
 \begin{equation} \elabel{kl-expansion}
   X(\r) = \E{X(\r)} + \sum_{i = 1}^\infty \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
 \end{equation}
-where $\E{\cdot}$ denotes the mathematical expectation, and $\Z_i$ are uncorrelated \rvs. When $X$ is Gaussian, $\Z_i$ are independent standard Gaussian \rvs. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $n$ such that $\lambda_n / \sum_{i = 1}^n \lambda_i$ is below a predefined threshold.
+where $\E{\cdot}$ denotes the mathematical expectation, and $\Z_i$ are uncorrelated \rvs. When $X$ is Gaussian, $\Z_i$ are independent standard Gaussian \rvs. For practical computations, \eref{kl-expansion} is truncated; the most common strategy to do so is to monitor the decay of the eigenvalues $\lambda_i$ and to find the smallest $\nvars$ such that $\lambda_\nvars / \sum_{i = 1}^\nvars \lambda_i$ is below a predefined threshold.
 
 \subsection{Polynomial Chaos} \slabel{pc-expansion}
-Let $f: \vZ \mapsto f(\vZ)$ be a real-valued function in $\H$ of $n$ independent standard Gaussian \rvs\ $\vZ = (\Z_i): \outcomes \to \real^n$. Then $f$ admits the following expansion convergent in the mean-square sense \cite{maitre2010}:
+Let $f: \vZ \mapsto f(\vZ)$ be a real-valued function in $\H$ of $\nvars$ independent standard Gaussian \rvs\ $\vZ = (\Z_i): \outcomes \to \real^\nvars$. Then $f$ admits the following expansion convergent in the mean-square sense \cite{maitre2010}:
 \begin{equation} \elabel{pc-expansion}
   f(\vZ) = \sum_{i = 0}^\infty \iprod{f, \vpcb_i}_\H \vpcb_i(\vZ)
 \end{equation}
-where $\{ \vpcb_i \}_{i = 0}^\infty$ is a basis composed of $n$-variate polynomials orthogonal with respect to the distribution of $\vZ$, that is,
+where $\{ \vpcb_i \}_{i = 0}^\infty$ is a basis composed of $\nvars$-variate polynomials orthogonal with respect to the distribution of $\vZ$, that is,
 \[
   \iprod{\vpcb_i, \vpcb_j}_\H = \norm{\vpcb_i}^2_\H \delta_{ij}.
 \]
-Each polynomial $\vpcb_i$ is a product of $n$ (univariate) Hermite polynomials $\pcb_i$: $\vpcb_i(\vZ) = \prod_{j = 1}^n \pcb_{i_j}(\Z_j)$. To make \eref{pc-expansion} tractable for computations, the expansion is truncated. A common strategy to perform such a truncation is to keep polynomials up to some predefined total order $\norder$; in this case, the total number of expansion terms $\nterms$ is
+Each polynomial $\vpcb_i$ is a product of $\nvars$ (univariate) Hermite polynomials $\pcb_i$: $\vpcb_i(\vZ) = \prod_{j = 1}^\nvars \pcb_{i_j}(\Z_j)$. To make \eref{pc-expansion} tractable for computations, the expansion is truncated. A common strategy to perform such a truncation is to keep polynomials up to some predefined total order $\norder$; in this case, the total number of expansion terms $\nterms$ is
 \[
-  \nterms = {n + \norder \choose n} - 1.
+  \nterms = {\nvars + \norder \choose \nvars} - 1.
 \]

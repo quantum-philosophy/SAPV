@@ -1,8 +1,10 @@
+clear all;
 setup;
 
 c = Test.configure;
 
-Pdyn = c.Pdyn;
-hs = c.hotspot;
+mc = HotSpot.MonteCarlo('floorplan', c.floorplan, 'wafer', c.wafer, ...
+  'config', c.hotspotConfig, 'line', c.hotspotLine);
 
-[ T, Pleak ] = hs.computeWithLeakage(Pdyn, c.leakage);
+[ T, L ] = mc.compute(c.Pdyn, 'leakage', c.leakage, ...
+  'process', c.process, 'verbose', true);

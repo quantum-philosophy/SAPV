@@ -1,93 +1,64 @@
-classdef MonteCarlo < HotSpot.Numeric & ProcessVariation.Discrete
+classdef MonteCarlo < HotSpot.Analytic
   properties (SetAccess = 'private')
-    sampleCount
-    filename
-    verbose
+    wafer
   end
 
   methods
-    function this = MonteCarlo(floorplan, config, line, varargin)
+    function this = MonteCarlo(varargin)
       options = Options(varargin{:});
-
-      this = this@HotSpot.Numeric(floorplan, config, line);
-      this = this@ProcessVariation.Discrete(floorplan, ...
-        'reduction', 'none');
-
-      this.sampleCount = options.get('sampleCount', 1e3);
-      this.filename = options.get('filename', []);
-      if options.get('verbose', false)
-        this.verbose = @(varargin) fprintf(varargin{:});
-      else
-        this.verbose = @(varargin) [];
-      end
+      this = this@HotSpot.Analytic(options);
+      this.wafer = options.wafer;
     end
 
-    function [ Texp, Tvar, Tdata ] = computeWithLeakageInParallel( ...
-      this, Pdyn, leakage)
-
+    function [ T, L ] = compute(this, Pdyn, varargin)
       [ processorCount, stepCount ] = size(Pdyn);
-      sampleCount = this.sampleCount;
 
-      verbose = this.verbose;
+      options = Options(varargin{:});
 
-      filename = this.filename;
-      if isempty(filename)
-        filename = sprintf('MonteCarlo_%s.mat', ...
-          DataHash({ Pdyn, Utils.toString(leakage), sampleCount }));
+      wafer = this.wafer;
+      leakage = options.leakage;
+      process = options.process;
+
+      if options.get('verbose', false)
+        verbose = @(varargin) fprintf(varargin{:});
+      else
+        verbose = @(varargin) [];
       end
+
+      dimension = process.dimension;
+      dieCount = wafer.dieCount;
+
+      filename = File.temporal(sprintf('MonteCarlo_%s.mat', ...
+        DataHash({ Pdyn, Utils.toString(leakage), Utils.toString(process) })));
 
       if File.exist(filename)
         verbose('Monte Carlo: using cached data in "%s"...\n', filename);
         load(filename);
-        if ~exist('time', 'var'), time = 0; end
       else
-        verbose('Monte Carlo: running %d simulations...\n', sampleCount);
+        verbose('Monte Carlo: running %d simulations...\n', dieCount);
 
-        rvs = normrnd(0, 1, this.dimension, sampleCount);
+        rvs = normrnd(0, 1, dimension, 1);
 
-        Lnom = this.Lnom;
-        Ldev = this.Ldev;
-        Lmap = this.Lmap;
+        Lnom = leakage.Lnom;
+        Ldev = 0.05 * Lnom;
+        Lmap = process.mapping;
 
-        Tdata = zeros(processorCount, stepCount, sampleCount);
+        T = zeros(processorCount, stepCount, dieCount);
+        L = zeros(processorCount, dieCount);
 
         tic;
-        parfor i = 1:sampleCount
-          Tdata(:, :, i) = this.computeWithLeakage( ...
-            Pdyn, leakage, Lnom + Ldev * Lmap * rvs(:, i));
+        for i = 1:dieCount
+          L(:, i) = Lnom + Ldev * Lmap(:, :, i) * rvs;
+          T(:, :, i) = compute@HotSpot.Analytic(this, Pdyn, leakage, L(:, i));
         end
         time = toc;
 
-        Texp = mean(Tdata, 3);
-        Tvar = var(Tdata, [], 3);
-
-        save(filename, 'Texp', 'Tvar', 'Tdata', 'time', '-v7.3');
+        save(filename, 'L', 'T', 'time', '-v7.3');
       end
       verbose('Monte Carlo: simulation time %.2f s (%d samples).\n', ...
-        time, sampleCount);
+        time, dieCount);
 
-      Tdata = permute(Tdata, [ 3 1 2 ]);
-    end
-
-   function Tdata = evaluateWithLeakageInParallel( ...
-      this, Pdyn, leakage, rvs)
-
-      [ processorCount, stepCount ] = size(Pdyn);
-
-      rvs = this.Lnom + this.Ldev * this.Lmap * rvs.';
-      sampleCount = size(rvs, 2);
-
-      Lnom = leakage.Lnom;
-      rvMap = this.rvMap;
-
-      Tdata = zeros(processorCount, stepCount, sampleCount);
-
-      parfor i = 1:sampleCount
-        Tdata(:, :, i) = this.computeWithLeakage( ...
-          Pdyn, leakage, rvs(:, i));
-      end
-
-      Tdata = permute(Tdata, [ 3 1 2 ]);
+      T = permute(T, [ 3 1 2 ]);
     end
   end
 end

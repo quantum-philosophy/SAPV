@@ -3,9 +3,11 @@ setup;
 c = Test.configure;
 
 Pdyn = c.Pdyn;
-hs = c.hotspot;
 
-[ T, Pleak ] = hs.computeWithLeakage(Pdyn, c.leakage);
+hs = HotSpot.Analytic('floorplan', c.floorplan, ...
+  'config', c.hotspotConfig, 'line', c.hotspotLine);
+
+[ T, Pleak ] = hs.compute(Pdyn, c.leakage);
 T = Utils.toCelsius(T);
 
 %% Application.

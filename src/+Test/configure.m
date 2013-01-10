@@ -16,25 +16,26 @@ function c = configure()
   c.leakageOrder = [ 1, 2 ];
   c.leakageScale = [ 1, 1, 1; 1, 1, 1 ];
 
-  %% System.
+  %% System
   %
   [ c.platform, c.application ] = parseTGFF(c.tgffConfig);
+  c.wafer = Wafer('floorplan', c.floorplan);
 
-  %% Schedule the application.
+  %% Schedule
   %
   c.schedule = Schedule.Dense(c.platform, c.application);
 
-  %% Obtain the dynamic power profile.
+  %% Dynamic power profile
   %
   c.power = DynamicPower(c.samplingInterval);
-
   c.Pdyn = c.power.compute(c.schedule);
 
-  %% Initialize the leakage model.
+  %% Leakage model
   %
   c.leakage = LeakagePower(c.Pdyn, 'filename', c.leakageData, ...
     'order', c.leakageOrder, 'scale', c.leakageScale);
 
-  %% Initialize the temperature simulator.
-  c.hotspot = HotSpot.Analytic(c.floorplan, c.hotspotConfig, c.hotspotLine);
+  %% Process variation
+  %
+  c.process = ProcessVariation(c.wafer);
 end

@@ -1,4 +1,4 @@
-function c = configure()
+function c = configure
   c.samplingInterval = 1e-4; % s
   c.processorCount = 2;
   c.taskCount = 40;
@@ -16,10 +16,12 @@ function c = configure()
   c.leakageOrder = [ 1, 2 ];
   c.leakageScale = [ 1, 1, 1; 1, 1, 1 ];
 
+  c.correlationScale = 1;
+
   %% System
   %
   [ c.platform, c.application ] = parseTGFF(c.tgffConfig);
-  c.wafer = Wafer('floorplan', c.floorplan);
+  c.wafer = Wafer('floorplan', c.floorplan, 'columns', 20, 'rows', 40);
 
   %% Schedule
   %
@@ -37,5 +39,5 @@ function c = configure()
 
   %% Process variation
   %
-  c.process = ProcessVariation(c.wafer);
+  c.process = ProcessVariation(c.wafer, 'correlationScale', c.correlationScale);
 end

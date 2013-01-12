@@ -3,13 +3,13 @@ classdef ProcessVariation < handle
     %
     % The portion of the information that is to be preserved.
     %
-    threshold = 0.95;
+    threshold = 0.99;
   end
 
   properties (SetAccess = 'protected')
+    wafer
     mapping
     expansion
-    dimension
   end
 
   methods
@@ -18,8 +18,16 @@ classdef ProcessVariation < handle
       this.initialize(wafer, options);
     end
 
+    function result = sample(this)
+      dimensionCount = size(this.mapping, 2);
+      dieCount = this.wafer.dieCount;
+      processorCount = this.wafer.processorCount;
+      result = this.mapping * randn(dimensionCount, 1);
+      result = reshape(result, [ processorCount, dieCount ]);
+    end
+
     function string = toString(this)
-      string = sprintf('%d', this.dimension);
+      string = Utils.toString(size(this.mapping));
     end
   end
 
@@ -27,8 +35,10 @@ classdef ProcessVariation < handle
     [ expansion, mapping ] = construct(this, wafer, options)
 
     function initialize(this, wafer, options)
+      this.wafer = wafer;
+
       filename = File.temporal([ class(this), '_', ...
-        DataHash(Utils.toString(options)), '.mat' ]);
+        DataHash({ this.threshold, Utils.toString(options) }), '.mat' ]);
 
       if File.exist(filename)
         load(filename);
@@ -39,8 +49,6 @@ classdef ProcessVariation < handle
 
       this.expansion = expansion;
       this.mapping = mapping;
-
-      this.dimension = length(expansion.values);
     end
   end
 end

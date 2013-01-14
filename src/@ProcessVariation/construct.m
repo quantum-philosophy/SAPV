@@ -2,12 +2,6 @@ function [ expansion, mapping ] = construct(this, wafer, options)
   domainBoundary = sqrt((wafer.width / 2)^2 + (wafer.height / 2)^2);
   correlationLength = options.get('correlationScale', 1) * domainBoundary;
   threshold = options.get('threshold', this.threshold);
-  kernel = @(s, t) exp(-abs(s - t) / correlationLength);
-
-  expansion = KarhunenLoeve.OrnsteinUhlenbeck( ...
-    'domainBoundary', domainBoundary, ...
-    'correlationLength', correlationLength, ...
-    'threshold', threshold, 'kernel', kernel);
 
   F = wafer.floorplan;
   DF = wafer.dieFloorplan;
@@ -23,6 +17,13 @@ function [ expansion, mapping ] = construct(this, wafer, options)
 
   X = bsxfun(@plus, repmat(X, 1, dieCount), F(:, 1).');
   Y = bsxfun(@plus, repmat(Y, 1, dieCount), F(:, 2).');
+
+  kernel = @(s, t) exp(-abs(s - t) / correlationLength);
+
+  expansion = KarhunenLoeve.Fredholm( ...
+    'domainBoundary', domainBoundary, ...
+    'correlationLength', correlationLength, ...
+    'threshold', threshold, 'kernel', kernel);
 
   function computeGridBased
     [ X1, X2 ] = meshgrid(X(:));
@@ -43,7 +44,7 @@ function [ expansion, mapping ] = construct(this, wafer, options)
 
     L = zeros(0, 3);
     for i = 1:dimension
-      for j = i:dimension
+      for j = 1:dimension
         L(end + 1, :) = [ i, j, values(i) * values(j) ];
       end
     end
@@ -51,20 +52,14 @@ function [ expansion, mapping ] = construct(this, wafer, options)
     [ ~, I ] = sort(L(:, 3), 'descend');
     L = L(I, :);
 
-    dimension = sum(L(:, 3) ./ cumsum(L(:, 3)) < (1 - threshold)) + 1;
+    dimension = Utils.chooseSignificant(L(:, 3), threshold);
 
     mapping = zeros(dieCount * processorCount, dimension);
-    for i = 1:dimension
-      f1 = expansion.functions{L(i, 1)};
-      f2 = expansion.functions{L(i, 2)};
-      if L(i, 1) == L(i, 2)
-        mapping(:, i) = sqrt(L(i, 3)) * f1(X) .* f2(Y);
-      else
-        %
-        % Off diagonal elements are counted twice.
-        %
-        mapping(:, i) = sqrt(L(i, 3)) * f1(X) .* f2(Y) / sqrt(2);
-      end
+    for k = 1:dimension
+      i = L(k, 1); j = L(k, 2); l = L(k, 3);
+      fi = expansion.functions{i};
+      fj = expansion.functions{j};
+      mapping(:, k) = sqrt(l) * fi(X) .* fj(Y);
     end
   end
 
@@ -92,15 +87,14 @@ function M = computeReduced(C, threshold)
 
   Y = [ ones(n, 1), - (1:n)' ];
   a = Y \ log(sqrt(L));
-  Lest = exp(a(1)) .* (exp(a(2)) .^ (-(1:d)'));
+  L = exp(a(1)) .* (exp(a(2)) .^ (-(1:d)'));
 
-  n = sum(cumsum(Lest) < threshold * sum(Lest)) + 1;
+  n = Utils.chooseSignificant(L, threshold);
 
   [ V, L, flag ] = eigs(C, n, 'lm', o);
   if ~(flag == 0), warning('eigs did not converge.'); end
 
-  L = abs(diag(L));
-  [ L, I ] = sort(L, 'descend');
+  [ n, L, I ] = Utils.chooseSignificant(diag(L), threshold);
   V = V(:, I);
 
   M = V * sqrt(diag(L));

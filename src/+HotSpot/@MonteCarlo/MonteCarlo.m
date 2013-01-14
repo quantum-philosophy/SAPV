@@ -38,10 +38,10 @@ classdef MonteCarlo < HotSpot.Analytic
         T = zeros(processorCount, stepCount, dieCount);
 
         tic;
-        % for i = 1:dieCount
-        %   T(:, :, i) = compute@HotSpot.Analytic( ...
-        %     this, Pdyn, leakage, L(:, i));
-        % end
+        for i = 1:dieCount
+          T(:, :, i) = compute@HotSpot.Analytic( ...
+            this, Pdyn, leakage, L(:, i));
+        end
         time = toc;
 
         save(filename, 'L', 'T', 'time', '-v7.3');

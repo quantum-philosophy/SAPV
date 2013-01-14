@@ -1,6 +1,5 @@
 function [ expansion, mapping ] = construct(this, wafer, options)
-  domainBoundary = sqrt((wafer.width / 2)^2 + (wafer.height / 2)^2);
-  correlationLength = options.get('correlationScale', 1) * domainBoundary;
+  kernel = options.kernel;
   threshold = options.get('threshold', this.threshold);
 
   F = wafer.floorplan;
@@ -11,51 +10,45 @@ function [ expansion, mapping ] = construct(this, wafer, options)
   X = DF(:, 3) + W / 2;
   Y = DF(:, 4) + H / 2;
 
-  dieCount = wafer.dieCount;
-  processorCount = wafer.processorCount;
-  totalCount = dieCount * processorCount;
-
-  X = bsxfun(@plus, repmat(X, 1, dieCount), F(:, 1).');
-  Y = bsxfun(@plus, repmat(Y, 1, dieCount), F(:, 2).');
+  X = bsxfun(@plus, repmat(X, 1, wafer.dieCount), F(:, 1).');
+  Y = bsxfun(@plus, repmat(Y, 1, wafer.dieCount), F(:, 2).');
 
   switch lower(options.get('method', 'analytic'))
   case 'analytic'
+    %
+    % Only for the Ornstein-Uhlenbeck kernel.
+    %
     expansion = KarhunenLoeve.OrnsteinUhlenbeck( ...
-      'domainBoundary', domainBoundary, ...
-      'correlationLength', correlationLength, ...
+      'domainBoundary', wafer.radius, ...
+      'correlationLength', wafer.radius, ...
       'threshold', threshold);
-    mapping = postprocessKarhunenLoeve(X, Y, expansion, threshold);
+    mapping = performKarhunenLoeve(X, Y, expansion, threshold);
   case 'numeric'
-    kernel = @(s, t) exp(-abs(s - t) / correlationLength);
     expansion = KarhunenLoeve.Fredholm( ...
-      'domainBoundary', domainBoundary, ...
-      'correlationLength', correlationLength, ...
-      'threshold', threshold, 'kernel', kernel);
-    mapping = postprocessKarhunenLoeve(X, Y, expansion, threshold);
+      'domainBoundary', wafer.radius, ...
+      'threshold', threshold, ...
+      'kernel', kernel);
+    mapping = performKarhunenLoeve(X, Y, expansion, threshold);
   case 'discrete'
-    kernel = @(s, t) exp(-sum(abs(s - t), 1) / correlationLength);
-    [ X1, X2 ] = meshgrid(X(:));
-    [ Y1, Y2 ] = meshgrid(Y(:));
-    C = kernel(transpose([ X1(:) Y1(:) ]), transpose([ X2(:) Y2(:) ]));
-    C = reshape(C, [ totalCount, totalCount ]);
-    mapping = computeReduced(C, threshold);
+    expansion = NaN;
+    mapping = performDiscrete(X, Y, kernel, threshold);
   otherwise
     assert(false);
   end
 end
 
-function mapping = postprocessKarhunenLoeve(X, Y, expansion, threshold)
+function mapping = performKarhunenLoeve(X, Y, expansion, threshold)
   X = X(:);
   Y = Y(:);
 
-  pointCount = length(X);
+  totalCount = length(X);
 
   values = expansion.values;
-  dimension = expansion.dimensionCount;
+  dimensionCount = expansion.dimensionCount;
 
   L = zeros(0, 3);
-  for i = 1:dimension
-    for j = 1:dimension
+  for i = 1:dimensionCount
+    for j = 1:dimensionCount
       L(end + 1, :) = [ i, j, values(i) * values(j) ];
     end
   end
@@ -63,10 +56,10 @@ function mapping = postprocessKarhunenLoeve(X, Y, expansion, threshold)
   [ ~, I ] = sort(L(:, 3), 'descend');
   L = L(I, :);
 
-  dimension = Utils.chooseSignificant(L(:, 3), threshold);
+  dimensionCount = Utils.chooseSignificant(L(:, 3), threshold);
 
-  mapping = zeros(pointCount, dimension);
-  for k = 1:dimension
+  mapping = zeros(totalCount, dimensionCount);
+  for k = 1:dimensionCount
     i = L(k, 1); j = L(k, 2); l = L(k, 3);
     fi = expansion.functions{i};
     fj = expansion.functions{j};
@@ -74,36 +67,51 @@ function mapping = postprocessKarhunenLoeve(X, Y, expansion, threshold)
   end
 end
 
-function M = computeFull(C)
-  [ V, L ] = eig(C);
-  M = V * sqrt(L);
+function mapping = performDiscrete(X, Y, kernel, threshold)
+  X = X(:);
+  Y = Y(:);
+
+  totalCount = length(X);
+
+  [ X1, X2 ] = meshgrid(X);
+  [ Y1, Y2 ] = meshgrid(Y);
+
+  C = kernel(X1(:), X2(:)) .* kernel(Y1(:), Y2(:));
+  C = reshape(C, [ totalCount, totalCount ]);
+
+  mapping = computeReduced(C, threshold);
 end
 
-function M = computeReduced(C, threshold)
-  d = size(C, 1);
+function mapping = computeFull(C)
+  [ V, L ] = eig(C);
+  mapping = V * sqrt(L);
+end
 
-  n = 10;
+function mapping = computeReduced(C, threshold)
+  totalCount = size(C, 1);
 
-  o.issym = 1;
-  o.isreal = 1;
-  o.maxit = 1e3;
-  o.disp = 0;
-  o.v0 = ones(d, 1);
+  dimensionCount = 10;
 
-  L = eigs(C, n);
+  options.issym = 1;
+  options.isreal = 1;
+  options.maxit = 1e3;
+  options.disp = 0;
+  options.v0 = ones(totalCount, 1);
+
+  L = eigs(C, dimensionCount);
   L = sort(L, 'descend');
 
-  Y = [ ones(n, 1), - (1:n)' ];
+  Y = [ ones(dimensionCount, 1), - (1:dimensionCount)' ];
   a = Y \ log(sqrt(L));
-  L = exp(a(1)) .* (exp(a(2)) .^ (-(1:d)'));
+  L = exp(a(1)) .* (exp(a(2)) .^ (-(1:totalCount)'));
 
-  n = Utils.chooseSignificant(L, threshold);
+  dimensionCount = Utils.chooseSignificant(L, threshold);
 
-  [ V, L, flag ] = eigs(C, n, 'lm', o);
+  [ V, L, flag ] = eigs(C, dimensionCount, 'lm', options);
   if ~(flag == 0), warning('eigs did not converge.'); end
 
-  [ n, L, I ] = Utils.chooseSignificant(diag(L), threshold);
+  [ dimensionCount, L, I ] = Utils.chooseSignificant(diag(L), threshold);
   V = V(:, I);
 
-  M = V * sqrt(diag(L));
+  mapping = V * sqrt(diag(L));
 end

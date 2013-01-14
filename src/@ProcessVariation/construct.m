@@ -18,52 +18,60 @@ function [ expansion, mapping ] = construct(this, wafer, options)
   X = bsxfun(@plus, repmat(X, 1, dieCount), F(:, 1).');
   Y = bsxfun(@plus, repmat(Y, 1, dieCount), F(:, 2).');
 
-  kernel = @(s, t) exp(-abs(s - t) / correlationLength);
-
-  expansion = KarhunenLoeve.Fredholm( ...
-    'domainBoundary', domainBoundary, ...
-    'correlationLength', correlationLength, ...
-    'threshold', threshold, 'kernel', kernel);
-
-  function computeGridBased
+  switch lower(options.get('method', 'analytic'))
+  case 'analytic'
+    expansion = KarhunenLoeve.OrnsteinUhlenbeck( ...
+      'domainBoundary', domainBoundary, ...
+      'correlationLength', correlationLength, ...
+      'threshold', threshold);
+    mapping = postprocessKarhunenLoeve(X, Y, expansion, threshold);
+  case 'numeric'
+    kernel = @(s, t) exp(-abs(s - t) / correlationLength);
+    expansion = KarhunenLoeve.Fredholm( ...
+      'domainBoundary', domainBoundary, ...
+      'correlationLength', correlationLength, ...
+      'threshold', threshold, 'kernel', kernel);
+    mapping = postprocessKarhunenLoeve(X, Y, expansion, threshold);
+  case 'discrete'
+    kernel = @(s, t) exp(-sum(abs(s - t), 1) / correlationLength);
     [ X1, X2 ] = meshgrid(X(:));
     [ Y1, Y2 ] = meshgrid(Y(:));
-    C = expansion.calculate( ...
-      transpose([ X1(:) Y1(:) ]), ...
-      transpose([ X2(:) Y2(:) ]));
+    C = kernel(transpose([ X1(:) Y1(:) ]), transpose([ X2(:) Y2(:) ]));
     C = reshape(C, [ totalCount, totalCount ]);
     mapping = computeReduced(C, threshold);
+  otherwise
+    assert(false);
   end
+end
 
-  function computeKarhunenLoeveBased
-    X = X(:);
-    Y = Y(:);
+function mapping = postprocessKarhunenLoeve(X, Y, expansion, threshold)
+  X = X(:);
+  Y = Y(:);
 
-    values = expansion.values;
-    dimension = expansion.dimensionCount;
+  pointCount = length(X);
 
-    L = zeros(0, 3);
-    for i = 1:dimension
-      for j = 1:dimension
-        L(end + 1, :) = [ i, j, values(i) * values(j) ];
-      end
-    end
+  values = expansion.values;
+  dimension = expansion.dimensionCount;
 
-    [ ~, I ] = sort(L(:, 3), 'descend');
-    L = L(I, :);
-
-    dimension = Utils.chooseSignificant(L(:, 3), threshold);
-
-    mapping = zeros(dieCount * processorCount, dimension);
-    for k = 1:dimension
-      i = L(k, 1); j = L(k, 2); l = L(k, 3);
-      fi = expansion.functions{i};
-      fj = expansion.functions{j};
-      mapping(:, k) = sqrt(l) * fi(X) .* fj(Y);
+  L = zeros(0, 3);
+  for i = 1:dimension
+    for j = 1:dimension
+      L(end + 1, :) = [ i, j, values(i) * values(j) ];
     end
   end
 
-  computeKarhunenLoeveBased;
+  [ ~, I ] = sort(L(:, 3), 'descend');
+  L = L(I, :);
+
+  dimension = Utils.chooseSignificant(L(:, 3), threshold);
+
+  mapping = zeros(pointCount, dimension);
+  for k = 1:dimension
+    i = L(k, 1); j = L(k, 2); l = L(k, 3);
+    fi = expansion.functions{i};
+    fj = expansion.functions{j};
+    mapping(:, k) = sqrt(l) * fi(X) .* fj(Y);
+  end
 end
 
 function M = computeFull(C)

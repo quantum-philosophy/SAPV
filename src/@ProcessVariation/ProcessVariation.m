@@ -8,8 +8,9 @@ classdef ProcessVariation < handle
 
   properties (SetAccess = 'protected')
     wafer
-    mapping
     expansion
+    mapping
+    dimensionCount
   end
 
   methods
@@ -19,10 +20,9 @@ classdef ProcessVariation < handle
     end
 
     function result = sample(this)
-      dimensionCount = size(this.mapping, 2);
       dieCount = this.wafer.dieCount;
       processorCount = this.wafer.processorCount;
-      result = this.mapping * randn(dimensionCount, 1);
+      result = this.mapping * randn(this.dimensionCount, 1);
       result = reshape(result, [ processorCount, dieCount ]);
     end
 
@@ -49,6 +49,7 @@ classdef ProcessVariation < handle
 
       this.expansion = expansion;
       this.mapping = mapping;
+      this.dimensionCount = size(mapping, 2);
     end
   end
 end

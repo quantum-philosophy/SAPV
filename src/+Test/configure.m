@@ -3,19 +3,21 @@ function c = configure
   % System
   %
   c.processorCount = 2;
-  c.taskCount = 40;
-  c.tgffConfig = File.join('+Test', 'Assets', ...
-    sprintf('%03d_%03d.tgff', c.processorCount, c.taskCount));
+
+  taskCount = 40;
+  tgffConfig = File.join('+Test', 'Assets', ...
+    sprintf('%03d_%03d.tgff', c.processorCount, taskCount));
+
   c.floorplan = File.join('+Test', 'Assets', ...
     sprintf('%03d.flp', c.processorCount));
 
-  [ c.platform, c.application ] = parseTGFF(c.tgffConfig);
+  [ platform, application ] = parseTGFF(tgffConfig);
   c.wafer = Wafer('floorplan', c.floorplan, 'columns', 20, 'rows', 40);
 
   %
   % Schedule
   %
-  c.schedule = Schedule.Dense(c.platform, c.application);
+  schedule = Schedule.Dense(platform, application);
 
   %
   % Temperature
@@ -27,25 +29,42 @@ function c = configure
   %
   % Dynamic power
   %
-  c.power = DynamicPower(c.samplingInterval);
-  c.Pdyn = c.power.compute(c.schedule);
+  power = DynamicPower(c.samplingInterval);
+  c.Pdyn = power.compute(schedule);
+  c.powerStepCount = size(c.Pdyn, 2);
 
   %
   % Leakage power
   %
-  c.leakageData = File.join('+Test', 'Assets', 'inverter_45nm.leak');
-  c.leakageOrder = [ 1, 2 ];
-  c.leakageScale = [ 1, 1, 1; 1, 1, 1 ];
+  leakageData = File.join('+Test', 'Assets', 'inverter_45nm.leak');
+  leakageOrder = [ 1, 2 ];
+  leakageScale = [ 1, 1, 1; 1, 1, 1 ];
 
-  c.leakage = LeakagePower(c.Pdyn, 'filename', c.leakageData, ...
-    'order', c.leakageOrder, 'scale', c.leakageScale);
+  c.leakage = LeakagePower(c.Pdyn, 'filename', leakageData, ...
+    'order', leakageOrder, 'scale', leakageScale);
 
   %
   % Process variation
   %
   c.correlationLength = c.wafer.radius;
-  c.correlationKernel = @(s, t) exp(-abs(s - t) / c.correlationLength);
+  c.correlationKernel = @(s, t) exp(-(s - t).^2 / c.correlationLength.^2);
 
   c.process = ProcessVariation(c.wafer, ...
-    'method', 'discrete', 'kernel', c.correlationKernel);
+    'method', 'numeric', 'kernel', c.correlationKernel);
+
+  %
+  % Measurements
+  %
+  c.noiseVariance = 1^2; % Squared degrees
+  c.spaceMeasurementCount = 10;
+  c.timeMeasurementCount = 10;
+
+  %
+  % Surrogate
+  %
+  c.surrogateOptions = Options( ...
+    'adaptivityControl', 'NormNormExpectation', ...
+    'tolerance', 1e-4, ...
+    'maximalLevel', 10, ...
+    'verbose', true);
 end

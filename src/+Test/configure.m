@@ -46,11 +46,15 @@ function c = configure
   %
   % Process variation
   %
+  c.Lnom = c.leakage.Lnom;
+  c.Ldev = 0.05 * c.Lnom;
   c.correlationLength = c.wafer.radius;
   c.correlationKernel = @(s, t) exp(-(s - t).^2 / c.correlationLength.^2);
 
   c.process = ProcessVariation(c.wafer, ...
-    'method', 'numeric', 'kernel', c.correlationKernel);
+    'method', 'discrete', 'kernel', c.correlationKernel);
+
+  c.dimensionCount = c.process.dimensionCount;
 
   %
   % Measurements
@@ -63,8 +67,8 @@ function c = configure
   % Surrogate
   %
   c.surrogateOptions = Options( ...
-    'adaptivityControl', 'NormNormExpectation', ...
-    'tolerance', 1e-4, ...
+    'control', 'NormNormExpectation', ...
+    'tolerance', 1e-3, ...
     'maximalLevel', 10, ...
     'verbose', true);
 end

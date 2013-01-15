@@ -10,11 +10,6 @@ hs = HotSpot.Analytic('floorplan', c.floorplan, ...
 [ T, Pleak ] = hs.compute(Pdyn, c.leakage);
 T = Utils.toCelsius(T);
 
-%% Application.
-%
-plot(c.schedule);
-display(c.schedule);
-
 %% HotSpot configuration.
 %
 display(hs);

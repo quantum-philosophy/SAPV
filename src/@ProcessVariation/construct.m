@@ -1,4 +1,6 @@
-function [ expansion, mapping ] = construct(this, wafer, options)
+function [ expansion, mapping, inverseMapping ] = ...
+  construct(this, wafer, options)
+
   kernel = options.kernel;
   threshold = options.get('threshold', this.threshold);
 
@@ -22,22 +24,27 @@ function [ expansion, mapping ] = construct(this, wafer, options)
       'domainBoundary', wafer.radius, ...
       'correlationLength', wafer.radius, ...
       'threshold', threshold);
-    mapping = performKarhunenLoeve(X, Y, expansion, threshold);
+    [ mapping, inverseMapping ] = ...
+      performKarhunenLoeve(X, Y, expansion, threshold);
   case 'numeric'
     expansion = KarhunenLoeve.Fredholm( ...
       'domainBoundary', wafer.radius, ...
       'threshold', threshold, ...
       'kernel', kernel);
-    mapping = performKarhunenLoeve(X, Y, expansion, threshold);
+    [ mapping, inverseMapping ] = ...
+      performKarhunenLoeve(X, Y, expansion, threshold);
   case 'discrete'
     expansion = NaN;
-    mapping = performDiscrete(X, Y, kernel, threshold);
+    [ mapping, inverseMapping ] = ...
+      performDiscrete(X, Y, kernel, threshold);
   otherwise
     assert(false);
   end
 end
 
-function mapping = performKarhunenLoeve(X, Y, expansion, threshold)
+function [ mapping, inverseMapping ] = ...
+  performKarhunenLoeve(X, Y, expansion, threshold)
+
   X = X(:);
   Y = Y(:);
 
@@ -59,15 +66,19 @@ function mapping = performKarhunenLoeve(X, Y, expansion, threshold)
   dimensionCount = Utils.chooseSignificant(L(:, 3), threshold);
 
   mapping = zeros(totalCount, dimensionCount);
+  inverseMapping = zeros(dimensionCount, totalCount);
+
   for k = 1:dimensionCount
     i = L(k, 1); j = L(k, 2); l = L(k, 3);
-    fi = expansion.functions{i};
-    fj = expansion.functions{j};
-    mapping(:, k) = sqrt(l) * fi(X) .* fj(Y);
+    fifj = expansion.functions{i}(X) .* expansion.functions{j}(Y);
+    mapping(:, k) = sqrt(l) * fifj;
+    inverseMapping(k, :) = (1 / sqrt(l)) * fifj;
   end
 end
 
-function mapping = performDiscrete(X, Y, kernel, threshold)
+function [ mapping, inverseMapping ] = ...
+  performDiscrete(X, Y, kernel, threshold)
+
   X = X(:);
   Y = Y(:);
 
@@ -79,15 +90,16 @@ function mapping = performDiscrete(X, Y, kernel, threshold)
   C = kernel(X1(:), X2(:)) .* kernel(Y1(:), Y2(:));
   C = reshape(C, [ totalCount, totalCount ]);
 
-  mapping = computeReduced(C, threshold);
+  [ mapping, inverseMapping ] = computeReduced(C, threshold);
 end
 
-function mapping = computeFull(C)
+function [ mapping, inverseMapping ] = computeFull(C)
   [ V, L ] = eig(C);
   mapping = V * sqrt(L);
+  inverseMapping = diag(1 ./ sqrt(diag(L))) * V.';
 end
 
-function mapping = computeReduced(C, threshold)
+function [ mapping, inverseMapping ] = computeReduced(C, threshold)
   totalCount = size(C, 1);
 
   dimensionCount = 10;
@@ -113,5 +125,6 @@ function mapping = computeReduced(C, threshold)
   [ dimensionCount, L, I ] = Utils.chooseSignificant(diag(L), threshold);
   V = V(:, I);
 
-  mapping = V * sqrt(diag(L));
+  mapping = V * diag(sqrt(L));
+  inverseMapping = diag(1 ./ sqrt(L)) * V.';
 end

@@ -10,6 +10,7 @@ classdef ProcessVariation < handle
     wafer
     expansion
     mapping
+    inverseMapping
     dimensionCount
   end
 
@@ -17,6 +18,21 @@ classdef ProcessVariation < handle
     function this = ProcessVariation(wafer, varargin)
       options = Options(varargin{:});
       this.initialize(wafer, options);
+    end
+
+    function [ mapping, inverseMapping ] = constrainMapping(this, index)
+      processorCount = this.wafer.processorCount;
+      dieCount = length(index);
+
+      I = zeros(1, processorCount * dieCount);
+      for i = 1:dieCount
+        j = index(i);
+        I(((i - 1) * processorCount + 1):(i * processorCount)) = ...
+          ((j - 1) * processorCount + 1):(j * processorCount);
+      end
+
+      mapping = this.mapping(I, :);
+      inverseMapping = this.inverseMapping(:, I);
     end
 
     function result = sample(this)
@@ -32,7 +48,7 @@ classdef ProcessVariation < handle
   end
 
   methods (Access = 'private')
-    [ expansion, mapping ] = construct(this, wafer, options)
+    [ expansion, mapping, inverseMapping ] = construct(this, wafer, options)
 
     function initialize(this, wafer, options)
       this.wafer = wafer;
@@ -43,12 +59,15 @@ classdef ProcessVariation < handle
       if File.exist(filename)
         load(filename);
       else
-        [ expansion, mapping ] = this.construct(wafer, options);
-        save(filename, 'expansion', 'mapping', '-v7.3');
+        [ expansion, mapping, inverseMapping ] = ...
+          this.construct(wafer, options);
+        save(filename, 'expansion', 'mapping', ...
+          'inverseMapping', '-v7.3');
       end
 
       this.expansion = expansion;
       this.mapping = mapping;
+      this.inverseMapping = inverseMapping;
       this.dimensionCount = size(mapping, 2);
     end
   end

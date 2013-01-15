@@ -17,6 +17,7 @@ function m = generate(c)
 
     tic;
     [ T, L ] = mc.compute(c.Pdyn, ...
+      'Lnom', c.Lnom, 'Ldev', c.Ldev, ...
       'leakage', c.leakage, 'process', c.process);
     time = toc;
 
@@ -45,7 +46,7 @@ function m = generate(c)
   %
   % Thin the thermal data.
   %
-  m.Tmeas = m.T(m.spaceMeasurementIndex, :, m.timeMeasurementIndex);
+  m.Tmeas = m.T(:, m.timeMeasurementIndex, m.spaceMeasurementIndex);
 
   %
   % Add the noise.

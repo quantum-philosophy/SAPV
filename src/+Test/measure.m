@@ -2,10 +2,31 @@ function m = generate(c)
   %
   % Generate temperature profiles for all the dies.
   %
-  mc = HotSpot.MonteCarlo('floorplan', c.floorplan, ...
-    'config', c.hotspotConfig, 'line', c.hotspotLine);
-  [ m.T, m.L ] = mc.compute(c.Pdyn, 'leakage', c.leakage, ...
-    'process', c.process, 'verbose', true);
+  filename = File.temporal(sprintf('MonteCarlo_%s.mat', ...
+    DataHash({ c.Pdyn, Utils.toString(c.leakage), ...
+      Utils.toString(c.process) })));
+
+  if File.exist(filename)
+    fprintf('Monte Carlo: using cached data in "%s"...\n', filename);
+    load(filename);
+  else
+    fprintf('Monte Carlo: simulation...\n');
+
+    mc = HotSpot.MonteCarlo('floorplan', c.floorplan, ...
+      'config', c.hotspotConfig, 'line', c.hotspotLine);
+
+    tic;
+    [ T, L ] = mc.compute(c.Pdyn, ...
+      'leakage', c.leakage, 'process', c.process);
+    time = toc;
+
+    save(filename, 'L', 'T', 'time', '-v7.3');
+  end
+
+  fprintf('Monte Carlo: simulation time %.2f s.\n', time);
+
+  m.T = T;
+  m.L = L;
 
   %
   % Choose spatial locations.

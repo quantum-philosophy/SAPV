@@ -1,6 +1,8 @@
 clear all;
 setup;
 
+rng(0);
+
 %
 % Configure the test case.
 %

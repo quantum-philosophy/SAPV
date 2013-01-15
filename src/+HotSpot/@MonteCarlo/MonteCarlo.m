@@ -22,32 +22,16 @@ classdef MonteCarlo < HotSpot.Analytic
 
       dieCount = wafer.dieCount;
 
-      filename = File.temporal(sprintf('MonteCarlo_%s.mat', ...
-        DataHash({ Pdyn, Utils.toString(leakage), Utils.toString(process) })));
+      Lnom = leakage.Lnom;
+      Ldev = 0.05 * Lnom;
+      L = Lnom + Ldev * process.sample;
 
-      if File.exist(filename)
-        verbose('Monte Carlo: using cached data in "%s"...\n', filename);
-        load(filename);
-      else
-        verbose('Monte Carlo: running %d simulations...\n', dieCount);
+      T = zeros(processorCount, stepCount, dieCount);
 
-        Lnom = leakage.Lnom;
-        Ldev = 0.05 * Lnom;
-        L = Lnom + Ldev * process.sample;
-
-        T = zeros(processorCount, stepCount, dieCount);
-
-        tic;
-        for i = 1:dieCount
-          T(:, :, i) = compute@HotSpot.Analytic( ...
-            this, Pdyn, leakage, L(:, i));
-        end
-        time = toc;
-
-        save(filename, 'L', 'T', 'time', '-v7.3');
+      for i = 1:dieCount
+        T(:, :, i) = compute@HotSpot.Analytic( ...
+          this, Pdyn, leakage, L(:, i));
       end
-      verbose('Monte Carlo: simulation time %.2f s (%d samples).\n', ...
-        time, dieCount);
 
       T = permute(T, [ 3 1 2 ]);
     end

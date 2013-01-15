@@ -11,13 +11,13 @@ function Data = evaluate(this, Pdyn, stepIndex, leakage, L)
   Tamb = this.ambientTemperature;
 
   %
-  % Replicate the power profile cover all the dies at once.
+  % Replicate the power profile to cover all the dies at once.
   %
   Pdyn = reshape(kron(Pdyn, ones(1, dieCount)), ...
     [ processorCount, dieCount, powerStepCount ]);
 
   %
-  % For convenience and efficiency, reshape the uncertain parameter.
+  % For convenience and efficiency, reshape the uncertain parameters.
   %
   L = reshape(L, [ processorCount, dieCount, pointCount ]);
 

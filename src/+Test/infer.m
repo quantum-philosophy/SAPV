@@ -30,9 +30,8 @@ plot(c.process, m.L);
 % Get the Gaussian random variables used to compute the leakage
 % parameters across the wafer.
 %
-[ ~, iLmap ] = c.process.constrainMapping(m.spaceMeasurementIndex);
-Lnorm = (m.L(:, m.spaceMeasurementIndex) - c.Lnom) / c.Ldev;
-Ntrue = transpose(iLmap * Lnorm(:));
+Lnorm = (m.L - c.Lnom) / c.Ldev;
+Ntrue = transpose(c.process.inverseMapping * Lnorm(:));
 
 Ttrue = Utils.toCelsius(m.T(:, :, m.spaceMeasurementIndex));
 Tmeas = Utils.toCelsius(m.Tmeas);

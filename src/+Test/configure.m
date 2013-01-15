@@ -22,7 +22,7 @@ function c = configure
   %
   % Temperature
   %
-  c.samplingInterval = 1e-4; % s
+  c.samplingInterval = 1e-3; % s
   c.hotspotConfig = File.join('+Test', 'Assets', 'hotspot.config');
   c.hotspotLine = sprintf('sampling_intvl %e', c.samplingInterval);
 

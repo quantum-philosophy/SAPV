@@ -64,64 +64,64 @@ classdef Surrogate < HotSpot.Analytic
       end
 
       surrogate = ASGC(@(rvs) this.evaluate(Pdyn, timeMeasurementIndex, ...
-        @leakage.evaluate, preprocess(rvs)), options);
+        leakage, preprocess(rvs)), options);
     end
   end
 
   methods (Access = 'private')
-    function data = evaluate(this, Pdyn, stepIndex, leak, L)
+    function Data = evaluate(this, Pdyn, stepIndex, leakage, L)
       pointCount = size(L, 2);
-      processorCount = size(Pdyn, 1);
+      [ processorCount, powerStepCount ] = size(Pdyn);
       dieCount = size(L, 1) / processorCount;
       stepCount = length(stepIndex);
-
-      data = zeros(pointCount, dieCount * processorCount * stepCount);
-
-      %
-      % NOTE: parfor should be used here.
-      %
-      for k = 1:(pointCount * dieCount)
-        i = ceil(k / dieCount);       % point
-        j = mod(k - 1, dieCount) + 1; % die
-
-        a = (j - 1) * processorCount * stepCount + 1;
-        b = j * processorCount * stepCount;
-
-        c = (j - 1) * processorCount + 1;
-        d = j * processorCount;
-
-        data(i, a:b) = this.solve(Pdyn, stepIndex, leak, L(c:d, i));
-      end
-    end
-
-    function data = solve(this, Pdyn, stepIndex, leak, L)
-      processorCount = size(Pdyn, 1);
+      nodeCount = this.nodeCount;
 
       E = this.E;
       D = this.D;
       BT = this.BT;
       Tamb = this.ambientTemperature;
 
-      stepCount = length(stepIndex);
+      %
+      % Replicate the power profile cover all the dies at once.
+      %
+      Pdyn = reshape(kron(Pdyn, ones(1, dieCount)), ...
+        [ processorCount, dieCount, powerStepCount ]);
 
-      data = zeros(processorCount, stepCount);
+      %
+      % For convenience and efficiency, reshape the uncertain parameter.
+      %
+      L = reshape(L, [ processorCount, dieCount, pointCount ]);
 
-      X = zeros(this.nodeCount, 1);
-      T = Tamb * ones(processorCount, 1);
+      %
+      % Allocate space for all the data that we are going to compute.
+      %
+      Data = zeros(pointCount, dieCount * processorCount * stepCount);
 
-      k = 1;
-      i = 1;
-      while k <= stepCount
-        for j = i:stepIndex(k)
-          X = E * X + D * (Pdyn(:, j) + leak(L, T));
-          T = BT * X + Tamb;
+      %
+      % NOTE: parfor should be used here to fill in `Data'.
+      %
+      for p = 1:pointCount
+        l = L(:, :, p);
+
+        data = zeros(processorCount, stepCount, dieCount);
+
+        X = zeros(nodeCount, dieCount);
+        T = Tamb * ones(processorCount, dieCount);
+
+        k = 1;
+        i = 1;
+        while k <= stepCount
+          for j = i:stepIndex(k)
+            X = E * X + D * (Pdyn(:, :, j) + leakage.evaluate(l, T));
+            T = BT * X + Tamb;
+          end
+          data(:, k, :) = T;
+          k = k + 1;
+          i = j + 1;
         end
-        data(:, k) = T;
-        k = k + 1;
-        i = j + 1;
-      end
 
-      data = data(:);
+        Data(p, :) = data(:);
+      end
     end
   end
 end

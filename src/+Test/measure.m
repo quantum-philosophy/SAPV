@@ -21,7 +21,28 @@ function m = generate(c)
       'leakage', c.leakage, 'process', c.process);
     time = toc;
 
-    save(filename, 'L', 'T', 'time', '-v7.3');
+    %
+    % Choose spatial locations.
+    %
+    spaceMeasurementIndex = randperm(c.wafer.dieCount);
+    spaceMeasurementIndex = ...
+      sort(spaceMeasurementIndex(1:c.spaceMeasurementCount));
+
+    %
+    % Choose temporal locations.
+    %
+    timeMeasurementIndex = randperm(c.powerStepCount);
+    timeMeasurementIndex = ...
+      sort(timeMeasurementIndex(1:c.timeMeasurementCount));
+
+    %
+    % Generate some noise.
+    %
+    noise = sqrt(c.noiseVariance) * randn(c.processorCount, ...
+      c.timeMeasurementCount, c.spaceMeasurementCount);
+
+    save(filename, 'L', 'T', 'time', 'spaceMeasurementIndex', ...
+      'timeMeasurementIndex', 'noise', '-v7.3');
   end
 
   fprintf('Monte Carlo: simulation time %.2f s.\n', time);
@@ -29,27 +50,16 @@ function m = generate(c)
   m.T = T;
   m.L = L;
 
-  %
-  % Choose spatial locations.
-  %
-  m.spaceMeasurementIndex = randperm(c.wafer.dieCount);
-  m.spaceMeasurementIndex = ...
-    sort(m.spaceMeasurementIndex(1:c.spaceMeasurementCount));
+  m.spaceMeasurementIndex = spaceMeasurementIndex;
+  m.timeMeasurementIndex = timeMeasurementIndex;
 
   %
-  % Choose temporal locations.
-  %
-  m.timeMeasurementIndex = randperm(c.powerStepCount);
-  m.timeMeasurementIndex = ...
-    sort(m.timeMeasurementIndex(1:c.timeMeasurementCount));
-
-  %
-  % Thin the thermal data.
+  % Thin the data.
   %
   m.Tmeas = m.T(:, m.timeMeasurementIndex, m.spaceMeasurementIndex);
 
   %
   % Add the noise.
   %
-  m.Tmeas = m.Tmeas + normrnd(0, c.noiseVariance, size(m.Tmeas));
+  m.Tmeas = m.Tmeas + noise;
 end

@@ -23,18 +23,21 @@ processorCount = c.processorCount;
 stepCount = c.timeMeasurementCount;
 dieCount = c.spaceMeasurementCount;
 
+plot(c.wafer, m.spaceMeasurementIndex);
+plot(c.process, m.L);
+
 %
 % Get the Gaussian random variables used to compute the leakage
 % parameters across the wafer.
 %
 [ ~, iLmap ] = c.process.constrainMapping(m.spaceMeasurementIndex);
 Lnorm = (m.L(:, m.spaceMeasurementIndex) - c.Lnom) / c.Ldev;
-Ntrue = iLmap * Lnorm(:);
+Ntrue = transpose(iLmap * Lnorm(:));
 
 Ttrue = Utils.toCelsius(m.T(:, :, m.spaceMeasurementIndex));
 Tmeas = Utils.toCelsius(m.Tmeas);
 
-n = randn(1, dimensionCount);
+n = Ntrue; % randn(1, dimensionCount);
 u = normcdf(n);
 
 Tsamp = Utils.toCelsius(reshape(s.evaluate(u), ...
@@ -60,6 +63,6 @@ for i = 1:dieCount
   end
 
   Plot.title('Die %d', m.spaceMeasurementIndex(i));
-  Plot.limit(xlimit, ylimit);
   Plot.label('Time, s', 'Temperature, C');
+  Plot.limit(xlimit, ylimit);
 end

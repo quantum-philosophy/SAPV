@@ -32,10 +32,11 @@ function plot(this, F)
 
   Z = griddata(x, y, z, X, Y);
 
-  figure('Position', [ 250 250 500 500 ]);
+  figure('Position', [ 250 250 (500 + 60) 500 ]);
 
   surfc(X, Y, Z, 'EdgeColor','None', 'LineStyle', 'None', ...
     'FaceLighting', 'Phong');
+  colorbar;
   axis tight;
   view(2);
 

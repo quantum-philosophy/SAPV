@@ -38,7 +38,7 @@ function c = configure
   %
   leakageData = File.join('+Test', 'Assets', 'inverter_45nm.leak');
   leakageOrder = [ 1, 2 ];
-  leakageScale = [ 1, 1, 1; 1, 1, 1 ];
+  leakageScale = [ 1, 0.7, 0; 1, 1, 1 ];
 
   c.leakage = LeakagePower(c.Pdyn, 'filename', leakageData, ...
     'order', leakageOrder, 'scale', leakageScale);
@@ -48,11 +48,25 @@ function c = configure
   %
   c.Lnom = c.leakage.Lnom;
   c.Ldev = 0.05 * c.Lnom;
-  c.correlationLength = c.wafer.radius;
-  c.correlationKernel = @(s, t) exp(-(s - t).^2 / c.correlationLength.^2);
+  c.correlationKernel = @correlate;
+  c.correlationParams = { ...
+        0.70, 0.10 * c.wafer.radius, ...
+    1 - 0.70, 0.10 * c.wafer.radius };
+
+  function C = correlate(s, t, w1, l1, w2, l2)
+    C1 = w1 * exp(-sum(abs(s - t), 1) / l1);
+
+    rs = sqrt(sum(s.^2, 1));
+    rt = sqrt(sum(t.^2, 1));
+    C2 = w2 * exp(-abs(rs - rt) / l2);
+
+    C = C1 + C2;
+  end
 
   c.process = ProcessVariation(c.wafer, ...
-    'method', 'discrete', 'kernel', c.correlationKernel);
+    'method', 'discrete', ...
+    'kernel', c.correlationKernel, ...
+    'params', c.correlationParams);
 
   c.dimensionCount = c.process.dimensionCount;
 
@@ -68,7 +82,7 @@ function c = configure
   %
   c.surrogateOptions = Options( ...
     'control', 'NormNormExpectation', ...
-    'tolerance', 1e-3, ...
-    'maximalLevel', 10, ...
+    'tolerance', 1e-4, ...
+    'maximalLevel', 5, ...
     'verbose', true);
 end

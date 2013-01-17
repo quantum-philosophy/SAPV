@@ -3,6 +3,8 @@ function surrogate = compute(this, Pdyn, varargin)
 
   options = Options(varargin{:});
 
+  method = options.get('method', 'kriging');
+
   leakage = options.leakage;
   process = options.process;
 
@@ -31,23 +33,28 @@ function surrogate = compute(this, Pdyn, varargin)
     options = Options();
   end
 
-  options.set('inputCount', process.dimensionCount);
-  options.set('outputCount', ...
-    spaceMeasurementCount * processorCount  * timeMeasurementCount);
+  inputCount = process.dimensionCount;
+  outputCount = spaceMeasurementCount * processorCount * timeMeasurementCount;
 
-  %
-  % NOTE: Not actually a good idea, but here we are trying to prevent
-  % unrealistic values like negatives and infinities. Applies only
-  % to the ASGC algorithm as it is based on uniform distributions.
-  %
-  sigma = 1;
-  offset = normcdf(-3 * sigma);
+  options.set('inputCount', inputCount);
+  options.set('outputCount', outputCount);
 
-  function rvs = preprocess(rvs)
-    rvs = offset + (1 - 2 * offset) * rvs;
-    rvs = Lnom + Ldev * Lmap * norminv(rvs).';
+  switch method
+  case 'kriging'
+    surrogate = Kriging(@(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
+      Lnom + Ldev * Lmap * norminv(u).'), options);
+  case 'asgc'
+    %
+    % NOTE: Not actually a good idea, but here we are trying to prevent
+    % unrealistic values like negatives and infinities. Applies only
+    % to the ASGC algorithm as it is based on uniform distributions.
+    %
+    sigma = 1;
+    offset = normcdf(-3 * sigma);
+
+    surrogate = ASGC(@(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
+      Lnom + Ldev * Lmap * norminv(offset + (1 - 2 * offset) * u).'), options);
+  otherwise
+    assert(false);
   end
-
-  surrogate = ASGC(@(rvs) this.evaluate(Pdyn, timeMeasurementIndex, ...
-    leakage, preprocess(rvs)), options);
 end

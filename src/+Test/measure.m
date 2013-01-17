@@ -15,11 +15,11 @@ function m = generate(c)
     mc = HotSpot.MonteCarlo('floorplan', c.floorplan, ...
       'config', c.hotspotConfig, 'line', c.hotspotLine);
 
-    tic;
+    time = tic;
     [ T, L ] = mc.compute(c.Pdyn, ...
       'Lnom', c.Lnom, 'Ldev', c.Ldev, ...
       'leakage', c.leakage, 'process', c.process);
-    time = toc;
+    time = toc(time);
 
     %
     % Choose spatial locations.
@@ -45,7 +45,7 @@ function m = generate(c)
       'timeMeasurementIndex', 'noise', '-v7.3');
   end
 
-  fprintf('Monte Carlo: simulation time %.2f s.\n', time);
+  fprintf('Monte Carlo: done in %.2f seconds.\n', time);
 
   m.T = T;
   m.L = L;

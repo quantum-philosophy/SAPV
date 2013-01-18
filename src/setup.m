@@ -1,6 +1,7 @@
 function setup
   use('TemperatureAnalysis');
   use('SystemSimulation');
-  use('Vendor', 'DataHash');
   use('Approximation');
+  use('StatisticalInference');
+  use('Vendor', 'DataHash');
 end

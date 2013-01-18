@@ -39,10 +39,31 @@ function surrogate = compute(this, Pdyn, varargin)
   options.set('inputCount', inputCount);
   options.set('outputCount', outputCount);
 
+  function [ k, dk ] = kernel(s, t, l)
+    n = sum((s - t).^2, 1) / 2;
+    k = exp(-n / l^2);
+    if nargout == 1, return; end
+    dk = k .* l^(-3) .* n;
+  end
+
   switch method
+  case 'gaussian'
+    options.set('kernel', @kernel);
+    options.set('parameters', 1);
+    options.set('lowerBound', 1e-3);
+    options.set('upperBound', 10);
+
+    surrogate = Regression.GaussianProcess( ...
+      'target', @(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
+        Lnom + Ldev * Lmap * norminv(u).'), options);
   case 'kriging'
-    surrogate = Kriging(@(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
-      Lnom + Ldev * Lmap * norminv(u).'), options);
+    options.set('parameters', ones(1, inputCount));
+    options.set('lowerBound', ones(1, inputCount) * 1e-3);
+    options.set('upperBound', ones(1, inputCount) * 10);
+
+    surrogate = Regression.Kriging( ...
+      'target', @(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
+        Lnom + Ldev * Lmap * norminv(u).'), options);
   case 'asgc'
     %
     % NOTE: Not actually a good idea, but here we are trying to prevent

@@ -48,19 +48,19 @@ function c = configure
   %
   c.Lnom = c.leakage.Lnom;
   c.Ldev = 0.05 * c.Lnom;
-  c.correlationKernel = @correlate;
+  c.correlationKernel = @kernel;
   c.correlationParams = { ...
         0.70, 0.10 * c.wafer.radius, ...
     1 - 0.70, 0.10 * c.wafer.radius };
 
-  function C = correlate(s, t, w1, l1, w2, l2)
-    C1 = w1 * exp(-sum(abs(s - t), 1) / l1);
+  function K = kernel(s, t, w1, l1, w2, l2)
+    K1 = w1 * exp(-sum(abs(s - t), 1) / l1);
 
     rs = sqrt(sum(s.^2, 1));
     rt = sqrt(sum(t.^2, 1));
-    C2 = w2 * exp(-abs(rs - rt) / l2);
+    K2 = w2 * exp(-abs(rs - rt) / l2);
 
-    C = C1 + C2;
+    K = K1 + K2;
   end
 
   c.process = ProcessVariation(c.wafer, ...
@@ -80,9 +80,12 @@ function c = configure
   %
   % Surrogate
   %
-  c.surrogateModel = 'kriging';
+  c.surrogateMethod = 'gaussian';
 
-  switch c.surrogateModel
+  switch lower(c.surrogateMethod)
+  case 'gaussian'
+    c.surrogateOptions = Options( ...
+      'nodeCount', 1e3, 'verbose', true);
   case 'kriging'
     c.surrogateOptions = Options( ...
       'nodeCount', 1e3, 'verbose', true);
@@ -92,5 +95,7 @@ function c = configure
       'tolerance', 1e-4, ...
       'maximalLevel', 5, ...
       'verbose', true);
+  otherwise
+    assert(false);
   end
 end

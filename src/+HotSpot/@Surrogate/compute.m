@@ -3,8 +3,6 @@ function surrogate = compute(this, Pdyn, varargin)
 
   options = Options(varargin{:});
 
-  method = options.get('method', 'kriging');
-
   leakage = options.leakage;
   process = options.process;
 
@@ -27,11 +25,8 @@ function surrogate = compute(this, Pdyn, varargin)
   %
   % Configure the surrogate construction algorithm.
   %
-  if options.has('surrogateOptions')
-    options = options.surrogateOptions;
-  else
-    options = Options();
-  end
+  method = options.get('method', 'kriging');
+  options = options.get('methodOptions', Options());
 
   inputCount = process.dimensionCount;
   outputCount = spaceMeasurementCount * processorCount * timeMeasurementCount;
@@ -39,19 +34,12 @@ function surrogate = compute(this, Pdyn, varargin)
   options.set('inputCount', inputCount);
   options.set('outputCount', outputCount);
 
-  function [ k, dk ] = kernel(s, t, l)
-    n = sum((s - t).^2, 1) / 2;
-    k = exp(-n / l^2);
-    if nargout == 1, return; end
-    dk = k .* l^(-3) .* n;
-  end
-
-  switch method
+  switch lower(method)
   case 'gaussian'
     options.set('kernel', @kernel);
-    options.set('parameters', 1);
-    options.set('lowerBound', 1e-3);
-    options.set('upperBound', 10);
+    options.set('parameters', [ 1, 1 ]);
+    options.set('lowerBound', [ 1e-3, 1e-3 ]);
+    options.set('upperBound', [ 2, 10 ]);
 
     surrogate = Regression.GaussianProcess( ...
       'target', @(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
@@ -78,4 +66,16 @@ function surrogate = compute(this, Pdyn, varargin)
   otherwise
     assert(false);
   end
+end
+
+function [ K, dK ] = kernel(x, y, params)
+  s = params(1); % Standard deviation
+  l = params(2); % Length scale
+
+  n = sum((x - y).^2, 1);
+  K = s^2 * exp(-n / 2 / l^2);
+
+  if nargout == 1, return; end % Derivatives?
+
+  dK = [ K .* l^(-3) .* n; K * 2 * s ];
 end

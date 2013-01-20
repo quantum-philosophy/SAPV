@@ -1,9 +1,5 @@
-The straightforward MCMC sampling is highly time-consuming. This is mainly due to the repetitive solution of the thermal system given in \eref{thermal-system}. Therefore, a natural way to speed up the computational process is to bypass \eref{thermal-system}. To this end, using the theory of PC expansions introduced in \sref{pc-expansion}, the forward model is approximated as
-\begin{equation} \elabel{pc-approximation}
-  \mT(\r) = \model{\Param, \r} \approx \sum_{i = 0}^\norder \hat{\mT}_i \vpcb_i(\vZ)
+The straightforward MCMC sampling is highly time-consuming. This is mainly due to the repetitive solution of the thermal system given in \eref{thermal-system}. Therefore, a natural way to speed up the computational process is to bypass \eref{thermal-system}. To this end, using the Gaussian process (GP) regression introduced in \sref{gp-regression}, the forward model is approximated as
+\begin{equation} \elabel{gp-approximation}
+  \mvT = \model{\vparam}
 \end{equation}
-where the coefficient matrices $\hat{\mT}_i \in \real^{\ncores \times \nsteps}$ are
-\[
-  \hat{\mT}_i = \frac{\iprod{\mT(\r), \vpcb_i}_\H}{\norm{\vpcb_i}^2_\H}
-\]
-where the inner product in the enumerator should be understood element-wise. In general, this inner product cannot be computed analytically, and one has to rely on numerical integration, which we also do. Once the representation in \eref{pc-approximation} has been constructed, the evaluation of the forward model becomes trivial: it is an evaluation of a polynomial, which has negligibly small costs.
+Once the representation in \eref{gp-approximation} has been constructed, the evaluation of the forward model becomes trivial.

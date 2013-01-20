@@ -35,9 +35,6 @@
 \renewcommand{\v}[1]{\mathbf{#1}}
 \newcommand{\vectorize}[1]{\text{vec}(#1)}
 
-\newcommand{\iprod}[1]{\langle #1 \rangle}
-\newcommand{\sprod}[1]{\left( #1 \right)}
-
 \newcommand{\abs}[1]{| #1 |}
 \newcommand{\norm}[1]{\| #1 \|}
 \newcommand{\fnorm}[1]{\| #1 \|_F}
@@ -46,6 +43,8 @@
 \newcommand{\mI}{\m{I}}
 
 \newcommand{\argmax}{\operatornamewithlimits{argmax}}
+
+\newcommand{\diag}[1]{\text{diag}(#1)}
 
 % Probability theory
 \renewcommand{\o}{\omega}
@@ -60,12 +59,13 @@
 \newcommand{\vU}{\v{U}}
 
 \newcommand{\gaussian}[2]{\mathcal{N}\left( #1, #2 \right)}
+\newcommand{\gaussianp}[2]{\mathcal{GP}\left( #1, #2 \right)}
 \newcommand{\sichisquared}[2]{\text{Scale-inv-}\chi^2\left( #1, #2 \right)}
 
 \newcommand{\z}{z}
 \newcommand{\Z}{Z}
-\newcommand{\vz}{z}
-\newcommand{\vZ}{Z}
+\newcommand{\vz}{\v{z}}
+\newcommand{\vZ}{\v{Z}}
 
 \makeatletter
 \def\f#1{\@ifnextchar\bgroup{\fWithTwoArguments{#1}}{\fWithOneArgument{#1}}}
@@ -85,10 +85,15 @@
 \newcommand{\Cov}[1]{\mathbb{C}\text{ov}\left( #1 \right)}
 
 \newcommand{\mCov}{\m{K}}
-\newcommand{\vfMean}{\boldsymbol\mu}
+\newcommand{\vMean}{\boldsymbol\mu}
 
 \newcommand{\param}{\theta}
 \newcommand{\Param}{\Theta}
+
+\newcommand{\vparam}{{\boldsymbol\theta}}
+
+\newcommand{\SE}{\text{SE}}
+\newcommand{\OU}{\text{OU}}
 
 % System
 \makeatletter
@@ -100,21 +105,22 @@
 % Temperature
 \newcommand{\specification}{\mathcal{S}}
 
-\newcommand{\T}{T}
-\newcommand{\vT}{\v{T}}
-\newcommand{\mT}{\mathbb{T}}
+\newcommand{\T}{Q}
+\newcommand{\vT}{\v{q}}
+\newcommand{\mT}{\m{Q}}
+\newcommand{\mvT}{\tilde{\m{q}}}
 \newcommand{\amb}{\text{amb}}
 \newcommand{\meas}{\text{meas}}
 
-\newcommand{\vX}{\v{X}}
+\newcommand{\vX}{\v{x}}
 \newcommand{\mC}{\m{C}}
 \newcommand{\mG}{\m{G}}
 \newcommand{\mM}{\m{B}}
 
 % Power
-\renewcommand{\P}{P}
-\newcommand{\vP}{\v{P}}
-\newcommand{\mP}{\mathbb{\P}}
+\renewcommand{\P}{p}
+\newcommand{\vP}{\v{p}}
+\newcommand{\mP}{\m{P}}
 \newcommand{\dyn}{\text{dyn}}
 \newcommand{\leak}{\text{leak}}
 
@@ -124,6 +130,7 @@
 
 % Space
 \renewcommand{\r}{r}
+\newcommand{\vr}{\v{r}}
 
 % Profiles
 \newcommand{\profile}[1]{( #1, \partition{#1} )}
@@ -145,16 +152,11 @@
 \newcommand{\data}{\mathcal{D}}
 
 % Uncertainties
-\newcommand{\noise}{N}
-\newcommand{\mnoise}{\m{\noise}}
-\newcommand{\vnoise}{\v{\noise}}
-
-% Polynomial chaos
-\newcommand{\pcb}{\phi}
-\newcommand{\vpcb}{\Phi}
+\newcommand{\noise}{\epsilon}
+\newcommand{\mnoise}{\boldsymbol\epsilon}
+\newcommand{\vnoise}{\boldsymbol\epsilon}
 
 % Karhunen-Loeve expansion
-\newcommand{\klb}{\psi}
 \newcommand{\domain}{D}
 
 % Numbers
@@ -164,6 +166,8 @@
 \newcommand{\nsteps}{{n_\text{s}}}
 \newcommand{\ndcs}{{n_\text{dps}}}
 \newcommand{\nnodes}{{n_\text{n}}}
-\newcommand{\nterms}{{n_\text{e}}}
-\newcommand{\norder}{{n_\text{o}}}
 \newcommand{\nvars}{{n_\text{v}}}
+
+\newcommand{\nobs}{{n_\text{obs}}}
+\newcommand{\nreg}{{n_\text{reg}}}
+\newcommand{\nnew}{{n_\text{new}}}

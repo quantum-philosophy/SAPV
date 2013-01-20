@@ -1,68 +1,64 @@
-Since, at each point of the continuum of spatial locations on the wafer, $\U$ can potentially take a different value, $\U$ is infinite-dimensional. We model $\U$ as a stochastic process $\U: \outcomes \times \domain \to \real$ in $\H$ defined over a spacial domain $\domain$ corresponding to the wafer. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\U$ is assumed to be a Gaussian process \cite{rasmussen2006}:
+Since, at each point of the continuum of spatial locations on the wafer, $\U$ can potentially take a different value, $\U$ is infinite-dimensional. We model $\U$ as a square-integrable stochastic process $\U: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$ corresponding to the wafer. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\U$ is assumed to be a Gaussian process \cite{rasmussen2006}:
 \[
-  \U | \fMean, \fCov \sim \gaussian{\fMean}{\fCov}
+  \U | \vparam_\U \sim \gaussianp{\fMean}{\fCov}
 \]
-where $\fMean{\r} := \E{\U(\r)}$ and $\fCov{\r, \r'}$, $\forall \r, \r' \in \domain$, are the mean and covariance functions of $\U$. For simplicity, let $\fMean{\r} = \fMean$, $\forall \r \in \domain$, meaning that the function is a constant equal to some nominal value $\fMean$ of $\U$. Due to the particularities of the manufacturing process, such uncertainties often bear radial structures \cite{cheng2011}; thus, we assume that $\r$ represents the Euclidean distance from the center of the wafer to the center of the die, and the covariance function of $\U$ is exponential \cite{maitre2010}:
+where $\fMean$ and $\fCov$ are the mean and covariance functions of $\U$, and $\vparam_\U$ is their parametrization. For simplicity, let $\fMean{\r} = \mu_\U$, $\forall \r \in \domain$, meaning that the function is constant. Guided by the observations on the correlation structures induced by the manufacturing process \cite{cheng2011}, the covariance function of $\U$ is chosen to be the following composition:
 \begin{equation} \elabel{covariance-function}
-  \fCov{\r, \r'} = \sigma_\U^2 \exp\left(-\frac{\abs{\r - \r'}}{\ell}\right)
+  \fCov{\r, \r'} = \sigma_\U^2 \big( \eta \fCov_\SE(\r, \r') + (1 - \eta) \fCov_\OU(\r, \r') \big)
 \end{equation}
-where $\sigma_\U^2$ represents the variance of $\U$, and $\ell > 0$ is known as the correlation length; the later is assumed to be given while the former is a subject of our inference.
+where
+\begin{align*}
+  & \fCov_\SE(\r, \r') = \exp\left(-\frac{\norm{\r - \r'}^2}{2 \ell_\SE^2}\right) \text{ and} \\
+  & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU} \right)
+\end{align*}
+are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\U^2$ represents the variance of $\U$; $\eta$ weights the kernels; $\norm{\cdot}$ stands for the Euclidean distance; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters. In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu_\U$ and $\sigma^2_\U$ are a part of our inference. Thus, we let $\vparam_\U = \{ \mu_\U, \sigma_\U^2 \}$ and denote the forward model by $\mvT = \model{\vparam_\U}$.
 
 \subsubsection{Model reduction}
-The infinite-dimensional object $\U$ is reduced to the finite-dimensional case using the KL expansion introduced in \sref{kl-expansion}:
+Suppose the parameters $\vparam$ are known. The infinite-dimensional object $\U$ is reduced to the finite-dimensional case $\vU$ via the KL expansion, introduced in \sref{kl-expansion}, with respect to the spatial locations of all the processing elements on the wafer:
 \begin{equation} \elabel{kl-approximation}
-  \U(\r) \approx \fMean + \sigma_\U \sum_{i = 1}^\nvars \sqrt{\lambda_i} \: \klb_i(\r) \: \Z_i
+  \vU = \mu_\U \mI + \sigma_\U \m{V} \m{\Lambda}^\frac{1}{2} \vZ
 \end{equation}
-where we treat the variance $\sigma^2_\U$ in \eref{covariance-function} separately, and, thus, $\{ (\lambda_i, \klb_i) \}$ are the first $\nvars$ eigenpairs of $\sigma^{-2}_\U \fCov{\cdot, \cdot}$ instead of $\fCov{\cdot, \cdot}$. It can be seen that the stochastic process $\U$ has been replaced with an $\nvars$-dimensional \rv\ $\vZ = (\Z_i) \in \real^\nvars$.
+Here, we treat the constant multiplier $\sigma^2_\U$ of \eref{covariance-function} separately. Thus, after model order reduction, the stochastic process $\U$ has been replaced with an $\nvars$-dimensional \rv\ $\vZ = (\Z_i) \in \real^\nvars$ having the standard Gaussian distribution. Redefine $\vparam_\U$ as $\vparam_\U = \{ \mu_\U, \sigma_\U^2, \vZ \}$ (see also \cite{marzouk2009}).
 
 \subsubsection{Additive noise}
-Denote the forward model developed in \sref{power-model} and \sref{thermal-model} by
-\begin{equation} \elabel{model}
-  \mT(\r) = \model{\u, \r}
-\end{equation}
-which, for an outcome $\u: \domain \to \real$ of the process $\U$, transforms the test dynamic power profile $\profilePdyn$ into the corresponding temperature profile $\profileT$ computed at location $\r \in \domain$. Note, $\model$ also performs thinning of the output temperature to match the partition $\partition{\mT}$ of $\data$. Due to the imperfection of the modeling and measurement processes, a temperature profile $\mT^{(i)}_\meas$ from the data set $\data$ is assumed to deviate from the model prediction in \eref{model}. To account for this, $\mT^{(i)}_\meas$ is modeled as
+Due to the imperfection of the measurement processes, the temperature profiles in $\data$, stacked into $\mvT_\meas$, are assumed to deviate from the model prediction in \eref{model}. To account for this,
 \[
-  \mT^{(i)}_\meas = \mT(\r_i) + \mnoise^{(i)} = \model{\u, \r_i} + \mnoise^{(i)}
+  \mvT_\meas = \mvT + \vnoise = \model{\u} + \vnoise
 \]
-where $\mnoise^{(i)} = (\noise^{(i)}_{jk}) \in \real^{\ncores \times \nsteps}$ represents a matrix of an additive noise. The noise is typically assumed to be a white Gaussian noise and to be independent from $\U$ \cite{marzouk2007, el-moselhy2012}. Therefore, $\noise^{(i)}_{jk}$ is modeled as
+where $\vnoise$ is an $\ndcs$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent from $\U$ \cite{rasmussen2006}. Therefore,
 \[
-  \noise^{(i)}_{jk} | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise}
+  \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
 \]
-where $\sigma^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements.
+where $\sigma^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. Finally, let us denote the parameters to be inferred as
+\[
+  \vparam = \vparam_\U \cup \{ \sigma_\noise^2 \} = \{ \mu_\U, \sigma_\U^2, \sigma_\noise^2, \vZ \}.
+\]
 
 \subsubsection{The likelihood function}
-Denote all the uncertain parameters present in the current model by
-\[
-  \Param = \left\{ \Z_1, \dotsc, \Z_\nvars, \sigma^2_\U, \sigma^2_\noise \right\}
-\]
-and an outcome of $\Param$ by $\param$. The noise yields the following likelihood function $\f{\data | \param}$ of the data $\data$, which, intuitively speaking, gives the probability of observing $\data$:
-\begin{align}
-  \f{\data | \param} & = \prod_{i = 1}^{\ndata} \f{\mT^{(i)}_\meas| \param, \r_i}  \elabel{likelihood} \\
-  & \propto \frac{1}{\sigma_\noise^\ndcs} \exp\left( -\frac{\sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2}{2 \sigma^2_\noise} \right) \nonumber
-\end{align}
-where $\ndcs = \ndata \ncores \nsteps$, $\fnorm{\cdot}$ is the Frobenius norm, and
-\[
-  \mnoise^{(i)} = \mT^{(i)}_{\meas} - \mT(\r_i) = \mT^{(i)}_{\meas} - \model{\param, \r_i}.
-\]
-Note, $\model{\param, \cdot}$ now denotes the forward model.
+The noise yields the following likelihood function $\f{\data | \vparam}$ of the data $\data$, which, intuitively speaking, gives the probability of observing $\data$:
+\begin{equation} \elabel{likelihood}
+  \f{\data | \vparam} = \prod_{i = 1}^{\ndata} \f{\mT^{(i)}_\meas| \vparam, \r_i} \propto \frac{1}{\sigma_\noise^\ndcs} \exp\left( -\frac{\vnoise^T \vnoise}{2 \sigma^2_\noise} \right) \nonumber
+\end{equation}
+where $\vnoise = \mvT_\meas - \mvT = \mvT_\meas - \model{\vparam_\U}$. The likelihood function corresponds to the density of a multivariate Gaussian distribution.
 
 \subsubsection{The prior}
-The parameters in $\Param$ are assumed to have the following priors \cite{marzouk2009}:
+The parameters in $\vparam$ are assumed to have the following priors:
 \begin{align}
-  & \Z_i \sim \gaussian{0}{1}, \elabel{z-prior} \\
-  & \sigma^2_\U \sim \sichisquared{\nu_\U}{\tau^2_\U}, \elabel{sigma2-u-prior}\\
-  & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \elabel{sigma2-noise-prior}
+  & \mu_\U \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{mu-u-prior} \\
+  & \sigma^2_\U \sim \sichisquared{\nu_\U}{\tau^2_\U}, \elabel{sigma2-u-prior} \\
+  & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}, \text{ and} \elabel{sigma2-noise-prior} \\
+  & \Z_i \sim \gaussian{0}{1}. \elabel{z-prior}
 \end{align}
-The prior for $\Z_i$ is due to the definition of a KL expansion for Gaussian processes (see \sref{kl-expansion}). The last two priors, the scaled inverse chi-squared distributions, are a common, in Bayesian settings, choice for the variance of a Gaussian model \cite{gelman2004}. The parameters $\nu_\U$ and $\nu_\noise$, representing the degree of beliefs, and $\tau^2_\U$ and $\tau^2_\U$, representing the presumable values of $\sigma^2_\U$ and $\sigma^2_\noise$, should be set according to the prior knowledge. In the absence of such knowledge, a non-informative prior can be chosen for $\sigma^2_\U$ and $\sigma^2_\noise$. Taking the product of \eref{z-prior}--\eref{sigma2-noise-prior}, we have
+The first three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common, in Bayesian settings, choice for the unknown mean and variance of a Gaussian model \cite{gelman2004}. The parameters $\nu_\U$ and $\nu_\noise$, representing the degree of beliefs, and $\tau^2_\U$ and $\tau^2_\U$, representing the presumable values of $\sigma^2_\U$ and $\sigma^2_\noise$, should be set according to the prior knowledge. In the absence of such knowledge, a non-informative prior can be chosen for $\sigma^2_\U$ and $\sigma^2_\noise$. The prior for $\Z_i$ is due to the definition of a KL expansion for Gaussian processes \cite{marzouk2009}. Taking the product of \eref{mu-u-prior}--\eref{z-prior}, we have
 \begin{align}
-  & \f{\param} = \prod_{i = 1}^\nvars \f{\Z_i} \; \f{\sigma^2_\U} \; \f{\sigma^2_\noise} \elabel{prior} \\
-  & \propto \frac{1}{\sigma_\U^{\nu_\U + 2} \sigma_\noise^{\nu_\noise + 2}} \exp\left( -\frac{\vZ^T\vZ}{2} -\frac{\nu_\U \tau_\U^2}{2 \sigma^2_\U} - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \right). \nonumber
+  & \f{\vparam} = \f{\mu_\U} \; \f{\sigma^2_\U} \; \f{\sigma^2_\noise} \; \prod_{i = 1}^\nvars \f{\z_i} \propto \frac{1}{\sigma_0 \sigma_\U^{\nu_\U + 2} \sigma_\noise^{\nu_\noise + 2}} \nonumber \\
+  & \times \exp\left( -\frac{(\mu_\U - \mu_0)^2}{2 \sigma^2_0} - \frac{\nu_\U \tau_\U^2}{2 \sigma^2_\U} - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} - \frac{\vz^T\vz}{2} \right). \elabel{prior}
 \end{align}
 
 \subsubsection{The posterior}
-Since we intend to use the MH algorithm for sampling, it is sufficient to find the posterior distribution up to a constant, with respect to $\param$. In particular, this renders the normalization constant in \eref{bayes} irrelevant. Taking the product of \eref{likelihood} and \eref{prior} and transferring it into the logarithmic space, the posterior is
+Since we intend to use the MH algorithm for sampling, it is sufficient to find the posterior distribution up to a constant, with respect to $\vparam$. In particular, this renders the normalization constant in \eref{bayes} irrelevant. Taking the product of \eref{likelihood} and \eref{prior} and transferring it into the logarithmic space, the posterior is
 \begin{align}
-  & c_1 \ln \f{\param | \data} + c_2 = -\frac{\sum_{i = 1}^\ndata \fnorm{\mnoise^{(i)}}^2}{\sigma^2_\noise} - \vZ^T\vZ - \frac{\nu_\U \tau_\U^2}{\sigma^2_\U}  \elabel{log-posterior} \\
-  & {} - \frac{\nu_\noise \tau_\noise^2}{\sigma^2_\noise} -(\ndcs + \nu_\noise + 2) \log \sigma^2_\noise - (\nu_\U + 2) \log \sigma^2_\U \nonumber
+  & c_1 \ln \f{\vparam | \data} + c_2 = -\frac{\vnoise^T \vnoise}{\sigma^2_\noise} -\frac{(\mu_\U - \mu_0)^2}{\sigma^2_0} - \frac{\nu_\U \tau_\U^2}{\sigma^2_\U} - \frac{\nu_\noise \tau_\noise^2}{\sigma^2_\noise} \nonumber \\
+  & {} - \vz^T\vz - \ln \sigma^2_0 - (\nu_\U + 2) \ln \sigma^2_\U - (\ndcs + \nu_\noise + 2) \ln \sigma^2_\noise \elabel{log-posterior}
 \end{align}
-where $c_1 > 0$ and $c_2$ are some constants. Now, the MH formalism can be applied to \eref{log-posterior}. Note, however, the expression poses a significant computational challenge as it requires $\ndata$ evaluations of $\model$ for each sample of $\Param$.
+where $c_1 > 0$ and $c_2$ are some constants. The MH formalism can now be applied to \eref{log-posterior} to draw samples from the posterior. Each sample is then used in \eref{kl-approximation} to compute a sample of the quantity of interest being inferred, $\U$, for all processing elements on the wafer. Note, however, the expression in \eref{log-posterior} poses a significant computational challenge as it requires $\ndata$ evaluations of $\model$ for each sample of $\U$.

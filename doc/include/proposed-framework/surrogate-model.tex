@@ -1,5 +1,10 @@
-The straightforward MCMC sampling is highly time-consuming. This is mainly due to the repetitive solution of the thermal system given in \eref{thermal-system}. Therefore, a natural way to speed up the computational process is to bypass \eref{thermal-system}. To this end, using the Gaussian process (GP) regression introduced in \sref{gp-regression}, the forward model is approximated as
-\begin{equation} \elabel{gp-approximation}
-  \mvT = \model{\vparam}
-\end{equation}
-Once the representation in \eref{gp-approximation} has been constructed, the evaluation of the forward model becomes trivial.
+The straightforward MCMC sampling is highly time-consuming. This is mainly due to the repetitive solution of the thermal system given in \eref{thermal-system}. Therefore, a natural way to speed up the computational process is to bypass \eref{thermal-system}. To this end, using GP interpolation introduced in \sref{gp-approximation}, the forward model is approximated as
+\begin{align}
+  \mvT^T & = \model{\vparam_\u}^T \approx \hat{\fCov}(\vu, \mU_0) \hat{\fCov}(\mU_0, \mU_0)^{-1} \mmT_0^T \nonumber \\
+  & = \hat{\fCov}(\mu_\u \vI + \sigma_\u \mKL \vz, \mU_0) \hat{\fCov}(\mU_0, \mU_0)^{-1} \mmT_0^T \elabel{gp-approximation}
+\end{align}
+where $\mU_0 = (\vu_{0i})$ and $\mmT_0 = (\mvT_{0i})$ form an experimental design data set $\DesignData = \{ (\vu_{0i}, \mvT_{0i}) \}_{i = 1}^\nobs$, which is used to construct the above approximation. Note, \eref{gp-approximation} differs from the one in \sref{gp-approximation} as here we have $\ndcs$ outputs, which are modeled independently of each other. Also, the kernel $\hat{\fCov}$ should not be confused with $\fCov$ in \eref{covariance-function}: they are two distinct kernels. We choose $\hat{\fCov}$ to be the squared exponential kernel:
+\[
+  \hat{\fCov}(\r, \r') = \hat{\sigma}^2 \exp\left(-\frac{\norm{\r - \r'}^2}{2 \hat{\ell}^2}\right)
+\]
+where the parameters $\hat{\sigma}^2$ and $\hat{\ell}$ are estimated from the data $\DesignData$ by maximizing the corresponding marginal likelihood function, which, again, should not be confused with the one in \eref{likelihood}. Finally, we need to decide on the experimental design procedure to collect $\DesignData$. In this paper, we assume to have a specified, by the user, budget of $\nobs$ forward model evaluations, \ie, $\nobs$ solutions of \eref{thermal-system}. The forward model is samples using Latin hypercube sampling. The interested reader is referred to \eg, \cite{rasmussen2006} for additional details. Once the representation in \eref{gp-approximation} has been constructed, the evaluation of the forward model becomes trivial.

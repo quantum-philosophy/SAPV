@@ -27,8 +27,6 @@
 
 % Spaces
 \newcommand{\real}{\mathbb{R}}
-\renewcommand{\L}[1]{L^{#1}}
-\renewcommand{\H}{{\L{2}(\outcomes)}}
 
 % Linear algebra
 \newcommand{\m}[1]{\mathbf{#1}}
@@ -37,9 +35,8 @@
 
 \newcommand{\abs}[1]{| #1 |}
 \newcommand{\norm}[1]{\| #1 \|}
-\newcommand{\fnorm}[1]{\| #1 \|_F}
-\renewcommand{\d}{d}
 
+\newcommand{\vI}{\v{I}}
 \newcommand{\mI}{\m{I}}
 
 \newcommand{\argmax}{\operatornamewithlimits{argmax}}
@@ -55,17 +52,14 @@
 
 \renewcommand{\u}{u}
 \newcommand{\vu}{\v{u}}
-\newcommand{\U}{U}
-\newcommand{\vU}{\v{U}}
+\newcommand{\mU}{\m{U}}
 
 \newcommand{\gaussian}[2]{\mathcal{N}\left( #1, #2 \right)}
 \newcommand{\gaussianp}[2]{\mathcal{GP}\left( #1, #2 \right)}
 \newcommand{\sichisquared}[2]{\text{Scale-inv-}\chi^2\left( #1, #2 \right)}
 
 \newcommand{\z}{z}
-\newcommand{\Z}{Z}
 \newcommand{\vz}{\v{z}}
-\newcommand{\vZ}{\v{Z}}
 
 \makeatletter
 \def\f#1{\@ifnextchar\bgroup{\fWithTwoArguments{#1}}{\fWithOneArgument{#1}}}
@@ -108,11 +102,12 @@
 \newcommand{\T}{Q}
 \newcommand{\vT}{\v{q}}
 \newcommand{\mT}{\m{Q}}
-\newcommand{\mvT}{\tilde{\m{q}}}
+\newcommand{\mvT}{\tilde{\v{q}}}
+\newcommand{\mmT}{\tilde{\m{Q}}}
 \newcommand{\amb}{\text{amb}}
 \newcommand{\meas}{\text{meas}}
 
-\newcommand{\vX}{\v{x}}
+\newcommand{\vx}{\v{x}}
 \newcommand{\mC}{\m{C}}
 \newcommand{\mG}{\m{G}}
 \newcommand{\mM}{\m{B}}
@@ -149,7 +144,8 @@
 \def\profileTWithoutArgument{\profile{\mT}}
 \makeatother
 
-\newcommand{\data}{\mathcal{D}}
+\newcommand{\Data}{\mathcal{D}}
+\newcommand{\DesignData}{\mathcal{O}}
 
 % Uncertainties
 \newcommand{\noise}{\epsilon}
@@ -158,9 +154,15 @@
 
 % Karhunen-Loeve expansion
 \newcommand{\domain}{D}
+\newcommand{\mKL}{\m{L}}
 
 % Numbers
-\newcommand{\ndata}{{n_\text{d}}}
+\newcommand{\dies}{\text{c}}
+\newcommand{\ndies}{{n_\dies}}
+
+\newcommand{\data}{\text{d}}
+\newcommand{\ndata}{{n_\data}}
+
 \newcommand{\ncores}{{n_\text{p}}}
 \newcommand{\npsteps}{{n_\text{s}'}}
 \newcommand{\nsteps}{{n_\text{s}}}
@@ -168,6 +170,6 @@
 \newcommand{\nnodes}{{n_\text{n}}}
 \newcommand{\nvars}{{n_\text{v}}}
 
-\newcommand{\nobs}{{n_\text{obs}}}
-\newcommand{\nreg}{{n_\text{reg}}}
-\newcommand{\nnew}{{n_\text{new}}}
+\newcommand{\nobs}{{n_\text{o}}}
+\newcommand{\nuno}{{n_\text{u}}}
+\newcommand{\nin}{{n_\text{v}}}

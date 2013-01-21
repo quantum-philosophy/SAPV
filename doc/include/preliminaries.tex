@@ -1,38 +1,32 @@
 \subsection{Bayesian Inference} \slabel{bayesian-inference}
-Let $\vU$ be a vector of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\vU$ given a data set the corresponding observations and some prior believes about $\vU$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
+Let $\vparam$ be a set of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\vparam$ given a data set of observations and some prior believes on $\vparam$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
 \begin{equation} \elabel{bayes}
-  \text{Prior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Evidence}}, \;\; \f{\vu | \data} = \frac{\f{\data | \vu} \f{\vu}}{\f{\data}},
+  \text{Prior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Evidence}}, \;\; \f{\vparam | \Data} = \frac{\f{\Data | \vparam} \f{\vparam}}{\f{\Data}},
 \end{equation}
-where $\f{\cdot}$ and $\f{\cdot | \cdot}$ denote a probability density function and a conditional probability density function, respectively. $\f{\vu}$ is known as the prior of the parameters $\vU$, $\f{\vu | \data}$ is the corresponding posterior, $\f{\data | \vu}$ is the likelihood function, and $\f{\data}$ is a normalization constant.
-
-For certain combinations of likelihood functions and prior densities, which usually appear in relatively simple problems, it is possible to obtain closed-form expressions for the corresponding posteriors; they can even fall into one of the standard families of probability distributions. However, it is rarely the case for challenging but typically more interesting problems. For instance, when modeling a physical process, the likelihood function can easily involve a system of differential equations, which is our scenario as we shall discuss in \sref{thermal-model}. In such a situation, in order to be able to draw samples from the posterior, one usually relies on sampling techniques. In this paper, we shall utilize MCMC sampling, namely the Metropolis-Hastings (MH) algorithm \cite{gelman2004}.
+where $\f{\cdot}$ denotes a probability density function, and the straight bars stand for conditioning. $\f{\vparam}$ is called the prior of $\vparam$, $\f{\vparam | \Data}$ is the corresponding posterior, $\f{\Data | \vparam}$ is the likelihood function, and $\f{\Data}$ is a normalization constant. Closed-form expressions for posteriors often do not exist for challenging problems. For instance, when modeling a physical process, the likelihood function may involve solving a system of differential equations; it is the case for our problem as we shall see in \sref{thermal-model}. Thus, in order to be able to draw samples from the posterior, one usually relies on sampling techniques. In this paper, we utilize MCMC sampling, namely the Metropolis-Hastings (MH) algorithm \cite{gelman2004}.
 
 \subsection{Karhunen-Lo\`{e}ve (KL) Expansion} \slabel{kl-expansion}
-Let $\U: \outcomes \times \domain \to \real$ be a square-integrable stochastic process defined over a spatial domain $\domain$. Let $\fMean{\r} := \E{\U(\r)}$ and $\fCov{\r, \r'} := \E{(\U(\r) - \fMean{\r}) (\U(\r') - \fMean{\r'})}$, $\r, \r' \in \domain$, be the mean and covariance functions of $\U$, respectively. Take a vector of spatial locations $\vr = (\r_i) \in \domain^n$, and define the corresponding discretization of $\U$ as an $n$-dimensional random vector $\vU = (\U(\r_i)) \in \real^n$ endowed with the expected value $\vMean = (\fMean{\r_i}) \in \real^n$ and the covariance matrix $\mCov = (\fCov{\r_i, \r_j}) \in \real^{n \times n}$. Since any covariance matrix is a real, symmetric matrix, it admits the eigenvalue decomposition \cite{press2007} written as
+Let $\u: \outcomes \times \domain \to \real$ be a square-integrable stochastic process defined over a spatial domain $\domain$. Let $\fMean{\r} := \E{\u(\r)}$ and $\fCov{\r, \r'} := \E{(\u(\r) - \fMean{\r}) (\u(\r') - \fMean{\r'})}$, $\r, \r' \in \domain$, be the mean and covariance functions of $\u$, respectively. Take a vector of spatial locations $\vr = (\r_i) \in \domain^n$, and define the corresponding discretization of $\u$ as an $n$-dimensional \rv\ $\vu = (\u(\r_i)) \in \real^n$ endowed with the expected value $\vMean = (\fMean{\r_i}) \in \real^n$ and the covariance matrix $\mCov = (\fCov{\r_i, \r_j}) \in \real^{n \times n}$. Since any covariance matrix is real and symmetric, it admits the eigenvalue decomposition \cite{press2007} written as
 \[
   \mCov = \m{V} \m{\Lambda} \m{V}^T
 \]
-where $\m{V}$ and $\m{\Lambda} = \diag{\lambda_i}$ are an orthogonal matrix of the eigenvectors and a diagonal matrix of the eigenvalues of $\mCov$, respectively. Consequently, $\vU$ can be represented as
-\[
-  \vU = \vMean + \m{V} \m{\Lambda}^\frac{1}{2} \vZ
-\]
-where $\vZ$ is a vector of centered, normalized, and uncorrelated \rvs, which are also independent if $\U$ is Gaussian.
+where $\m{V}$ and $\m{\Lambda} = \diag{\lambda_i}$ are an orthogonal matrix of the eigenvectors and a diagonal matrix of the eigenvalues of $\mCov$, respectively. Consequently, denoting $\mKL = \m{V} \m{\Lambda}^\frac{1}{2}$, $\vu$ can be represented as
+\begin{equation} \elabel{kl-expansion}
+  \vu = \vMean + \mKL \vz
+\end{equation}
+where $\vz$ is a vector of centered, normalized, and uncorrelated \rvs, which are also independent if $\u$ is Gaussian.
 
-The decomposition above provides means of model order reduction. The intuition is that, due to the existing correlations between \rvs, some of them can be harmlessly replaced by linear combinations of the rest. One way to reveal these redundancies is to analyze the eigenvalues $\lambda_i$ found in $\m{\Lambda}$. Assume $\lambda_i$, $\forall i$, are arranged in a non-increasing order and let $\tilde{\lambda}_i = \lambda_i / \sum_j \lambda_j$. Gradually summing up the arranged and normalized eigenvalues $\tilde{\lambda}_i$, we can identify a subset of them, which has the cumulative sum greater than a certain threshold. When this threshold is sufficiently high (close to one), the rest of the eigenvalues and their eigenvectors can be dropped as being insignificant, reducing the number of stochastic dimensions.
+The decomposition above provides means of even further model order reduction. The intuition is that, due to the correlations induced by $\fCov$, $\vu$ can be nearly losslessly recovered from a small subset of $\vz$. One way to reveal these redundancies is to analyze the eigenvalues $\lambda_i$ stored in $\m{\Lambda}$. Assume $\lambda_i$, $\forall i$, are arranged in a non-increasing order and let $\tilde{\lambda}_i = \lambda_i / \sum_j \lambda_j$. Gradually summing up the arranged and normalized eigenvalues $\tilde{\lambda}_i$, we can identify a subset of them, which has the cumulative sum greater than a certain threshold. When this threshold is sufficiently high (close to one), the rest of the eigenvalues and their eigenvectors can be dropped as being insignificant, reducing the number of stochastic dimensions. In what follows, such a reduction will have the same notation as in the full version given in \eref{kl-expansion}, and the dimensionality of $\mKL$ and $\vz$ will be clear from the context.
 
-\subsection{Gaussian Process Regression} \slabel{gp-regression}
-Let $\data = \{ (\v{x}_i, y_i) \}_{i = 1}^\nobs$ be a training set with $\nobs$ observations where $\v{x} \in \real^\nreg$ and $y \in \real$ denote the regressors and the target, respectively. Denote $\m{X} = (\v{x}_i) \in \real^{\nreg \times \nobs}$ and $\v{y} = (y_i) \in \real^\nobs$. The data are modeled as $y_i = f(\v{x}_i) + \noise_i$ where $f: \real^\nreg \to \real$ is the unknown function to be identified, and $\noise_i \in \real$ is an additive noise. We put a zero-mean Gaussian process prior on $f$:
+\subsection{Gaussian Process Interpolation} \slabel{gp-approximation}
+Consider an unknown functional dependency $y = f(\v{x})$ where $\v{x} \in \real^\nin$, $y \in \real$, and $f: \real^\nin \to \real$. We would like to compute $f$ at $\nuno$ unobserved locations $\{ \v{x}_i \}_{i = 1}^\nuno$ based on $\nobs$ noise-free observations $\DesignData = \{ (\v{x}_{0i}, y_{0i}) \}_{i = 1}^\nobs$. Let $\m{X} = (\v{x}_i) \in \real^{\nin \times \nuno}$, $\m{X}_0 = (\v{x}_{0i}) \in \real^{\nin \times \nobs}$, and $\v{y}_0 = (y_{0i}) \in \real^\nobs$. We put a zero-mean Gaussian process prior on $f$:
 \[
   f | \vparam \sim \gaussianp{0}{\fCov},
 \]
-where $\fCov{\r, \r'} = \E{f(\r) f(\r')}$ is the covariance function of $f$, dependent on a set of parameters $\vparam$, and a zero-mean Gaussian prior on the noise:
-\[
-  \noise_i | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise},
-\]
-where $\sigma^2_\noise$ is the variance of the noise. It can be shown \cite{rasmussen2006} that the corresponding likelihood function, posterior, and predictive distribution are Gaussian. The latter is
+where $\fCov{\r, \r'} = \E{f(\r) f(\r')}$ is the covariance function of $f$, which is parametrized by $\vparam$. It can be shown \cite{mackay2003, rasmussen2006} that the corresponding predictive distribution is Gaussian:
 \begin{align*}
-  & f | \m{X}_*, \data \sim \gaussian{\vMean}{\mCov}, \\
-  & \vMean = \fCov{\m{X}_*, \m{X}} [ \fCov{\m{X}, \m{X}} + \sigma^2_\noise \mI ]^{-1} \v{y}, \\
-  & \mCov = \fCov{\m{X}_*, \m{X}_*} - [ \fCov{\m{X}, \m{X}} + \sigma^2_\noise \mI ]^{-1} \fCov{\m{X}, \m{X}_*},
+  & f | \m{X}, \Data \sim \gaussian{\v{y}}{\mCov}, \\
+  & \v{y} = \fCov{\m{X}, \m{X}_0} \fCov{\m{X}_0, \m{X}_0}^{-1} \v{y}_0, \\
+  & \mCov = \fCov{\m{X}, \m{X}} - \fCov{\m{X}_0, \m{X}_0}^{-1} \fCov{\m{X}_0, \m{X}},
 \end{align*}
-where, conventionally, the covariance function $\fCov$ applied to two matrices of covariates denotes the matrix obtained by evaluating $\fCov$ on those covariates. The above expression predicts $f$ at $\nnew$ unobserved locations stored in $\m{X}_* \in \real^{\nreg \times \nnew}$ similar to $\m{X}$ defined earlier.
+where, conventionally, the covariance function $\fCov$ applied to two matrices of input variables denotes the matrix obtained by evaluating $\fCov$ on those variables.

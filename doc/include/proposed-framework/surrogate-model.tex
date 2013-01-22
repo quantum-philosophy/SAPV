@@ -1,26 +1,26 @@
 The straightforward MCMC sampling is highly time-consuming. This is mainly due to the repetitive solution of the thermal system given in \eref{thermal-system}. Therefore, a natural way to speed up the computational process is to bypass \eref{thermal-system}. To this end, using GP interpolation introduced in \sref{gp-approximation}, the forward model is approximated as
 \begin{equation} \elabel{gp-approximation}
-  \model | \vparam_\u \sim \gaussian{\vMean_\T}{\sigma^2_\T \mI}
+  \model | \vparam_\u \sim \gaussian{\vmean_\T}{\sigma^2_\T \mI}
 \end{equation}
 where the left-hand side is nothing else but $\mvT$,
-\begin{align*}
-  & \vMean_\T = \hat{\fCov}(\vu_\data, \mU_0) \hat{\fCov}(\mU_0, \mU_0)^{-1} \mmT_0^T, \text{ and} \\
-  & \sigma^2_\T = \fCov{\vu_\data, \vu_\data} - \fCov{\mU_0, \mU_0}^{-1} \fCov{\mU_0, \vu_\data}.
-\end{align*}
+\begin{align}
+  & \vmean_\T^T = \hat{\fCov}(\vu_\data, \mU_0) \hat{\fCov}(\mU_0, \mU_0)^{-1} \mmT_0^T, \text{ and} \elabel{gp-mean} \\
+  & \sigma^2_\T = \fCov{\vu_\data, \vu_\data} - \fCov{\mU_0, \mU_0}^{-1} \fCov{\mU_0, \vu_\data}. \elabel{gp-variance}
+\end{align}
 Here, $\vu_\data$ is a constrained version of \eref{kl-approximation} (see \sref{model-order-reduction}); $\mU_0 = (\vu_{0i})$ and $\mmT_0 = (\mvT_{0i})$ form an experimental design data set $\DesignData = \{ (\vu_{0i}, \mvT_{0i}) \}_{i = 1}^\nobs$, which is used to construct the above approximation. Note, \eref{gp-approximation} differs from the one in \sref{gp-approximation} as we have $\ndcs$ outputs, which are assumed to be independent. Also, the kernel $\hat{\fCov}$ should not be confused with $\fCov$ in \eref{covariance-function}: they are two distinct kernels. We choose $\hat{\fCov}$ to be the squared exponential kernel:
 \[
   \hat{\fCov}(\r, \r') = \hat{\sigma}^2 \exp\left(-\frac{\norm{\r - \r'}^2}{2 \hat{\ell}^2}\right)
 \]
-where the parameters $\hat{\sigma}^2$ and $\hat{\ell}$ are estimated from the data $\DesignData$ by maximizing the corresponding marginal likelihood function, which, again, should not be confused with the one in \eref{likelihood}. Finally, we need to decide on the experimental design procedure to collect $\DesignData$. In this paper, we assume to have a specified by the user budget of $\nobs$ forward model evaluations, \ie, $\nobs$ solutions of \eref{thermal-system}. The forward model is samples using Latin hypercube sampling. The interested reader is referred to, \eg, \cite{rasmussen2006} for additional details.
+where the parameters $\hat{\sigma}^2$ and $\hat{\ell}$ are estimated from the data $\DesignData$ by maximizing the corresponding marginal likelihood function, which, again, should not be confused with the one in \eref{likelihood}. Additional details can be found in, \eg, \cite{mackay2003, rasmussen2006}. Finally, we need to decide on the experimental design procedure to collect $\DesignData$. In this paper, we assume a user-specified budget $\nobs$ of forward model evaluations, \ie, solutions of \eref{thermal-system}, and we spend this budget by utilizing Latin hypercube sampling together with the prior knowledge on $\vparam_\u = \{ \mu_\u, \sigma_\u^2, \vz \}$ given in \eref{mu-u-prior}, \eref{sigma2-u-prior}, and \eref{z-prior}.
 
 It can be seen that we have established a nested Bayesian inference model. The inner inference described in this subsection operates on a noise-free data set, $\DesignData$, and the outer inference described in \sref{statistical-model} operates on a noisy data set, $\Data$. Now, we merge the two together by revisiting \eref{likelihood} wherein we need to account for \eref{gp-approximation}. Specifically, the likelihood of the observed data $\mvT_\meas$ is
 \begin{equation} \elabel{noise-approximation-model}
-  \mvT_\meas | \vparam \sim \gaussian{\vMean_\T}{\sigma_\noise^2 \mI + \sigma_\T^2 \mI}.
+  \mvT_\meas | \vparam \sim \gaussian{\vmean_\T}{\sigma_\noise^2 \mI + \sigma_\T^2 \mI}.
 \end{equation}
 Finally, the new posterior in the logarithmic space is
 \begin{align}
-  & \ln \f{\vparam | \Data} = -\frac{\ndcs}{2} \ln(\sigma^2_\noise + \sigma^2_\T) - \frac{\norm{\mvT_\meas - \vMean_\T}^2}{2(\sigma^2_\noise + \sigma^2_\T)} \nonumber \\
-  & {} - \frac{1}{2} \ln \sigma^2_0 - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - (1 + \frac{\nu_\u}{2}) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
+  & \ln \f{\vparam | \Data} = -\frac{\ndcs}{2} \ln(\sigma^2_\noise + \sigma^2_\T) - \frac{\norm{\mvT_\meas - \vmean_\T}^2}{2(\sigma^2_\noise + \sigma^2_\T)} \nonumber \\
+  & {} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - (1 + \frac{\nu_\u}{2}) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
   & {} - (1 + \frac{\nu_\noise}{2}) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{\sigma^2_\noise} - \norm{\vz}^2 + c \elabel{log-posterior}
 \end{align}
-where $c$ is some constant.
+where $\vmean_\T$ and $\sigma^2_\T$ are functions of $\vparam_\u$ defined by \eref{gp-mean} and \eref{gp-variance}, respectively, and $c$ is some constant.

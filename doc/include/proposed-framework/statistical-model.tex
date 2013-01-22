@@ -11,14 +11,14 @@ where
   & \fCov_\SE(\r, \r') = \exp\left(-\frac{\norm{\r - \r'}^2}{2 \ell_\SE^2}\right) \text{ and} \\
   & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU} \right)
 \end{align*}
-are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta$ weights the kernels; $\norm{\cdot}$ stands for the Euclidean distance; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters. In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu_\u$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu_\u, \sigma_\u^2 \}$ and denote the forward model by $\mvT = \model{\vparam_\u}$.
+are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ weights the kernels; $\norm{\cdot}$ stands for the Euclidean distance; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters. In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu_\u$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu_\u, \sigma_\u^2 \}$ and denote the forward model by $\mvT = \model{\vparam_\u}$.
 
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
-The infinite-dimensional object $\u$ is reduced to the finite-dimensional one via the KL expansion introduced in \sref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ndies \ncores$ processing elements on the wafer. Consequently, we obtain an $\ndies \ncores$-dimensional \rv\ denoted by $\vu_\dies: \outcomes \to \real^{\ndies \ncores}$:
+The infinite-dimensional object $\u$ is reduced to the finite-dimensional one via the KL expansion introduced in \sref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ndies \ncores$ processing elements on the wafer. Consequently, we obtain an $\ndies \ncores$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^{\ndies \ncores}$:
 \begin{equation} \elabel{kl-approximation}
-  \vu_\dies = \mu_\u \vI + \sigma_\u \mKL \vz
+  \vu = \mu_\u \vI + \sigma_\u \mKL \vz
 \end{equation}
-where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, and $\vz = (\z_i) \in \real^\nvars$ are \rvs\ obeying the standard Gaussian distribution. In addition, we denote by $\vu_\data \in \real^{\ndata \ncores}$ those elements of $\vu_\dies$ that correspond to the observations in $\Data$. Note that we perform model order reduction in \eref{kl-approximation} where $\mKL \in \real^{\ndies \ncores \times \nvars}$ and $\nvars$ is typically much smaller than $\ndies \ncores$. Let us redefine $\vparam_\u$ as $\vparam_\u = \{ \mu_\u, \sigma_\u^2, \vz \}$.
+where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, and $\vz = (\z_i) \in \real^\nvars$ are \rvs\ obeying the standard Gaussian distribution. In addition, we denote by $\vu_\data \in \real^{\ndata \ncores}$ those elements of $\vu$ that correspond to the observations in $\Data$. Note that we perform model order reduction in \eref{kl-approximation} where $\mKL \in \real^{\ndies \ncores \times \nvars}$ and $\nvars$ is typically much smaller than $\ndies \ncores$. Let us redefine $\vparam_\u$ as $\vparam_\u = \{ \mu_\u, \sigma_\u^2, \vz \}$.
 
 \subsubsection{The likelihood function}
 Due to the imperfection of the measurement processes, the temperature profiles in $\Data$, stacked into $\mvT_\meas$, are assumed to deviate from the model prediction in \eref{model}. To account for this,

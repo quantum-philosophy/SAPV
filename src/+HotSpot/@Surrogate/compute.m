@@ -36,10 +36,13 @@ function surrogate = compute(this, Pdyn, varargin)
 
   switch lower(method)
   case 'gaussian'
-    options.set('kernel', @kernel);
-    options.set('parameters', [ 1, 1 ]);
-    options.set('lowerBound', [ 1e-3, 1e-3 ]);
-    options.set('upperBound', [ 2, 10 ]);
+    kernel = Options( ...
+      'compute', @correlate, ...
+      'parameters', [ 1, 1 ], ...
+      'lowerBound', [ 1e-3, 1e-3 ], ...
+      'upperBound', [ 2, 10 ]);
+
+    options.set('kernel', kernel);
 
     surrogate = Regression.GaussianProcess( ...
       'target', @(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
@@ -68,14 +71,15 @@ function surrogate = compute(this, Pdyn, varargin)
   end
 end
 
-function [ K, dK ] = kernel(x, y, params)
+function [ K, dK ] = correlate(x, y, params)
   s = params(1); % Standard deviation
   l = params(2); % Length scale
 
   n = sum((x - y).^2, 1);
-  K = s^2 * exp(-n / 2 / l^2);
+  e = exp(-n / (2 * l^2));
+  K = s^2 * e;
 
   if nargout == 1, return; end % Derivatives?
 
-  dK = [ K .* l^(-3) .* n; K * 2 * s ];
+  dK = [ 2 * s * e; l^(-3) * K .* n ];
 end

@@ -48,12 +48,13 @@ function c = configure
   %
   c.Lnom = c.leakage.Lnom;
   c.Ldev = 0.05 * c.Lnom;
-  c.correlationKernel = @kernel;
-  c.correlationParams = { ...
-        0.70, 0.10 * c.wafer.radius, ...
-    1 - 0.70, 0.10 * c.wafer.radius };
 
-  function K = kernel(s, t, w1, l1, w2, l2)
+  w1 =     0.70;
+  w2 = 1 - 0.70;
+  l1 = 0.10 * c.wafer.radius;
+  l2 = 0.10 * c.wafer.radius;
+
+  function K = kernel(s, t)
     K1 = w1 * exp(-sum(abs(s - t), 1) / l1);
 
     rs = sqrt(sum(s.^2, 1));
@@ -63,12 +64,18 @@ function c = configure
     K = K1 + K2;
   end
 
-  c.process = ProcessVariation(c.wafer, ...
-    'method', 'discrete', ...
-    'kernel', c.correlationKernel, ...
-    'params', c.correlationParams);
+  filename = File.temporal([ 'ProcessVariation_', ...
+    DataHash({ w1, w2, l1, l2 }), '.mat' ]);
 
-  c.dimensionCount = c.process.dimensionCount;
+  if File.exist(filename)
+    load(filename);
+  else
+    process = ProcessVariation(c.wafer, 'kernel', @kernel);
+    save(filename, 'process', '-v7.3');
+  end
+
+  c.process = process;
+  c.dimensionCount = process.dimensionCount;
 
   %
   % Measurements

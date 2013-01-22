@@ -1,9 +1,5 @@
-function [ expansion, mapping, inverseMapping ] = ...
-  construct(this, wafer, options)
-
-  params = options.get('params', {});
-  kernel = @(s, t) options.kernel(s, t, params{:});
-
+function [ mapping, inverseMapping ] = construct(this, wafer, options)
+  kernel = options.kernel;
   threshold = options.get('threshold', this.threshold);
 
   F = wafer.floorplan;
@@ -16,72 +12,6 @@ function [ expansion, mapping, inverseMapping ] = ...
 
   X = bsxfun(@plus, repmat(X, 1, wafer.dieCount), F(:, 1).');
   Y = bsxfun(@plus, repmat(Y, 1, wafer.dieCount), F(:, 2).');
-
-  switch lower(options.get('method', 'analytic'))
-  case 'analytic'
-    %
-    % Only for the Ornstein-Uhlenbeck kernel.
-    %
-    error('Deprecated.');
-    expansion = KarhunenLoeve.OrnsteinUhlenbeck( ...
-      'domainBoundary', wafer.radius, ...
-      'correlationLength', wafer.radius, ...
-      'threshold', threshold);
-    [ mapping, inverseMapping ] = ...
-      performKarhunenLoeve(X, Y, expansion, threshold);
-  case 'numeric'
-    error('Deprecated.');
-    expansion = KarhunenLoeve.Fredholm( ...
-      'domainBoundary', wafer.radius, ...
-      'threshold', threshold, ...
-      'kernel', kernel);
-    [ mapping, inverseMapping ] = ...
-      performKarhunenLoeve(X, Y, expansion, threshold);
-  case 'discrete'
-    expansion = NaN;
-    [ mapping, inverseMapping ] = ...
-      performDiscrete(X, Y, kernel, threshold);
-  otherwise
-    assert(false);
-  end
-end
-
-function [ mapping, inverseMapping ] = ...
-  performKarhunenLoeve(X, Y, expansion, threshold)
-
-  X = X(:);
-  Y = Y(:);
-
-  totalCount = length(X);
-
-  values = expansion.values;
-  dimensionCount = expansion.dimensionCount;
-
-  L = zeros(0, 3);
-  for i = 1:dimensionCount
-    for j = 1:dimensionCount
-      L(end + 1, :) = [ i, j, values(i) * values(j) ];
-    end
-  end
-
-  [ ~, I ] = sort(L(:, 3), 'descend');
-  L = L(I, :);
-
-  dimensionCount = Utils.chooseSignificant(L(:, 3), threshold);
-
-  mapping = zeros(totalCount, dimensionCount);
-  inverseMapping = zeros(dimensionCount, totalCount);
-
-  for k = 1:dimensionCount
-    i = L(k, 1); j = L(k, 2); l = L(k, 3);
-    fifj = expansion.functions{i}(X) .* expansion.functions{j}(Y);
-    mapping(:, k) = sqrt(l) * fifj;
-    inverseMapping(k, :) = (1 / sqrt(l)) * fifj;
-  end
-end
-
-function [ mapping, inverseMapping ] = ...
-  performDiscrete(X, Y, kernel, threshold)
 
   X = X(:);
   Y = Y(:);

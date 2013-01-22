@@ -8,7 +8,6 @@ classdef ProcessVariation < handle
 
   properties (SetAccess = 'protected')
     wafer
-    expansion
     mapping
     inverseMapping
     dimensionCount
@@ -17,7 +16,9 @@ classdef ProcessVariation < handle
   methods
     function this = ProcessVariation(wafer, varargin)
       options = Options(varargin{:});
-      this.initialize(wafer, options);
+      this.wafer = wafer;
+      [ this.mapping, this.inverseMapping ] = this.construct(wafer, options);
+      this.dimensionCount = size(this.mapping, 2);
     end
 
     function [ mapping, inverseMapping ] = constrainMapping(this, index)
@@ -48,27 +49,6 @@ classdef ProcessVariation < handle
   end
 
   methods (Access = 'private')
-    [ expansion, mapping, inverseMapping ] = construct(this, wafer, options)
-
-    function initialize(this, wafer, options)
-      this.wafer = wafer;
-
-      filename = File.temporal([ class(this), '_', ...
-        DataHash({ this.threshold, Utils.toString(options) }), '.mat' ]);
-
-      if File.exist(filename)
-        load(filename);
-      else
-        [ expansion, mapping, inverseMapping ] = ...
-          this.construct(wafer, options);
-        save(filename, 'expansion', 'mapping', ...
-          'inverseMapping', '-v7.3');
-      end
-
-      this.expansion = expansion;
-      this.mapping = mapping;
-      this.inverseMapping = inverseMapping;
-      this.dimensionCount = size(mapping, 2);
-    end
+    [ mapping, inverseMapping ] = construct(this, wafer, options)
   end
 end

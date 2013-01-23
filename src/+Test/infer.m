@@ -8,8 +8,8 @@ rng(1);
 %
 c = Test.configure;
 
-Lnom = c.Lnom;
-Ldev = c.Ldev;
+Lnom = c.process.Lnom;
+Ldev = c.process.Ldev;
 
 %% Measure temperature profiles.
 %
@@ -17,21 +17,21 @@ m = Test.measure(c);
 
 %% Display the wafer and chosen dies.
 %
-plot(c.wafer, m.spaceMeasurementIndex);
+plot(c.system.wafer, m.spaceMeasurementIndex);
 
 %% Plot the distribution of the channel length and maximal temperature.
 %
 Lrange = [ Lnom - 3 * Ldev, Lnom + 3 * Ldev ];
 Trange = [ 45, 120 ];
 
-plot(c.process, m.L);
+plot(c.process.model, m.L);
 Plot.title('Channel length');
 colormap(Color.map(m.L, Lrange));
 
 T = max(squeeze(max(m.T, [], 2)), [], 1);
-T = Utils.toCelsius(repmat(T, c.processorCount, 1));
+T = Utils.toCelsius(repmat(T, c.system.processorCount, 1));
 
-plot(c.process, T);
+plot(c.process.model, T);
 Plot.title('Maximal temperature');
 colormap(Color.map(T, Trange));
 
@@ -42,16 +42,16 @@ s = Test.substitute(c, m);
 %% Visualize some traces.
 %
 dimensionCount = c.dimensionCount;
-processorCount = c.processorCount;
-stepCount = c.timeMeasurementCount;
-dieCount = c.spaceMeasurementCount;
+processorCount = c.system.processorCount;
+stepCount = c.observations.timeStepCount;
+dieCount = c.observations.spaceStepCount;
 
 %
 % Get the Gaussian random variables used to compute the leakage
 % parameters across the wafer.
 %
 Lnorm = (m.L - Lnom) / Ldev;
-Ntrue = transpose(c.process.inverseMapping * Lnorm(:));
+Ntrue = transpose(c.process.model.inverseMapping * Lnorm(:));
 
 Ttrue = Utils.toCelsius(m.T(:, :, m.spaceMeasurementIndex));
 Tmeas = Utils.toCelsius(m.Tmeas);
@@ -62,7 +62,7 @@ u = normcdf(n);
 Tsamp = Utils.toCelsius(reshape(s.evaluate(u), ...
   [ processorCount, stepCount, dieCount ]));
 
-time = ((1:c.powerStepCount) - 1) * c.samplingInterval;
+time = ((1:c.power.stepCount) - 1) * c.samplingInterval;
 measurementTime = (m.timeMeasurementIndex - 1) * c.samplingInterval;
 
 xlimit = [ time(1), time(end) ];

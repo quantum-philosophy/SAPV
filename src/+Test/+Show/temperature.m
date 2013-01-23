@@ -2,17 +2,13 @@ setup;
 
 c = Test.configure;
 
-Pdyn = c.Pdyn;
+Pdyn = c.power.Pdyn;
 
-hs = HotSpot.Analytic('floorplan', c.floorplan, ...
-  'config', c.hotspotConfig, 'line', c.hotspotLine);
+hs = HotSpot.Analytic('floorplan', c.system.floorplan, ...
+  'config', c.temperature.configuration, 'line', c.temperature.line);
 
-[ T, Pleak ] = hs.compute(Pdyn, c.leakage);
+[ T, Pleak ] = hs.compute(Pdyn, c.leakage.model);
 T = Utils.toCelsius(T);
-
-%% HotSpot configuration.
-%
-display(hs);
 
 figure;
 time = hs.samplingInterval * (1:size(Pdyn, 2));

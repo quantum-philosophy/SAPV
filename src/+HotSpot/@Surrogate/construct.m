@@ -1,4 +1,4 @@
-function surrogate = compute(this, Pdyn, varargin)
+function surrogate = construct(this, Pdyn, varargin)
   processorCount = size(Pdyn, 1);
 
   options = Options(varargin{:});
@@ -18,9 +18,9 @@ function surrogate = compute(this, Pdyn, varargin)
   %
   % Leakage.
   %
-  Lnom = options.Lnom;
-  Ldev = options.Ldev;
-  Lmap = process.constrainMapping(spaceMeasurementIndex);
+  Unom = options.Unom;
+  Udev = options.Udev;
+  Umap = process.constrainMapping(spaceMeasurementIndex);
 
   %
   % Configure the surrogate construction algorithm.
@@ -46,7 +46,7 @@ function surrogate = compute(this, Pdyn, varargin)
 
     surrogate = Regression.GaussianProcess( ...
       'target', @(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
-        Lnom + Ldev * Lmap * norminv(u).'), options);
+        Unom + Udev * Umap * norminv(u).'), options);
   case 'kriging'
     options.set('parameters', ones(1, inputCount));
     options.set('lowerBound', ones(1, inputCount) * 1e-3);
@@ -54,7 +54,7 @@ function surrogate = compute(this, Pdyn, varargin)
 
     surrogate = Regression.Kriging( ...
       'target', @(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
-        Lnom + Ldev * Lmap * norminv(u).'), options);
+        Unom + Udev * Umap * norminv(u).'), options);
   case 'asgc'
     %
     % NOTE: Not actually a good idea, but here we are trying to prevent
@@ -65,7 +65,7 @@ function surrogate = compute(this, Pdyn, varargin)
     offset = normcdf(-3 * sigma);
 
     surrogate = ASGC(@(u) this.evaluate(Pdyn, timeMeasurementIndex, leakage, ...
-      Lnom + Ldev * Lmap * norminv(offset + (1 - 2 * offset) * u).'), options);
+      Unom + Udev * Umap * norminv(offset + (1 - 2 * offset) * u).'), options);
   otherwise
     assert(false);
   end

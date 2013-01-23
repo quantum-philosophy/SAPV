@@ -1,12 +1,7 @@
-classdef Surrogate < HotSpot.Analytic
+classdef Surrogate < HotSpot.Batch
   methods
     function this = Surrogate(varargin)
-      options = Options(varargin{:});
-      this = this@HotSpot.Analytic(options);
+      this = this@HotSpot.Batch(varargin{:});
     end
-  end
-
-  methods (Access = 'private')
-    Data = evaluate(this, Pdyn, stepIndex, leakage, L)
   end
 end

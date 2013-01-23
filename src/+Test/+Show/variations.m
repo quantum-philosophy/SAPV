@@ -4,8 +4,8 @@ setup;
 c = Test.configure;
 p = c.process;
 
-L = p.Lnom + p.Ldev * p.model.sample;
+U = p.Unom + p.Udev * p.model.sample;
 
-plot(p.model, L);
-colormap(Color.map(L, [ p.Lnom - 3 * p.Ldev, p.Lnom + 3 * p.Ldev ]));
-Plot.title('Channel length');
+plot(p.model, U);
+colormap(Color.map(U, [ p.Unom - 3 * p.Udev, p.Unom + 3 * p.Udev ]));
+Plot.title('Quantity of interest');

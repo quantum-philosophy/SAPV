@@ -2,18 +2,20 @@ clear all;
 close all;
 setup;
 
-rng(1);
+rng(9);
 
 %% Configure the test case.
 %
 c = Test.configure;
 
-Lnom = c.process.Lnom;
-Ldev = c.process.Ldev;
+Unom = c.process.Unom;
+Udev = c.process.Udev;
 
 %% Measure temperature profiles.
 %
+time = tic;
 m = Test.measure(c);
+fprintf('Measurements: done in %.2f seconds.\n', toc(time));
 
 %% Display the wafer and chosen dies.
 %
@@ -21,12 +23,12 @@ plot(c.system.wafer, m.spaceMeasurementIndex);
 
 %% Plot the distribution of the channel length and maximal temperature.
 %
-Lrange = [ Lnom - 3 * Ldev, Lnom + 3 * Ldev ];
+Urange = [ Unom - 3 * Udev, Unom + 3 * Udev ];
 Trange = [ 45, 120 ];
 
-plot(c.process.model, m.L);
-Plot.title('Channel length');
-colormap(Color.map(m.L, Lrange));
+plot(c.process.model, m.U);
+Plot.title('Quantity of interest');
+colormap(Color.map(m.U, Urange));
 
 T = max(squeeze(max(m.T, [], 2)), [], 1);
 T = Utils.toCelsius(repmat(T, c.system.processorCount, 1));
@@ -37,7 +39,9 @@ colormap(Color.map(T, Trange));
 
 %% Construct the surrogate model.
 %
+time = tic;
 s = Test.substitute(c, m);
+fprintf('Surrogate: done in %.2f seconds.\n', toc(time));
 
 %% Visualize some traces.
 %
@@ -50,8 +54,8 @@ dieCount = c.observations.spaceStepCount;
 % Get the Gaussian random variables used to compute the leakage
 % parameters across the wafer.
 %
-Lnorm = (m.L - Lnom) / Ldev;
-Ntrue = transpose(c.process.model.inverseMapping * Lnorm(:));
+Unorm = (m.U - Unom) / Udev;
+Ntrue = transpose(c.process.model.inverseMapping * Unorm(:));
 
 Ttrue = Utils.toCelsius(m.T(:, :, m.spaceMeasurementIndex));
 Tmeas = Utils.toCelsius(m.Tmeas);

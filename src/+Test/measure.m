@@ -1,60 +1,38 @@
-function m = generate(c)
+function m = measure(c)
   m = Options;
 
   %
   % Generate temperature profiles for all the dies.
   %
-  filename = File.temporal(sprintf('MonteCarlo_%s.mat', ...
-    DataHash({ c.power.Pdyn, Utils.toString(c.leakage.model), ...
-      Utils.toString(c.process.model) })));
+  hs = HotSpot.Batch('floorplan', c.system.floorplan, ...
+    'config', c.temperature.configuration, 'line', c.temperature.line);
 
-  if File.exist(filename)
-    fprintf('Monte Carlo: using cached data in "%s"...\n', filename);
-    load(filename);
-  else
-    fprintf('Monte Carlo: simulation...\n');
+  m.U = c.process.Unom + c.process.Udev * c.process.model.sample;
+  T = hs.compute(c.power.Pdyn, ...
+    'leakage', c.leakage.model, 'parameters', m.U(:));
+  m.T = reshape(T, [ c.system.processorCount, ...
+    c.power.stepCount, c.system.wafer.dieCount ]);
 
-    mc = HotSpot.MonteCarlo('floorplan', c.system.floorplan, ...
-      'config', c.temperature.configuration, 'line', c.temperature.line);
+  %
+  % Choose spatial locations.
+  %
+  spaceMeasurementIndex = randperm(c.system.wafer.dieCount);
+  m.spaceMeasurementIndex = ...
+    sort(spaceMeasurementIndex(1:c.observations.spaceStepCount));
 
-    time = tic;
-    [ T, L ] = mc.compute(c.power.Pdyn, ...
-      'Lnom', c.process.Lnom, 'Ldev', c.process.Ldev, ...
-      'leakage', c.leakage.model, 'process', c.process.model);
-    time = toc(time);
+  %
+  % Choose temporal locations.
+  %
+  timeMeasurementIndex = randperm(c.power.stepCount);
+  m.timeMeasurementIndex = ...
+    sort(timeMeasurementIndex(1:c.observations.timeStepCount));
 
-    %
-    % Choose spatial locations.
-    %
-    spaceMeasurementIndex = randperm(c.system.wafer.dieCount);
-    spaceMeasurementIndex = ...
-      sort(spaceMeasurementIndex(1:c.observations.spaceStepCount));
-
-    %
-    % Choose temporal locations.
-    %
-    timeMeasurementIndex = randperm(c.power.stepCount);
-    timeMeasurementIndex = ...
-      sort(timeMeasurementIndex(1:c.observations.timeStepCount));
-
-    %
-    % Generate some noise.
-    %
-    noise = c.observations.noiseDeviation * ...
-      randn(c.system.processorCount, c.observations.timeStepCount, ...
-        c.observations.spaceStepCount);
-
-    save(filename, 'L', 'T', 'time', 'spaceMeasurementIndex', ...
-      'timeMeasurementIndex', 'noise', '-v7.3');
-  end
-
-  fprintf('Monte Carlo: done in %.2f seconds.\n', time);
-
-  m.T = T;
-  m.L = L;
-
-  m.spaceMeasurementIndex = spaceMeasurementIndex;
-  m.timeMeasurementIndex = timeMeasurementIndex;
+  %
+  % Generate some noise.
+  %
+  noise = c.observations.noiseDeviation * ...
+    randn(c.system.processorCount, c.observations.timeStepCount, ...
+      c.observations.spaceStepCount);
 
   %
   % Thin the data.

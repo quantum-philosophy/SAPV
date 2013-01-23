@@ -55,8 +55,8 @@ function c = configure
   % Process variation
   %
   c.process = Options;
-  c.process.Lnom = c.leakage.model.Lnom;
-  c.process.Ldev = 0.05 * c.process.Lnom;
+  c.process.Unom = c.leakage.model.Lnom;
+  c.process.Udev = 0.05 * c.process.Unom;
 
   eta = 0.70;
   lse = 0.10 * c.system.wafer.radius;
@@ -103,15 +103,16 @@ function c = configure
   % Surrogate
   %
   c.surrogate = Options;
+  c.surrogate.nodeCount = 1e3;
   c.surrogate.method = 'gaussian';
 
   switch lower(c.surrogate.method)
   case 'gaussian'
     c.surrogate.options = Options( ...
-      'nodeCount', 1e3, 'verbose', true);
+      'nodeCount', c.surrogate.nodeCount, 'verbose', true);
   case 'kriging'
     c.surrogate.options = Options( ...
-      'nodeCount', 1e3, 'verbose', true);
+      'nodeCount', c.surrogate.nodeCount, 'verbose', true);
   case 'asgc'
     c.surrogate.options = Options( ...
       'control', 'NormNormExpectation', ...
@@ -129,16 +130,18 @@ function c = configure
   %
   c.inference = Options;
 
+  c.inference.sampleCount = 1e4;
+
   % The prior on the mean of the QoI.
-  c.inference.mu0 = c.process.Lnom;
-  c.inference.sigma0 = 0.01 * c.process.Lnom;
+  c.inference.mu0 = c.process.Unom;
+  c.inference.sigma0 = 0.01 * c.process.Unom;
 
   % The prior on the variance of the QoI.
   %
   % As if from...
   c.inference.nuu = 2;
   % ... observations we concluded that it should be...
-  c.inference.tauu = c.process.Ldev;
+  c.inference.tauu = c.process.Udev;
 
   % The prior on the variance of the noise.
   %

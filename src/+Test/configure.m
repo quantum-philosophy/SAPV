@@ -49,23 +49,28 @@ function c = configure
   c.Lnom = c.leakage.Lnom;
   c.Ldev = 0.05 * c.Lnom;
 
-  w1 =     0.70;
-  w2 = 1 - 0.70;
-  l1 = 0.10 * c.wafer.radius;
-  l2 = 0.10 * c.wafer.radius;
+  eta = 0.70;
+  lse = 0.10 * c.wafer.radius;
+  lou = 0.10 * c.wafer.radius;
 
   function K = kernel(s, t)
-    K1 = w1 * exp(-sum(abs(s - t), 1) / l1);
+    %
+    % Squared exponential kernel.
+    %
+    Kse = eta * exp(-sum((s - t).^2, 1) / lse^2);
 
+    %
+    % Ornstein-Uhlenbeck kernel.
+    %
     rs = sqrt(sum(s.^2, 1));
     rt = sqrt(sum(t.^2, 1));
-    K2 = w2 * exp(-abs(rs - rt) / l2);
+    Kou = (1 - eta) * exp(-abs(rs - rt) / lou);
 
-    K = K1 + K2;
+    K = Kse + Kou;
   end
 
   filename = File.temporal([ 'ProcessVariation_', ...
-    DataHash({ w1, w2, l1, l2 }), '.mat' ]);
+    DataHash({ eta, lse, lou }), '.mat' ]);
 
   if File.exist(filename)
     load(filename);

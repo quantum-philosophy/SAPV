@@ -5,7 +5,7 @@ classdef Batch < HotSpot.Analytic
     end
   end
 
-  methods (Access = 'private')
+  methods (Access = 'protected')
     Data = evaluate(this, Pdyn, stepIndex, leakage, U)
   end
 end

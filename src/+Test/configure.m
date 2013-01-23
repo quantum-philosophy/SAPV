@@ -95,7 +95,7 @@ function c = configure
   % Observations
   %
   c.observations = Options;
-  c.observations.noiseVariance = 1^2; % Squared degrees
+  c.observations.noiseDeviation = 1;
   c.observations.spaceStepCount = 10;
   c.observations.timeStepCount = 10;
 
@@ -121,4 +121,33 @@ function c = configure
   otherwise
     assert(false);
   end
+
+  %
+  % Inference.
+  %
+  % NOTE: Ideal scenario for now.
+  %
+  c.inference = Options;
+
+  % The prior on the mean of the QoI.
+  c.inference.mu0 = c.process.Lnom;
+  c.inference.sigma0 = 0.01 * c.process.Lnom;
+
+  % The prior on the variance of the QoI.
+  %
+  % As if from...
+  c.inference.nuu = 2;
+  % ... observations we concluded that it should be...
+  c.inference.tauu = c.process.Ldev;
+
+  % The prior on the variance of the noise.
+  %
+  % As if from...
+  c.inference.nue = 2;
+  % ... observations we concluded that it should be...
+  c.inference.taue = c.observations.noiseDeviation;
+
+  % The prior on the independent r.v.'s.
+  c.inference.muz = 0;
+  c.inference.sigmaz = 1;
 end

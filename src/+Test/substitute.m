@@ -1,12 +1,4 @@
-function surrogate = substitute(c, m)
-  Pdyn = c.power.Pdyn;
-  timeIndex = m.timeIndex;
-  leakage = c.leakage.model;
-
-  Unom = c.process.Unom;
-  Udev = c.process.Udev;
-  Umap = c.process.model.constrainMapping(m.dieIndex);
-
+function surrogate = substitute(c, m, nodes, responses)
   %
   % Configure the surrogate construction algorithm.
   %
@@ -16,9 +8,6 @@ function surrogate = substitute(c, m)
     'lowerBound', [ 1e-3, 1e-3 ], ...
     'upperBound', [ 2, 10 ]);
 
-  hotspot = HotSpot.Batch('floorplan', c.system.floorplan, ...
-    'config', c.temperature.configuration, 'line', c.temperature.line);
-
   options = Options;
 
   options.kernel = kernel;
@@ -27,9 +16,33 @@ function surrogate = substitute(c, m)
     c.observations.timeCount * c.observations.dieCount;
   options.nodeCount = c.surrogate.nodeCount;
 
-  surrogate = Regression.GaussianProcess( ...
-    'target', @(u) hotspot.compute(Pdyn, timeIndex, leakage, ...
-      Unom + Udev * Umap * norminv(u).'), options);
+  if nargin > 2
+    %
+    % We already have some data; just process it.
+    %
+    options.nodes = nodes;
+    options.responses = responses;
+
+    surrogate = Regression.GaussianProcess(options);
+  else
+    %
+    % Since no data provided, we need to sample ourselves.
+    %
+    Pdyn = c.power.Pdyn;
+    timeIndex = m.timeIndex;
+    leakage = c.leakage.model;
+
+    Unom = c.process.Unom;
+    Udev = c.process.Udev;
+    Umap = c.process.model.constrainMapping(m.dieIndex);
+
+    hotspot = HotSpot.Batch('floorplan', c.system.floorplan, ...
+      'config', c.temperature.configuration, 'line', c.temperature.line);
+
+    surrogate = Regression.GaussianProcess( ...
+      'target', @(u) hotspot.compute(Pdyn, timeIndex, leakage, ...
+        Unom + Udev * Umap * norminv(u).'), options);
+  end
 end
 
 function [ K, dK ] = correlate(x, y, params)

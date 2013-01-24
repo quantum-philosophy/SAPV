@@ -104,24 +104,6 @@ function c = configure
   %
   c.surrogate = Options;
   c.surrogate.nodeCount = 1e3;
-  c.surrogate.method = 'gaussian';
-
-  switch lower(c.surrogate.method)
-  case 'gaussian'
-    c.surrogate.options = Options( ...
-      'nodeCount', c.surrogate.nodeCount, 'verbose', true);
-  case 'kriging'
-    c.surrogate.options = Options( ...
-      'nodeCount', c.surrogate.nodeCount, 'verbose', true);
-  case 'asgc'
-    c.surrogate.options = Options( ...
-      'control', 'NormNormExpectation', ...
-      'tolerance', 1e-4, ...
-      'maximalLevel', 5, ...
-      'verbose', true);
-  otherwise
-    assert(false);
-  end
 
   %
   % Inference.
@@ -129,7 +111,6 @@ function c = configure
   % NOTE: Ideal scenario for now.
   %
   c.inference = Options;
-
   c.inference.sampleCount = 1e4;
 
   % The prior on the mean of the QoI.

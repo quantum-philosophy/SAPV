@@ -4,12 +4,11 @@ function m = measure(c)
   %
   % Generate temperature profiles for all the dies.
   %
-  hs = HotSpot.Batch('floorplan', c.system.floorplan, ...
+  hotspot = HotSpot.Batch('floorplan', c.system.floorplan, ...
     'config', c.temperature.configuration, 'line', c.temperature.line);
 
   m.U = c.process.Unom + c.process.Udev * c.process.model.sample;
-  T = hs.compute(c.power.Pdyn, ...
-    'leakage', c.leakage.model, 'parameters', m.U(:));
+  T = hotspot.compute(c.power.Pdyn, [], c.leakage.model, m.U(:));
   m.T = reshape(T, [ c.system.processorCount, ...
     c.power.stepCount, c.system.wafer.dieCount ]);
 

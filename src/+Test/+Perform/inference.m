@@ -29,25 +29,35 @@ sigma2e = samples(:, 3);
 z       = samples(:, 4:end);
 
 time = 1:size(samples, 1);
+timeInterval = [ time(1) time(end) ];
+
+c1 = Color.pick(1);
+c2 = Color.pick(2);
 
 figure;
-plot(time, fitness, 'Color', Color.pick(1));
+plot(time, fitness, 'Color', c1);
 Plot.title('Log-posterior + constant');
 
 figure;
-plot(time, muu, 'Color', Color.pick(1));
+plot(time, muu, 'Color', c1);
+line(timeInterval, c.process.Unom * [ 1 1 ], 'Color', c2);
 Plot.title('Mean of the QoI');
 
 figure;
-plot(time, sigma2u, 'Color', Color.pick(1));
+plot(time, sigma2u, 'Color', c1);
+line(timeInterval, c.process.Udev^2 * [ 1 1 ], 'Color', c2);
 Plot.title('Variance of the QoI');
 
 figure;
-plot(time, sigma2e, 'Color', Color.pick(1));
+plot(time, sigma2e, 'Color', c1);
+line(timeInterval, c.observations.noiseDeviation^2 * [ 1 1 ], 'Color', c2);
 Plot.title('Variance of the noise');
 
-figure;
+independentZ = m.independentZ;
+
 for i = 1:size(z, 2)
-  line(time, z(:, i), 'Color', Color.pick(i));
+  figure;
+  line(time, z(:, i), 'Color', c1);
+  line(timeInterval, independentZ(i) * [ 1 1 ], 'Color', c2);
+  Plot.title('Independent variable %d', i);
 end
-Plot.title('Independent variables');

@@ -70,10 +70,10 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
   %
   % The proposal distribution.
   %
-  sigmamuu    = c.inference.proposalRate * muu;
-  sigmasigmau = c.inference.proposalRate * sqrt(sigma2u);
-  sigmasigmae = c.inference.proposalRate * sqrt(sigma2e);
-  sigmaz      = c.inference.proposalRate * ones(dimensionCount, 1);
+  sigmamuu     = c.inference.proposalRate * muu;
+  sigmasigma2u = c.inference.proposalRate * sigma2u;
+  sigmasigma2e = c.inference.proposalRate * sigma2e;
+  sigmaz       = c.inference.proposalRate * ones(dimensionCount, 1);
 
   %
   % The first one is special.
@@ -93,10 +93,10 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
     %
     % Sample the proposal distribution.
     %
-    muu     =       sample(1    )  + sigmamuu    * randn;
-    sigma2u = (sqrt(sample(2    )) + sigmasigmau * randn)^2;
-    sigma2e = (sqrt(sample(3    )) + sigmasigmae * randn)^2;
-    z       =       sample(4:end)' + sigmaz     .* randn(dimensionCount, 1);
+    muu     = sample(1    )  + sigmamuu      * randn;
+    sigma2u = sample(2    )  + sigmasigma2u  * randn;
+    sigma2e = sample(3    )  + sigmasigma2e  * randn;
+    z       = sample(4:end)' + sigmaz       .* randn(dimensionCount, 1);
 
     %
     % Compute the QoI.

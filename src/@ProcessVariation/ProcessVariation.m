@@ -36,11 +36,11 @@ classdef ProcessVariation < handle
       inverseMapping = this.inverseMapping(:, I);
     end
 
-    function result = sample(this)
+    function [ result, z ] = sample(this)
       dieCount = this.wafer.dieCount;
       processorCount = this.wafer.processorCount;
-      result = this.mapping * randn(this.dimensionCount, 1);
-      result = reshape(result, [ processorCount, dieCount ]);
+      z = randn(this.dimensionCount, 1);
+      result = reshape(this.mapping * z, [ processorCount, dieCount ]);
     end
 
     function string = toString(this)

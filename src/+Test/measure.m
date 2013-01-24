@@ -7,7 +7,8 @@ function m = measure(c)
   hotspot = HotSpot.Batch('floorplan', c.system.floorplan, ...
     'config', c.temperature.configuration, 'line', c.temperature.line);
 
-  m.U = c.process.Unom + c.process.Udev * c.process.model.sample;
+  [ m.correlatedZ, m.independentZ ] = c.process.model.sample;
+  m.U = c.process.Unom + c.process.Udev * m.correlatedZ;
   T = hotspot.compute(c.power.Pdyn, [], c.leakage.model, m.U(:));
   m.T = reshape(T, [ c.system.processorCount, ...
     c.power.stepCount, c.system.wafer.dieCount ]);

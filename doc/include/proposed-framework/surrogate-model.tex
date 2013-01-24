@@ -21,6 +21,6 @@ Finally, the new posterior in the logarithmic space is
 \begin{align}
   & \ln \f{\vparam | \Data} = -\frac{\ndcs}{2} \ln(\sigma^2_\noise + \sigma^2_\T) - \frac{\norm{\mvT_\meas - \vmean_\T}^2}{2(\sigma^2_\noise + \sigma^2_\T)} \nonumber \\
   & {} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - (1 + \frac{\nu_\u}{2}) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
-  & {} - (1 + \frac{\nu_\noise}{2}) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{\sigma^2_\noise} - \norm{\vz}^2 + c \elabel{log-posterior}
+  & {} - (1 + \frac{\nu_\noise}{2}) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{\sigma^2_\noise} - \frac{\norm{\vz}^2}{2} + c \elabel{log-posterior}
 \end{align}
 where $\vmean_\T$ and $\sigma^2_\T$ are functions of $\vparam_\u$ defined by \eref{gp-mean} and \eref{gp-variance}, respectively, and $c$ is some constant.

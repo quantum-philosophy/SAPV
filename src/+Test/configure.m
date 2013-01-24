@@ -111,7 +111,9 @@ function c = configure
   % NOTE: Ideal scenario for now.
   %
   c.inference = Options;
-  c.inference.sampleCount = 1e4;
+  c.inference.sampleCount = 100;
+
+  c.inference.proposalRate = 0.10;
 
   % The prior on the mean of the QoI.
   c.inference.mu0 = c.process.Unom;
@@ -130,8 +132,4 @@ function c = configure
   c.inference.nue = 2;
   % ... observations we concluded that it should be...
   c.inference.taue = c.observations.noiseDeviation;
-
-  % The prior on the independent r.v.'s.
-  c.inference.muz = 0;
-  c.inference.sigmaz = 1;
 end

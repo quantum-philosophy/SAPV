@@ -96,8 +96,8 @@ function c = configure
   %
   c.observations = Options;
   c.observations.noiseDeviation = 1;
-  c.observations.spaceStepCount = 10;
-  c.observations.timeStepCount = 10;
+  c.observations.dieCount = 10;
+  c.observations.timeCount = 10;
 
   %
   % Surrogate

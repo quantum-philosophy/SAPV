@@ -26,7 +26,7 @@ fprintf('Measurements: done in %.2f seconds.\n', toc(time));
 
 %% Display the wafer and chosen dies.
 %
-plot(c.system.wafer, m.spaceMeasurementIndex);
+plot(c.system.wafer, m.dieIndex);
 
 %% Plot the distribution of the channel length and maximal temperature.
 %
@@ -54,8 +54,8 @@ fprintf('Surrogate: done in %.2f seconds.\n', toc(time));
 %
 dimensionCount = c.dimensionCount;
 processorCount = c.system.processorCount;
-stepCount = c.observations.timeStepCount;
-dieCount = c.observations.spaceStepCount;
+stepCount = c.observations.timeCount;
+dieCount = c.observations.dieCount;
 
 %
 % Get the Gaussian random variables used to compute the leakage
@@ -64,7 +64,7 @@ dieCount = c.observations.spaceStepCount;
 Unorm = (m.U - Unom) / Udev;
 Ntrue = transpose(c.process.model.inverseMapping * Unorm(:));
 
-Ttrue = Utils.toCelsius(m.T(:, :, m.spaceMeasurementIndex));
+Ttrue = Utils.toCelsius(m.T(:, :, m.dieIndex));
 Tmeas = Utils.toCelsius(m.Tmeas);
 
 n = Ntrue;
@@ -74,7 +74,7 @@ Tsamp = Utils.toCelsius(reshape(s.evaluate(u), ...
   [ processorCount, stepCount, dieCount ]));
 
 time = ((1:c.power.stepCount) - 1) * c.samplingInterval;
-measurementTime = (m.timeMeasurementIndex - 1) * c.samplingInterval;
+measurementTime = (m.timeIndex - 1) * c.samplingInterval;
 
 xlimit = [ time(1), time(end) ];
 ylimit = [ Ttrue(:); Tmeas(:); Tsamp(:) ];
@@ -92,7 +92,7 @@ for i = 1:dieCount
       'LineStyle', 'None', 'Marker', 'x');
   end
 
-  Plot.title('Sample %d, die %d', i, m.spaceMeasurementIndex(i));
+  Plot.title('Sample %d, die %d', i, m.dieIndex(i));
   Plot.label('Time, s', 'Temperature, C');
   Plot.limit(xlimit, ylimit);
 end

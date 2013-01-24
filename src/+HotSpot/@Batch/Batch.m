@@ -4,8 +4,4 @@ classdef Batch < HotSpot.Analytic
       this = this@HotSpot.Analytic(varargin{:});
     end
   end
-
-  methods (Access = 'protected')
-    Data = evaluate(this, Pdyn, stepIndex, leakage, U)
-  end
 end

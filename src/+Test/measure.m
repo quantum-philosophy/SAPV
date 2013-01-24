@@ -16,28 +16,27 @@ function m = measure(c)
   %
   % Choose spatial locations.
   %
-  m.spaceMeasurementIndex = nonrandomCircle(c.system.wafer.radius, ...
+  m.dieIndex = nonrandomCircle(c.system.wafer.radius, ...
     c.system.wafer.floorplan(:, 1) + c.system.wafer.dieWidth / 2, ...
     c.system.wafer.floorplan(:, 2) + c.system.wafer.dieHeight / 2, ...
-    c.observations.spaceStepCount);
+    c.observations.dieCount);
 
   %
   % Choose temporal locations.
   %
-  m.timeMeasurementIndex = nonrandomLine( ...
-    c.power.stepCount, c.observations.timeStepCount);
+  m.timeIndex = nonrandomLine(c.power.stepCount, c.observations.timeCount);
 
   %
   % Generate some noise.
   %
   noise = c.observations.noiseDeviation * ...
-    randn(c.system.processorCount, c.observations.timeStepCount, ...
-      c.observations.spaceStepCount);
+    randn(c.system.processorCount, c.observations.timeCount, ...
+      c.observations.dieCount);
 
   %
   % Thin the data.
   %
-  m.Tmeas = m.T(:, m.timeMeasurementIndex, m.spaceMeasurementIndex);
+  m.Tmeas = m.T(:, m.timeIndex, m.dieIndex);
 
   %
   % Add the noise.

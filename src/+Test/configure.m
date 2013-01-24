@@ -113,7 +113,7 @@ function c = configure
   c.inference = Options;
   c.inference.sampleCount = 1e3;
 
-  c.inference.proposalRate = 0.10;
+  c.inference.proposalRate = 0.01;
 
   % The prior on the mean of the QoI.
   c.inference.mu0 = c.process.Unom;

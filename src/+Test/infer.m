@@ -1,4 +1,4 @@
-function [ samples, acceptCount ] = infer(c, m)
+function [ samples, fitness, acceptCount ] = infer(c, m)
   nodeCount = c.surrogate.nodeCount;
   sampleCount = c.inference.sampleCount;
   dimensionCount = c.dimensionCount;
@@ -36,21 +36,23 @@ function [ samples, acceptCount ] = infer(c, m)
   nue     = c.inference.nue;
   tau2e   = c.inference.taue.^2;
 
-  function result = computeLogPosterior( ...
+  function result = computeFitness( ...
     qT, muu, sigma2u, sigma2e, z, sigma2q)
 
-    result = ...
-      - (outputCount / 2) * log(sigma2e + sigma2q) * ...
-      - sum((qmeasT - qT).^2) / (sigma2e + sigma2q) / 2 ...
-      - (muu - mu0)^2 / sigma20 / 2 ...
-      - (1 + nuu / 2) * log(sigma2u) ...
-      - nuu * tau2u / sigma2u / 2 ...
-      - (1 + nue / 2) * log(sigma2e) ...
-      - nue * tau2e / sigma2e / 2 ...
-      - sum(z.^2) / 2;
+    a = - (outputCount / 2) * log(sigma2e + sigma2q);
+    b = - sum((qmeasT - qT).^2) / (sigma2e + sigma2q) / 2;
+    c = - (muu - mu0)^2 / sigma20 / 2;
+    d = - (1 + nuu / 2) * log(sigma2u);
+    e = - nuu * tau2u / sigma2u / 2;
+    f = - (1 + nue / 2) * log(sigma2e);
+    g = - nue * tau2e / sigma2e / 2;
+    h = - sum(z.^2) / 2;
+
+    result = a + b + c + d + e + f + g + h;
   end
 
   samples = zeros(sampleCount, 3 + dimensionCount);
+  fitness = zeros(sampleCount, 1);
 
   if ~isnan(nodeCount)
     nodes = zeros(nodeCount, inputCount);
@@ -61,8 +63,8 @@ function [ samples, acceptCount ] = infer(c, m)
   % The initial state of the chain.
   %
   muu     = mu0;
-  sigma2u = tau2u^2;
-  sigma2e = tau2e^2;
+  sigma2u = tau2u;
+  sigma2e = tau2e;
   z       = zeros(dimensionCount, 1);
 
   %
@@ -80,14 +82,13 @@ function [ samples, acceptCount ] = infer(c, m)
   qT = hotspot.compute(Pdyn, timeIndex, leakage, u);
 
   sample = [ muu, sigma2u, sigma2e, z' ];
-  logPosterior = computeLogPosterior( ...
-    qT, muu, sigma2u, sigma2e, z, 0);
+  fit = computeFitness(qT, muu, sigma2u, sigma2e, z, 0);
 
   acceptCount = 0;
 
   for i = 1:sampleCount
-    verbose('Metropolis: %6d iteration, total %6d, accepted %6.2f%%.\n', ...
-      i, sampleCount, acceptCount / i * 100);
+    verbose('Metropolis: finished %6.2f%%, accepted %6.2f%%.\n', ...
+      i / sampleCount * 100, acceptCount / i * 100);
 
     %
     % Sample the proposal distribution.
@@ -128,20 +129,20 @@ function [ samples, acceptCount ] = infer(c, m)
     end
 
     %
-    % Compute the log-posterior.
+    % Compute the fitness, which is proportional to the log-posterior.
     %
-    proposedLogPosterior = computeLogPosterior( ...
+    proposedFit = computeFitness( ...
       qT, muu, sigma2u, sigma2e, z, sigma2q);
 
     %
     % Accept or reject?
     %
-    if log(rand) < (proposedLogPosterior - logPosterior)
+    if log(rand) < (proposedFit - fit)
       %
       % Accept!
       %
       sample = [ muu, sigma2u, sigma2e, z' ];
-      logPosterior = proposedLogPosterior;
+      fit = proposedFit;
       acceptCount = acceptCount + 1;
     end
 
@@ -149,5 +150,6 @@ function [ samples, acceptCount ] = infer(c, m)
     % Save the sample.
     %
     samples(i, :) = sample;
+    fitness(i) = fit;
   end
 end

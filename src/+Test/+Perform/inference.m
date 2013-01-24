@@ -40,24 +40,24 @@ Plot.title('Log-posterior + constant');
 
 figure;
 plot(time, muu, 'Color', c1);
-line(timeInterval, c.process.Unom * [ 1 1 ], 'Color', c2);
-Plot.title('Mean of the QoI');
+line(timeInterval, [ 1 1 ], 'Color', c2);
+Plot.title('Mean of the QoI (normalized)');
 
 figure;
 plot(time, sigma2u, 'Color', c1);
-line(timeInterval, c.process.Udev^2 * [ 1 1 ], 'Color', c2);
-Plot.title('Variance of the QoI');
+line(timeInterval, [ 1 1 ], 'Color', c2);
+Plot.title('Variance of the QoI (normalized)');
 
 figure;
 plot(time, sigma2e, 'Color', c1);
 line(timeInterval, c.observations.noiseDeviation^2 * [ 1 1 ], 'Color', c2);
 Plot.title('Variance of the noise');
 
-independentZ = m.independentZ;
+trueZ = m.Z;
 
 for i = 1:size(z, 2)
   figure;
   line(time, z(:, i), 'Color', c1);
-  line(timeInterval, independentZ(i) * [ 1 1 ], 'Color', c2);
+  line(timeInterval, trueZ(i) * [ 1 1 ], 'Color', c2);
   Plot.title('Independent variable %d', i);
 end

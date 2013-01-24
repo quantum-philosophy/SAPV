@@ -15,9 +15,6 @@ rng(r);
 %
 c = Test.configure;
 
-Unom = c.process.Unom;
-Udev = c.process.Udev;
-
 %% Measure temperature profiles.
 %
 time = tic;
@@ -30,11 +27,11 @@ plot(c.system.wafer, m.dieIndex);
 
 %% Plot the distribution of the channel length and maximal temperature.
 %
-Urange = [ Unom - 3 * Udev, Unom + 3 * Udev ];
+Urange = [ -3, 3 ];
 Trange = [ 45, 120 ];
 
 plot(c.process.model, m.U);
-Plot.title('Quantity of interest');
+Plot.title('Quantity of interest (normalized)');
 colormap(Color.map(m.U, Urange));
 
 T = max(squeeze(max(m.T, [], 2)), [], 1);
@@ -57,20 +54,10 @@ processorCount = c.system.processorCount;
 stepCount = c.observations.timeCount;
 dieCount = c.observations.dieCount;
 
-%
-% Get the Gaussian random variables used to compute the leakage
-% parameters across the wafer.
-%
-Unorm = (m.U - Unom) / Udev;
-Ntrue = transpose(c.process.model.inverseMapping * Unorm(:));
-
 Ttrue = Utils.toCelsius(m.T(:, :, m.dieIndex));
 Tmeas = Utils.toCelsius(m.Tmeas);
 
-n = Ntrue;
-u = normcdf(n);
-
-Tsamp = Utils.toCelsius(reshape(s.evaluate(u), ...
+Tsamp = Utils.toCelsius(reshape(s.evaluate(normcdf(m.Z')), ...
   [ processorCount, stepCount, dieCount ]));
 
 time = ((1:c.power.stepCount) - 1) * c.samplingInterval;

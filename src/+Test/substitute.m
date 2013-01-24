@@ -32,16 +32,16 @@ function surrogate = substitute(c, m, nodes, responses)
     timeIndex = m.timeIndex;
     leakage = c.leakage.model;
 
-    Unom = c.process.Unom;
-    Udev = c.process.Udev;
-    Umap = c.process.model.constrainMapping(m.dieIndex);
+    Lnom = c.process.Lnom;
+    Ldev = c.process.Ldev;
+    mapping = c.process.model.constrainMapping(m.dieIndex);
 
     hotspot = HotSpot.Batch('floorplan', c.system.floorplan, ...
       'config', c.temperature.configuration, 'line', c.temperature.line);
 
     surrogate = Regression.GaussianProcess( ...
       'target', @(u) hotspot.compute(Pdyn, timeIndex, leakage, ...
-        Unom + Udev * Umap * norminv(u).'), options);
+        Lnom + Ldev * mapping * norminv(u).'), options);
   end
 end
 

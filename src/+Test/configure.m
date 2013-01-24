@@ -55,8 +55,8 @@ function c = configure
   % Process variation
   %
   c.process = Options;
-  c.process.Unom = c.leakage.model.Lnom;
-  c.process.Udev = 0.05 * c.process.Unom;
+  c.process.Lnom = c.leakage.model.Lnom;
+  c.process.Ldev = 0.05 * c.leakage.model.Lnom;
 
   eta = 0.70;
   lse = 0.10 * c.system.wafer.radius;
@@ -103,7 +103,7 @@ function c = configure
   % Surrogate
   %
   c.surrogate = Options;
-  c.surrogate.nodeCount = NaN;
+  c.surrogate.nodeCount = 1e3;
 
   %
   % Inference.
@@ -116,15 +116,15 @@ function c = configure
   c.inference.proposalRate = 0.01;
 
   % The prior on the mean of the QoI.
-  c.inference.mu0 = c.process.Unom;
-  c.inference.sigma0 = 0.01 * c.process.Unom;
+  c.inference.mu0 = 1; % Normalized!
+  c.inference.sigma0 = 0.01;
 
   % The prior on the variance of the QoI.
   %
   % As if from...
   c.inference.nuu = 2;
   % ... observations we concluded that it should be...
-  c.inference.tauu = c.process.Udev;
+  c.inference.tauu = 1; % Normalized!
 
   % The prior on the variance of the noise.
   %

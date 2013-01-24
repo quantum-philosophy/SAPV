@@ -1,11 +1,11 @@
 function [ samples, fitness, acceptCount ] = infer(c, m)
-  nodeCount = c.surrogate.nodeCount;
+  nodeCount = NaN; % c.surrogate.nodeCount;
   sampleCount = c.inference.sampleCount;
   dimensionCount = c.dimensionCount;
 
   Pdyn = c.power.Pdyn;
   leakage = c.leakage.model;
-  L = c.process.model.constrainMapping(m.dieIndex);
+  mapping = c.process.model.constrainMapping(m.dieIndex);
   timeIndex = m.timeIndex;
   processorCount = c.system.processorCount;
   stepCount = c.observations.timeCount;
@@ -23,6 +23,9 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
   %
   hotspot = HotSpot.Batch('floorplan', c.system.floorplan, ...
     'config', c.temperature.configuration, 'line', c.temperature.line);
+
+  Lnom = c.process.Lnom;
+  Ldev = c.process.Ldev;
 
   %
   % The priors.
@@ -78,8 +81,8 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
   %
   % The first one is special.
   %
-  u = muu + sqrt(sigma2u) * L * z;
-  qT = hotspot.compute(Pdyn, timeIndex, leakage, u);
+  L = Lnom + Ldev * (muu + sqrt(sigma2u) * mapping * z);
+  qT = hotspot.compute(Pdyn, timeIndex, leakage, L);
 
   sample = [ muu, sigma2u, sigma2e, z' ];
   fit = computeFitness(qT, muu, sigma2u, sigma2e, z, 0);
@@ -101,7 +104,7 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
     %
     % Compute the QoI.
     %
-    u = muu + sqrt(sigma2u) * L * z;
+    L = Lnom + Ldev * (muu + sqrt(sigma2u) * mapping * z);
 
     %
     % Obtain the model prediction.
@@ -110,17 +113,17 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
       %
       % Sample the surrogate.
       %
-      [ qT, sigma2q ] = surrogate.evaluate(u);
+      [ qT, sigma2q ] = surrogate.evaluate(L);
     else
       %
       % Sample the true model.
       %
-      qT = hotspot.compute(Pdyn, timeIndex, leakage, u);
+      qT = hotspot.compute(Pdyn, timeIndex, leakage, L);
       sigma2q = 0;
     end
 
     if i <= nodeCount
-      nodes(i, :) = u;
+      nodes(i, :) = L;
       responses(i, :) = qT;
 
       if i == nodeCount

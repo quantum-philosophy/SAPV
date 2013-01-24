@@ -103,7 +103,7 @@ function c = configure
   % Surrogate
   %
   c.surrogate = Options;
-  c.surrogate.nodeCount = 1e3;
+  c.surrogate.nodeCount = NaN;
 
   %
   % Inference.
@@ -111,7 +111,7 @@ function c = configure
   % NOTE: Ideal scenario for now.
   %
   c.inference = Options;
-  c.inference.sampleCount = 100;
+  c.inference.sampleCount = 1e3;
 
   c.inference.proposalRate = 0.10;
 

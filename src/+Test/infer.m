@@ -51,8 +51,11 @@ function [ samples, acceptCount ] = infer(c, m)
   end
 
   samples = zeros(sampleCount, 3 + dimensionCount);
-  nodes = zeros(nodeCount, inputCount);
-  responses = zeros(nodeCount, outputCount);
+
+  if ~isnan(nodeCount)
+    nodes = zeros(nodeCount, inputCount);
+    responses = zeros(nodeCount, outputCount);
+  end
 
   %
   % The initial state of the chain.
@@ -102,24 +105,26 @@ function [ samples, acceptCount ] = infer(c, m)
     %
     % Obtain the model prediction.
     %
-    if i <= nodeCount
+    if i > nodeCount
+      %
+      % Sample the surrogate.
+      %
+      [ qT, sigma2q ] = surrogate.evaluate(u);
+    else
       %
       % Sample the true model.
       %
       qT = hotspot.compute(Pdyn, timeIndex, leakage, u);
       sigma2q = 0;
+    end
 
+    if i <= nodeCount
       nodes(i, :) = u;
       responses(i, :) = qT;
 
       if i == nodeCount
         surrogate = Test.substitute(c, m, nodes, responses);
       end
-    else
-      %
-      % Sample the surrogate.
-      %
-      [ qT, sigma2q ] = surrogate.evaluate(u);
     end
 
     %

@@ -17,29 +17,16 @@ function surrogate = substitute(c, m, nodes, responses)
     %
     options.nodes = nodes;
     options.responses = responses;
-
     surrogate = Regression.GaussianProcess(options);
   else
     %
     % Since no data provided, we need to sample ourselves.
     %
-    options.inputCount = c.dimensionCount;
+    options.inputCount = c.process.model.dimensionCount;
     options.nodeCount = c.surrogate.nodeCount;
-
-    Pdyn = c.power.Pdyn;
-    timeIndex = m.timeIndex;
-    leakage = c.leakage.model;
-
-    Lnom = c.process.Lnom;
-    Ldev = c.process.Ldev;
-    mapping = c.process.model.constrainMapping(m.dieIndex);
-
-    hotspot = HotSpot.Batch('floorplan', c.system.floorplan, ...
-      'config', c.temperature.configuration, 'line', c.temperature.line);
-
+    model = Utils.forward(c, 'model', 'observed');
     surrogate = Regression.GaussianProcess( ...
-      'target', @(u) hotspot.compute(Pdyn, timeIndex, leakage, ...
-        Lnom + Ldev * mapping * norminv(u).'), options);
+      'target', @(u) model.compute(norminv(u).'), options);
   end
 end
 

@@ -2,14 +2,7 @@ clear all;
 close all;
 setup;
 
-if File.exist('rng.mat')
-  load('rng.mat');
-else
-  r = rng;
-  save('rng.mat', 'r', '-v7.3');
-end
-
-rng(r);
+Utils.fixRNG;
 
 %% Configure the test case.
 %
@@ -17,13 +10,14 @@ c = Test.configure;
 
 %% Measure temperature profiles.
 %
+fprintf('Measurements: simulation...\n');
 time = tic;
-m = Test.measure(c);
+m = Utils.measure(c);
 fprintf('Measurements: done in %.2f seconds.\n', toc(time));
 
 %% Display the wafer and chosen dies.
 %
-plot(c.system.wafer, m.dieIndex);
+plot(c.system.wafer, c.observations.dieIndex);
 
 %% Plot the distribution of the channel length and maximal temperature.
 %
@@ -44,24 +38,24 @@ colormap(Color.map(T, Trange));
 %% Construct the surrogate model.
 %
 time = tic;
-s = Test.substitute(c, m);
+fprintf('Surrogate: construction...\n');
+s = Utils.substitute(c, m);
 fprintf('Surrogate: done in %.2f seconds.\n', toc(time));
 
 %% Visualize some traces.
 %
-dimensionCount = c.dimensionCount;
 processorCount = c.system.processorCount;
 stepCount = c.observations.timeCount;
 dieCount = c.observations.dieCount;
 
-Ttrue = Utils.toCelsius(m.T(:, :, m.dieIndex));
+Ttrue = Utils.toCelsius(m.T(:, :, c.observations.dieIndex));
 Tmeas = Utils.toCelsius(m.Tmeas);
 
 Tsamp = Utils.toCelsius(reshape(s.evaluate(normcdf(m.Z')), ...
   [ processorCount, stepCount, dieCount ]));
 
 time = ((1:c.power.stepCount) - 1) * c.samplingInterval;
-measurementTime = (m.timeIndex - 1) * c.samplingInterval;
+measurementTime = (c.observations.timeIndex - 1) * c.samplingInterval;
 
 xlimit = [ time(1), time(end) ];
 ylimit = [ Ttrue(:); Tmeas(:); Tsamp(:) ];
@@ -79,7 +73,7 @@ for i = 1:dieCount
       'LineStyle', 'None', 'Marker', 'x');
   end
 
-  Plot.title('Sample %d, die %d', i, m.dieIndex(i));
+  Plot.title('Sample %d, die %d', i, c.observations.dieIndex(i));
   Plot.label('Time, s', 'Temperature, C');
   Plot.limit(xlimit, ylimit);
 end

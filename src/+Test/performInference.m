@@ -2,14 +2,7 @@ clear all;
 close all;
 setup;
 
-if File.exist('rng.mat')
-  load('rng.mat');
-else
-  r = rng;
-  save('rng.mat', 'r', '-v7.3');
-end
-
-rng(r);
+Utils.fixRNG;
 
 %% Configure the test case.
 %
@@ -17,11 +10,16 @@ c = Test.configure;
 
 %% Measure temperature profiles.
 %
-m = Test.measure(c);
+m = Utils.measure(c);
 
-%% Construct the surrogate model.
+%% Initialize the forward model.
 %
-[ samples, fitness, acceptedCount ] = Test.infer(c, m);
+model = Utils.forward(c, 'model', 'observed');
+
+%% Do the inference.
+%
+[ samples, fitness, acceptedCount ] = Utils.infer( ...
+  'data', m.Tmeas, 'model', model, 'verbose', true, c.inference);
 
 muu     = samples(:, 1);
 sigma2u = samples(:, 2);

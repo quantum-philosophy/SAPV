@@ -1,11 +1,11 @@
 clear all;
+close all;
 setup;
 
 c = Test.configure;
-p = c.process;
 
-U = p.model.sample;
+U = c.process.model.sample;
 
-plot(p.model, U);
+plot(c.process.model, U);
 colormap(Color.map(U, [ -3, 3 ]));
 Plot.title('Quantity of interest (normalized)');

@@ -1,3 +1,5 @@
+clear all;
+close all;
 setup;
 
 c = Test.configure;

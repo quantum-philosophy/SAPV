@@ -9,12 +9,7 @@ function surrogate = substitute(c, m, nodes, responses)
     'upperBound', [ 2, 10 ]);
 
   options = Options;
-
   options.kernel = kernel;
-  options.inputCount = c.dimensionCount;
-  options.outputCount = c.system.processorCount * ...
-    c.observations.timeCount * c.observations.dieCount;
-  options.nodeCount = c.surrogate.nodeCount;
 
   if nargin > 2
     %
@@ -28,6 +23,9 @@ function surrogate = substitute(c, m, nodes, responses)
     %
     % Since no data provided, we need to sample ourselves.
     %
+    options.inputCount = c.dimensionCount;
+    options.nodeCount = c.surrogate.nodeCount;
+
     Pdyn = c.power.Pdyn;
     timeIndex = m.timeIndex;
     leakage = c.leakage.model;

@@ -1,5 +1,5 @@
 function [ samples, fitness, acceptCount ] = infer(c, m)
-  nodeCount = NaN; % c.surrogate.nodeCount;
+  nodeCount = c.surrogate.nodeCount;
   sampleCount = c.inference.sampleCount;
   dimensionCount = c.dimensionCount;
 
@@ -42,16 +42,15 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
   function result = computeFitness( ...
     qT, muu, sigma2u, sigma2e, z, sigma2q)
 
-    a = - (outputCount / 2) * log(sigma2e + sigma2q);
-    b = - sum((qmeasT - qT).^2) / (sigma2e + sigma2q) / 2;
-    c = - (muu - mu0)^2 / sigma20 / 2;
-    d = - (1 + nuu / 2) * log(sigma2u);
-    e = - nuu * tau2u / sigma2u / 2;
-    f = - (1 + nue / 2) * log(sigma2e);
-    g = - nue * tau2e / sigma2e / 2;
-    h = - sum(z.^2) / 2;
-
-    result = a + b + c + d + e + f + g + h;
+    result = ...
+      - (outputCount / 2) * log(sigma2e + sigma2q) ...
+      - sum((qmeasT - qT).^2) / (sigma2e + sigma2q) / 2 ...
+      - (muu - mu0)^2 / sigma20 / 2 ...
+      - (1 + nuu / 2) * log(sigma2u) ...
+      - nuu * tau2u / sigma2u / 2 ...
+      - (1 + nue / 2) * log(sigma2e) ...
+      - nue * tau2e / sigma2e / 2 ...
+      - sum(z.^2) / 2;
   end
 
   samples = zeros(sampleCount, 3 + dimensionCount);
@@ -88,10 +87,14 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
   fit = computeFitness(qT, muu, sigma2u, sigma2e, z, 0);
 
   acceptCount = 0;
+  surrogate = NaN;
 
+  time = tic;
   for i = 1:sampleCount
-    verbose('Metropolis: finished %6.2f%%, accepted %6.2f%%.\n', ...
-      i / sampleCount * 100, acceptCount / i * 100);
+    if mod(i, 10) == 0
+      verbose('Metropolis: finished %6.2f%%, accepted %6.2f%%.\n', ...
+        i / sampleCount * 100, acceptCount / i * 100);
+    end
 
     %
     % Sample the proposal distribution.
@@ -113,7 +116,7 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
       %
       % Sample the surrogate.
       %
-      [ qT, sigma2q ] = surrogate.evaluate(L);
+      [ qT, sigma2q ] = surrogate.evaluate(L');
     else
       %
       % Sample the true model.
@@ -127,7 +130,12 @@ function [ samples, fitness, acceptCount ] = infer(c, m)
       responses(i, :) = qT;
 
       if i == nodeCount
+        verbose('Metropolis: collected %d true samples in %.2f seconds.\n', ...
+          nodeCount, toc(time));
+        verbose('Metropolis: constructing a surrogate...\n');
+        time = tic;
         surrogate = Test.substitute(c, m, nodes, responses);
+        verbose('Metropolis: the surrogate constructed in %.2f seconds.\n', toc(time));
       end
     end
 

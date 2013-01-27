@@ -118,7 +118,7 @@ function c = configure
   % NOTE: Ideal scenario for now.
   %
   c.inference = Options;
-  c.inference.sampleCount = 1e3;
+  c.inference.sampleCount = 1e4;
 
   c.inference.proposalRate = 0.05; % ... of the standard deviation.
 

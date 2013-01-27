@@ -32,6 +32,21 @@ muu     = samples(:,    end - 2);
 sigma2u = samples(:,    end - 1);
 sigma2e = samples(:,    end - 0);
 
+inferredZ = mean(z((end - 1e3):end, :), 1)';
+[ ~, inferredN ] = c.process.compute(inferredZ);
+
+nRange = [ -3, 3 ];
+
+plot(c.process, m.n);
+Plot.title('Quantity of interest (true)');
+colormap(Color.map(m.n, nRange));
+
+plot(c.process, inferredN);
+Plot.title('Quantity of interest (inferred)');
+colormap(Color.map(inferredN, nRange));
+
+return;
+
 time = 1:size(samples, 1);
 
 timeInterval = [ time(1) time(end) ];

@@ -10,6 +10,7 @@ function surrogate = substitute(c, m, nodes, responses)
 
   options = Options;
   options.kernel = kernel;
+  options.verbose = true;
 
   if nargin > 2
     %
@@ -22,7 +23,7 @@ function surrogate = substitute(c, m, nodes, responses)
     %
     % Since no data provided, we need to sample ourselves.
     %
-    options.inputCount = c.process.model.dimensionCount;
+    options.inputCount = c.process.dimensionCount;
     options.nodeCount = c.surrogate.nodeCount;
     model = Utils.forward(c, 'model', 'observed');
     surrogate = Regression.GaussianProcess( ...

@@ -9,7 +9,7 @@ Pdyn = c.power.Pdyn;
 hs = HotSpot.Analytic('floorplan', c.system.floorplan, ...
   'config', c.temperature.configuration, 'line', c.temperature.line);
 
-[ T, Pleak ] = hs.compute(Pdyn, c.leakage.model);
+[ T, Pleak ] = hs.compute(Pdyn, c.leakage);
 T = Utils.toCelsius(T);
 
 figure;

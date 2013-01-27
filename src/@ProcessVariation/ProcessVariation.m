@@ -1,27 +1,30 @@
 classdef ProcessVariation < handle
-  properties (Constant)
-    %
-    % The portion of the information that is to be preserved.
-    %
-    threshold = 0.99;
-  end
-
   properties (SetAccess = 'protected')
     wafer
+
+    nominal
+    deviation
+    threshold
     mapping
-    inverseMapping
+
     dimensionCount
   end
 
   methods
     function this = ProcessVariation(wafer, varargin)
       options = Options(varargin{:});
+
       this.wafer = wafer;
-      [ this.mapping, this.inverseMapping ] = this.construct(wafer, options);
+
+      this.nominal = options.nominal;
+      this.deviation = options.deviation;
+      this.threshold = options.get('threshold', 0.99);
+      this.mapping = this.construct(wafer, options);
+
       this.dimensionCount = size(this.mapping, 2);
     end
 
-    function [ mapping, inverseMapping ] = constrainMapping(this, index)
+    function mapping = constrainMapping(this, index)
       processorCount = this.wafer.processorCount;
       dieCount = length(index);
 
@@ -33,22 +36,36 @@ classdef ProcessVariation < handle
       end
 
       mapping = this.mapping(I, :);
-      inverseMapping = this.inverseMapping(:, I);
     end
 
-    function [ u, z ] = sample(this)
-      dieCount = this.wafer.dieCount;
-      processorCount = this.wafer.processorCount;
+    function [ u, n ] = compute(this, z)
+      n = reshape(this.mapping * z, ...
+        [ this.wafer.processorCount, this.wafer.dieCount ]);
+      u = this.nominal + this.deviation * n;
+    end
+
+    function [ u, n, z ] = sample(this)
       z = randn(this.dimensionCount, 1);
-      u = reshape(this.mapping * z, [ processorCount, dieCount ]);
+      n = reshape(this.mapping * z, ...
+        [ this.wafer.processorCount, this.wafer.dieCount ]);
+      u = this.nominal + this.deviation * n;
+    end
+
+    function display(this)
+      display(Options( ...
+        'Threshold', this.threshold, ...
+        'Nominal', this.nominal, ...
+        'Deviation', this.deviation, ...
+        'Dimensions', this.dimensionCount));
     end
 
     function string = toString(this)
-      string = Utils.toString(size(this.mapping));
+      string = Utils.toString([ this.threshold, ...
+        this.nominal, this.deviation, this.dimensionCount ]);
     end
   end
 
   methods (Access = 'private')
-    [ mapping, inverseMapping ] = construct(this, wafer, options)
+    mapping = construct(this, wafer, options)
   end
 end

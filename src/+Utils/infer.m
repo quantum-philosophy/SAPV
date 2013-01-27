@@ -1,6 +1,12 @@
 function [ Samples, Fitness, acceptCount ] = infer(varargin)
   options = Options(varargin{:});
 
+  if options.get('verbose', false)
+    verbose = @(varargin) fprintf(varargin{:});
+  else
+    verbose = @(varargin) [];
+  end
+
   qmeasT = transpose(options.data(:));
   model = options.model;
 

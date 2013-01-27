@@ -21,17 +21,17 @@ plot(c.system.wafer, c.observations.dieIndex);
 
 %% Plot the distribution of the channel length and maximal temperature.
 %
-Urange = [ -3, 3 ];
+nRange = [ -3, 3 ];
 Trange = [ 45, 120 ];
 
-plot(c.process.model, m.U);
+plot(c.process, m.n);
 Plot.title('Quantity of interest (normalized)');
-colormap(Color.map(m.U, Urange));
+colormap(Color.map(m.n, nRange));
 
 T = max(squeeze(max(m.T, [], 2)), [], 1);
 T = Utils.toCelsius(repmat(T, c.system.processorCount, 1));
 
-plot(c.process.model, T);
+plot(c.process, T);
 Plot.title('Maximal temperature');
 colormap(Color.map(T, Trange));
 
@@ -51,7 +51,7 @@ dieCount = c.observations.dieCount;
 Ttrue = Utils.toCelsius(m.T(:, :, c.observations.dieIndex));
 Tmeas = Utils.toCelsius(m.Tmeas);
 
-Tsamp = Utils.toCelsius(reshape(s.evaluate(normcdf(m.Z')), ...
+Tsamp = Utils.toCelsius(reshape(s.evaluate(normcdf(m.z')), ...
   [ processorCount, stepCount, dieCount ]));
 
 time = ((1:c.power.stepCount) - 1) * c.samplingInterval;

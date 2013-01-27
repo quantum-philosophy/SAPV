@@ -6,12 +6,11 @@ function m = measure(c)
   %
   model = Utils.forward(c, 'model', 'complete');
 
-  m.Z = randn(c.process.model.dimensionCount, 1);
+  [ u, n, m.z ] = c.process.sample;
+  m.n = reshape(n, [ c.system.processorCount, c.system.wafer.dieCount ]);
+  m.u = reshape(u, [ c.system.processorCount, c.system.wafer.dieCount ]);
 
-  U = c.process.model.mapping * m.Z;
-  m.U = reshape(U, [ c.system.processorCount, c.system.wafer.dieCount ]);
-
-  T = model.compute(m.Z);
+  T = model.compute(m.z);
   m.T = reshape(T, [ c.system.processorCount, ...
     c.power.stepCount, c.system.wafer.dieCount ]);
 
@@ -23,6 +22,6 @@ function m = measure(c)
   %
   % Add some noise.
   %
-  m.Tmeas = Tmeas + c.observations.noiseDeviation * randn( ...
+  m.Tmeas = Tmeas + c.observations.deviation * randn( ...
     c.system.processorCount, c.observations.timeCount, c.observations.dieCount);
 end

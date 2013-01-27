@@ -1,7 +1,10 @@
 function [ expectation, variance ] = compute(this, z, mu, sigma2)
-  Pdyn = this.Pdyn;
   timeIndex = this.timeIndex;
+
   leakage = this.leakage;
+  process = this.process;
+
+  Pdyn = this.Pdyn;
 
   processorCount = this.processorCount;
   dieCount = this.dieCount;
@@ -14,10 +17,10 @@ function [ expectation, variance ] = compute(this, z, mu, sigma2)
     timeCount = length(timeIndex);
   end
 
-  if nargin < 4, sigma2 = 1; end
-  if nargin < 3, mu = 0; end
+  if nargin < 3, mu = process.nominal; end
+  if nargin < 4, sigma2 = process.deviation^2; end
 
-  L = this.Lnom + this.Ldev * (mu + sqrt(sigma2) * this.Zmap * z);
+  L = mu + sqrt(sigma2) * this.mapping * z;
   L = reshape(L, [ processorCount, dieCount, pointCount ]);
 
   E = this.E;

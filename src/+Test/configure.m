@@ -94,8 +94,8 @@ function c = configure
   %
   c.observations = Options;
   c.observations.deviation = 1; % Noise!
-  c.observations.dieCount = 40;
-  c.observations.timeCount = 40;
+  c.observations.dieCount = 20;
+  c.observations.timeCount = 20;
 
   c.observations.dieIndex = Utils.randomCircle( ...
     c.system.wafer.radius, ...
@@ -118,7 +118,7 @@ function c = configure
   % NOTE: Ideal scenario for now.
   %
   c.inference = Options;
-  c.inference.sampleCount = 1e4;
+  c.inference.sampleCount = 1e3;
 
   c.inference.proposalRate = 0.05; % ... of the standard deviation.
 

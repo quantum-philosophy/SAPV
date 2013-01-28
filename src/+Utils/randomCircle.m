@@ -1,4 +1,6 @@
 function index = randomCircle(radius, X, Y, count)
+  warning('Not random at all!');
+
   index = zeros(1, count);
 
   for i = 1:count

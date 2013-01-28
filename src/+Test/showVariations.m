@@ -1,7 +1,10 @@
 clear all;
+close all;
 setup;
 
 c = Test.configure;
+
+plot(c.system.wafer, c.observations.dieIndex);
 
 [ u, n, z ] = c.process.sample;
 

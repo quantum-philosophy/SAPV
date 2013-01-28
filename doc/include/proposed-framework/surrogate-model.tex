@@ -1,13 +1,13 @@
 A natural way to speed up the computational process is to bypass \eref{thermal-system}. In this paper, we assume a user-specified limit $\nobs$ on the number of the forward model evaluations, \ie, $\nobs$ is the number of solves of \eref{thermal-system}, which we can afford. First, we run $\nobs$ steps of the Metropolis algorithm wherein the initial forward model is used to compute the likelihood function. From this procedure we obtain a data set $\DesignData = \{ (\vu_{0i}, \mvT_{0i}) \}_{i = 1}^\nobs$ of responses of $\model$. Denote $\mU_0 = (\vu_{0i}) \in \real^{\ndp \times \nobs}$ and $\mmT_0 = (\mvT_{0i}) \in \real^{\ndps \times \nobs}$. Then, $\DesignData$ is utilized to construct a surrogate to $\model$ that we shall use instead of $\model$ starting from the $(\nobs + 1)$th iteration. The surrogate is constructed via GP regression (see \sref{gp-approximation}). To this end, the forward model is approximated as
 \begin{equation} \elabel{gp-approximation}
-  \model | \tilde{\vz} \sim \gaussian{\vmean_\T}{\sigma^2_\T \mI}
+  \model | \vu_\data \sim \gaussian{\vmean_\T}{\sigma^2_\T \mI}
 \end{equation}
 where the left-hand side is nothing else but $\mvT$,
 \begin{align}
   & \vmean_\T^T = \tilde{\fCov}(\vu_\data, \mU_0) \tilde{\fCov}(\mU_0, \mU_0)^{-1} \mmT_0^T, \text{ and} \elabel{gp-mean} \\
   & \sigma^2_\T = \fCov{\vu_\data, \vu_\data} - \fCov{\mU_0, \mU_0}^{-1} \fCov{\mU_0, \vu_\data}. \elabel{gp-variance}
 \end{align}
-Here, $\vu_\data$ is a constrained version of \eref{kl-approximation} (see \sref{model-order-reduction}). Note that \eref{gp-approximation} differs from the one in \sref{gp-approximation} as we have $\ndps$ outputs, which are assumed to be independent. Also, the kernel $\tilde{\fCov}$ should not be confused with $\fCov$ in \eref{covariance-function}. We choose $\tilde{\fCov}$ to be the squared exponential kernel:
+Here, $\vu_\data$ is a constrained version of \eref{kl-approximation} (see \sref{model-order-reduction}). Note that \eref{gp-approximation} differs from the one in \sref{gp-approximation} as (a) there is no noise in $\DesignData$, and (b) there are $\ndps$ outputs, which are assumed to be independent. Also, the kernel $\tilde{\fCov}$ should not be confused with $\fCov$ in \eref{covariance-function}. We choose $\tilde{\fCov}$ to be the squared exponential kernel:
 \[
   \tilde{\fCov}(\r, \r') = \tilde{\sigma}^2 \exp\left(-\frac{\norm{\r - \r'}^2}{2 \tilde{\ell}^2}\right)
 \]
@@ -17,10 +17,10 @@ It can be seen that we have established a nested Bayesian inference model. The i
 \begin{equation} \elabel{noise-approximation-model}
   \mvT_\meas | \vparam \sim \gaussian{\vmean_\T}{\sigma_\noise^2 \mI + \sigma_\T^2 \mI}.
 \end{equation}
-Finally, the new posterior on the logarithmic scale is
+The new posterior on the logarithmic scale is
 \begin{align}
   & \ln \f{\vparam | \Data} + c_2 = -\frac{\ndps}{2} \ln \tilde{\sigma}^2_\noise - \frac{\norm{\mvT_\meas - \vmean_\T}^2}{2 \tilde{\sigma}^2_\noise} \nonumber \\
   & {} - \frac{(\vu - \mu_\u \vI)^T\mCov^{-1}(\vu - \mu_\u \vI)}{2 \sigma_\u^2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} \nonumber \\
   & {} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \tilde{\sigma}^2_\noise - \frac{\nu_\noise \tilde{\tau}_\noise^2}{2 \tilde{\sigma}^2_\noise} \elabel{log-posterior-surrogate}
 \end{align}
-where, for convenience, we replace the inference for $\sigma^2_\noise$ with the inference for $\tilde{\sigma}^2_\noise = \sigma^2_\noise + \sigma^2_\T$ having a scaled inverse chi-squared prior (see \eref{sigma2-u-prior}) with the parameters $\nu_\noise$ and $\tilde{\tau}^2_\noise = \tau^2_\noise + \sigma^2_\T$; $\vmean_\T$ and $\sigma^2_\T$ are functions of $\vu_\data$ (see \eref{kl-approximation}, \eref{gp-mean}, and \eref{gp-variance}); $c_2$ is some offset constant with respect to $\vparam$.
+where, for convenience, we replace the inference for $\sigma^2_\noise$ with the inference for $\tilde{\sigma}^2_\noise = \sigma^2_\noise + \sigma^2_\T$ having a scaled inverse chi-squared prior (see \eref{sigma2-u-prior}) with the parameters $\nu_\noise$ and $\tilde{\tau}^2_\noise = \tau^2_\noise + \sigma^2_\T$; $\vmean_\T$ and $\sigma^2_\T$ are functions of $\vu_\data$ (see \eref{gp-mean} and \eref{gp-variance}); $c_2$ is some offset constant with respect to $\vparam$.

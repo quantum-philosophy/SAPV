@@ -29,6 +29,6 @@ For the surrogate model, the conditional posterior for $\tilde{\sigma}^2_\noise$
 \]
 where
 \[
-  \alpha = \nu_\noise + \ndps \hspace{1em} \text{ and } \hspace{1em} \beta^2 = \frac{\nu_\noise \tilde{\tau}^2_\noise + \norm{\mvT_\meas - \mvT}^2}{\nu_\noise + \ndps}.
+  \alpha = \nu_\noise + \ndps \hspace{1em} \text{ and } \hspace{1em} \beta^2 = \frac{\nu_\noise \tilde{\tau}^2_\noise + \norm{\mvT_\meas - \vmean_\T}^2}{\nu_\noise + \ndps}.
 \]
-Therefore, we can sample $\mu_\u$, $\sigma_\u^2$, and $\sigma_\noise^2$ directly from their conditional posteriors and accept such samples with probability one, which can be recognized as Gibbs sampling \cite{gelman2004}; see also \cite{marzouk2009}. On the other hand, $\vz$ is being sampled via the classical acceptance/rejection strategy of the Metropolis algorithm.
+Therefore, we can sample $\mu_\u$, $\sigma_\u^2$, and $\sigma_\noise^2$ directly from their conditional posteriors and accept such samples with probability one, which can be recognized as Gibbs sampling \cite{gelman2004}; see also \cite{marzouk2009}. On the other hand, $\vu$ is sampled via the classical acceptance/rejection strategy of the Metropolis algorithm.

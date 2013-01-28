@@ -14,7 +14,7 @@ where
 are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ weights the kernels; $\norm{\cdot}$ stands for the Euclidean distance; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters. In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu_\u$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu_\u, \sigma_\u^2 \}$.
 
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
-The infinite-dimensional object $\u$ is reduced to the finite-dimensional one via the KL expansion introduced in \sref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ncp = \nchips \nprocs$ processing elements on the wafer. Consequently, we obtain a $\ncp$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^\ncp$:
+The infinite-dimensional object $\u$ is reduced to the finite-dimensional one via the KL expansion introduced in \sref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ncp = \nchips \nprocs$ processing elements on the wafer. Consequently, we obtain an $\ncp$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^\ncp$:
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu_\u \vI + \sigma_\u \mKL \vz
 \end{equation}
@@ -56,4 +56,4 @@ Taking the product of the likelihood in \eref{likelihood} and the priors in \ere
   & {} - \frac{(\vu - \mu_\u \vI)^T\mCov^{-1}(\vu - \mu_\u \vI)}{2 \sigma_\u^2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} \nonumber \\
   & {} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
 \end{align}
-where $c_1$ is some constant. This expression is sufficient for the Metropolis algorithm \cite{gelman2004}; thus, we can readily draw samples from the posterior. Each sample is then used in \eref{kl-approximation} to compute a sample of the quantity of interest being inferred, $\u$, for all processing elements on the wafer. Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$.
+where $c_1$ is some constant. This expression is sufficient for the Metropolis algorithm \cite{gelman2004}; thus, we can readily draw samples from the posterior. Each sample is then used in \eref{kl-approximation} to compute a sample of the QoI being inferred, $\u$, for all processing elements on the wafer. Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$.

@@ -18,12 +18,12 @@ The infinite-dimensional object $\u$ is reduced to the finite-dimensional one vi
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu_\u \vI + \sigma_\u \mKL \vz
 \end{equation}
-where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI$ denotes a vector with all elements equal to one. Note that model order reduction is implied in \eref{kl-approximation}; therefore, $\vz \in \real^\nvars$ where $\nvars$ is much smaller than $\ncp$. In addition, we denote by $\vu_\data \in \real^{\ndp}$, $\ndp = \ndata \nprocs$, those elements of $\vu$ that correspond to the observations in $\Data$. Let us emphasize the performed discretization by denoting the forward model as $\model{\vu_\data|\vparam_\u}$.
+where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI$ denotes a vector with all elements equal to one. Note that model order reduction is implied in \eref{kl-approximation}; therefore, $\vz \in \real^\nvars$ where $\nvars$ is much smaller than $\ncp$. In addition, we denote by $\vu_\data \in \real^{\ndp}$, $\ndp = \ndata \nprocs$, those elements of $\vu$ that correspond to the observations in $\Data$. Let us redefine $\vparam_\u = \{ \vz, \mu_\u, \sigma^2_\u \}$ and denote the forward model by $\model{\vparam_\u}$.
 
 \subsubsection{The likelihood function}
 Due to the imperfection of the measurement processes, the temperature profiles in $\Data$, stacked into $\mvT_\meas$, are assumed to deviate from the model prediction in \eref{model}. To account for this,
 \[
-  \mvT_\meas = \model{\vu_\data | \vparam_\u} + \vnoise = \mvT + \vnoise
+  \mvT_\meas = \model{\vparam_\u} + \vnoise = \mvT + \vnoise
 \]
 where $\vnoise$ is an $\ndps$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent of $\u$ \cite{mackay2003, rasmussen2006, marzouk2009}. Therefore,
 \[
@@ -31,29 +31,29 @@ where $\vnoise$ is an $\ndps$-dimensional vector of noise. The noise is typicall
 \]
 where $\sigma^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. The noise can be interpreted as
 \begin{equation} \elabel{likelihood}
-  \mvT_\meas | \vu_\data, \sigma_\noise^2 \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}
+  \mvT_\meas | \vparam_\u, \sigma_\noise^2 \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}
 \end{equation}
 yielding the likelihood function of the data $\Data$.
 
 \subsubsection{The prior}
 Denote the parameters to be inferred as
 \[
-  \vparam = \vparam_\u \cup \{ \vu, \sigma_\noise^2 \} = \{ \vu, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}.
+  \vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}.
 \]
-We put the following hierarchical prior on $\vparam$:
+We put the following priors on $\vparam$:
 \begin{align}
-  & \vu | \mu_\u, \sigma^2_\u \sim \gaussian{\mu_\u \vI}{\sigma^2_\u \mCov}, \elabel{u-prior} \\
+  & \z_i \sim \gaussian{0}{1}, \elabel{z-prior} \\
   & \mu_\u \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{mu-u-prior} \\
   & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and} \elabel{sigma2-u-prior} \\
   & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \elabel{sigma2-noise-prior}
 \end{align}
-The prior for $\vu$, where $\mCov = \mKL \mKL^T$, is due to \eref{kl-approximation}. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown \cite{gelman2004}.
+The prior for $\vz$ is due to the properties of the KL expansion. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown \cite{gelman2004}.
 
 \subsubsection{The posterior}
-Taking the product of the likelihood in \eref{likelihood} and the priors in \eref{u-prior}--\eref{sigma2-noise-prior}, we obtain
+Taking the product of the likelihood in \eref{likelihood} and the priors in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain
 \begin{align}
   & \ln \f{\vparam | \Data} + c_1 = -\frac{\ndps}{2} \ln \sigma^2_\noise - \frac{\norm{\mvT_\meas - \mvT}^2}{2 \sigma^2_\noise} \nonumber \\
-  & {} - \frac{(\vu - \mu_\u \vI)^T\mCov^{-1}(\vu - \mu_\u \vI)}{2 \sigma_\u^2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} \nonumber \\
-  & {} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
+  & {} - \frac{\norm{\vz}^2}{2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
+  & {} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
 \end{align}
 where $c_1$ is some constant. This expression is sufficient for the Metropolis algorithm \cite{gelman2004}; thus, we can readily draw samples from the posterior. Each sample is then used in \eref{kl-approximation} to compute a sample of the QoI being inferred, $\u$, for all processing elements on the wafer. Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$.

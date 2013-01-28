@@ -8,6 +8,8 @@ Utils.fixRNG;
 %
 c = Test.configure;
 
+plot(c.system.wafer, c.observations.dieIndex);
+
 %% Measure temperature profiles.
 %
 m = Utils.measure(c);
@@ -45,32 +47,33 @@ plot(c.process, inferredN);
 Plot.title('Quantity of interest (inferred)');
 colormap(Color.map(inferredN, nRange));
 
-return;
-
 time = 1:size(samples, 1);
-
 timeInterval = [ time(1) time(end) ];
+
+c1 = Color.pick(1);
+c2 = Color.pick(2);
+
+figure;
+plot(time, fitness, 'Color', c1);
+Plot.title('Log-posterior + constant');
 
 z       = bsxfun(@rdivide, cumsum(z, 1)', time);
 muu     = cumsum(muu    )' ./ time;
 sigma2u = cumsum(sigma2u)' ./ time;
 sigma2e = cumsum(sigma2e)' ./ time;
 
-c1 = Color.pick(1);
-c2 = Color.pick(2);
-
 trueZ = m.z;
 
-for i = 1:size(z, 1)
-  figure;
-  line(time, z(i, :), 'Color', c1);
-  line(timeInterval, trueZ(i) * [ 1 1 ], 'Color', c2);
-  Plot.title('Independent variable %d', i);
-end
+dimensionCount = c.process.dimensionCount;
+cols = ceil(sqrt(dimensionCount));
+rows = ceil(dimensionCount / cols);
 
 figure;
-plot(time, fitness, 'Color', c1);
-Plot.title('Log-posterior + constant');
+for i = 1:dimensionCount
+  subplot(rows, cols, i);
+  line(time, z(i, :), 'Color', c1);
+  line(timeInterval, trueZ(i) * [ 1 1 ], 'Color', c2);
+end
 
 figure;
 plot(time, muu, 'Color', c1);

@@ -30,7 +30,7 @@ function [ expectation, variance ] = compute(this, z, mu, sigma2)
 
   expectation = zeros(pointCount, processorCount * timeCount * dieCount);
 
-  for p = 1:pointCount
+  parfor p = 1:pointCount
     l = L(:, :, p);
 
     data = zeros(processorCount, timeCount, dieCount);

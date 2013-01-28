@@ -39,7 +39,7 @@ colormap(Color.map(T, Trange));
 %
 time = tic;
 fprintf('Surrogate: construction...\n');
-s = Utils.substitute(c, m);
+s = Utils.substitute(c);
 fprintf('Surrogate: done in %.2f seconds.\n', toc(time));
 
 %% Visualize some traces.

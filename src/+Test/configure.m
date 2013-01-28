@@ -1,6 +1,8 @@
 function c = configure
   c = Options;
 
+  c.verbose = true;
+
   %
   % System
   %

@@ -1,14 +1,11 @@
-function [ expectation, variance ] = compute(this, z, mu, sigma2)
-  timeIndex = this.timeIndex;
-
+function Data = compute(this, L)
   leakage = this.leakage;
-  process = this.process;
-
+  timeIndex = this.timeIndex;
   Pdyn = this.Pdyn;
 
   processorCount = this.processorCount;
   dieCount = this.dieCount;
-  pointCount = size(z, 2);
+  pointCount = size(L, 2);
 
   if isempty(timeIndex)
     timeCount = size(Pdyn, 3);
@@ -17,10 +14,6 @@ function [ expectation, variance ] = compute(this, z, mu, sigma2)
     timeCount = length(timeIndex);
   end
 
-  if nargin < 3, mu = process.nominal; end
-  if nargin < 4, sigma2 = process.deviation^2; end
-
-  L = mu + sqrt(sigma2) * this.mapping * z;
   L = reshape(L, [ processorCount, dieCount, pointCount ]);
 
   E = this.E;
@@ -28,7 +21,7 @@ function [ expectation, variance ] = compute(this, z, mu, sigma2)
   BT = this.BT;
   Tamb = this.ambientTemperature;
 
-  expectation = zeros(pointCount, processorCount * timeCount * dieCount);
+  Data = zeros(pointCount, processorCount * timeCount * dieCount);
 
   parfor p = 1:pointCount
     l = L(:, :, p);
@@ -50,10 +43,6 @@ function [ expectation, variance ] = compute(this, z, mu, sigma2)
       i = j + 1;
     end
 
-    expectation(p, :) = data(:);
+    Data(p, :) = data(:);
   end
-
-  if nargout == 1, return; end
-
-  variance = 0;
 end

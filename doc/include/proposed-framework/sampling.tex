@@ -1,0 +1,34 @@
+As previously mentioned, we rely on MCMC sampling. Since $\mu_\u$, $\sigma_\u^2$, and $\sigma_\noise^2$ are separated from the forward model, it is easy to draw samples from the corresponding posterior distributions conditioned on all other parameters. The conditional posterior for $\mu_\u$ is
+\[
+  \mu_\u | \vu, \sigma_\u^2, \sigma_\noise^2, \Data \sim \gaussian{\alpha}{\beta^2}
+\]
+where
+\begin{align*}
+  & \alpha = \left. \left( \frac{\mu_0}{\sigma_0^2} + \frac{\vI^T \mCov^{-1} \vu}{\sigma_\u^2} \right) \right/ \left( \frac{1}{\sigma_0^2} + \frac{\vI^T \mCov^{-1} \vI}{\sigma_\u^2} \right) \text{ and} \\
+  & \beta^2 = \left( \frac{1}{\sigma_0^2} + \frac{\vI^T \mCov^{-1} \vI}{\sigma_\u^2} \right)^{-1}.
+\end{align*}
+The conditional posterior for $\sigma^2_\u$ is
+\[
+  \sigma_\u^2 | \vu, \mu_\u, \sigma_\noise^2, \Data \sim \sichisquared{\alpha}{\beta^2}
+\]
+where
+\[
+  \alpha = \nu_\u + \ncp \hspace{1em} \text{ and } \hspace{1em} \beta^2 = \frac{\nu_u \tau^2_\u + (\vu - \mu_\u \vI)^T\mCov^{-1}(\vu - \mu_\u \vI)}{\nu_\u + \ncp}.
+\]
+For the original model, the conditional posterior for $\sigma^2_\noise$ is
+\[
+  \sigma_\noise^2 | \vu, \mu_\u, \sigma_\u^2, \Data \sim \sichisquared{\alpha}{\beta^2}
+\]
+where
+\[
+  \alpha = \nu_\noise + \ndps \hspace{1em} \text{ and } \hspace{1em} \beta^2 = \frac{\nu_\noise \tau^2_\noise + \norm{\mvT_\meas - \mvT}^2}{\nu_\noise + \ndps}.
+\]
+For the surrogate model, the conditional posterior for $\tilde{\sigma}^2_\noise$ is
+\[
+  \tilde{\sigma}_\noise^2 | \vu, \mu_\u, \sigma_\u^2, \Data \sim \sichisquared{\alpha}{\beta^2}
+\]
+where
+\[
+  \alpha = \nu_\noise + \ndps \hspace{1em} \text{ and } \hspace{1em} \beta^2 = \frac{\nu_\noise \tilde{\tau}^2_\noise + \norm{\mvT_\meas - \mvT}^2}{\nu_\noise + \ndps}.
+\]
+Therefore, we can sample $\mu_\u$, $\sigma_\u^2$, and $\sigma_\noise^2$ directly from their conditional posteriors and accept such samples with probability one, which can be recognized as Gibbs sampling \cite{gelman2004}; see also \cite{marzouk2009}. On the other hand, $\vz$ is being sampled via the classical acceptance/rejection strategy of the Metropolis algorithm.

@@ -1,26 +1,26 @@
-The straightforward MCMC sampling, which is the Metropolis algorithm in our case, is highly time-consuming. This is mainly due to the solution of the thermal system, given in \eref{thermal-system}, each time when we need to evaluate the likelihood function. Therefore, a natural way to speed up the computational process is to bypass \eref{thermal-system}. In this paper, we assume a user-specified limit $\nobs$ on the number of the forward model evaluations, \ie, $\nobs$ is the number of solves of \eref{thermal-system} that we can afford. First, we run $\nobs$ steps of the algorithm wherein the initial forward model is used to compute the likelihood function. From this procedure we obtain a data set $\DesignData = \{ (\vu_{0i}, \mvT_{0i}) \}_{i = 1}^\nobs$ of (noise-free) responses of $\model$. Denote $\mU_0 = (\vu_{0i}) \in \real^{\ndies \ncores \times \nobs}$ and $\mmT_0 = (\mvT_{0i}) \in \real^{\ndcs \times \nobs}$. Then, $\DesignData$ is utilized to construct a surrogate for $\model$ that we shall use instead of $\model$ starting from the $(\nobs + 1)$th step of MCMC sampling. The surrogate is constructed via GP interpolation (see \sref{gp-approximation}). To this end, the forward model is approximated as
+A natural way to speed up the computational process is to bypass \eref{thermal-system}. In this paper, we assume a user-specified limit $\nobs$ on the number of the forward model evaluations, \ie, $\nobs$ is the number of solves of \eref{thermal-system}, which we can afford. First, we run $\nobs$ steps of the Metropolis algorithm wherein the initial forward model is used to compute the likelihood function. From this procedure we obtain a data set $\DesignData = \{ (\vu_{0i}, \mvT_{0i}) \}_{i = 1}^\nobs$ of responses of $\model$. Denote $\mU_0 = (\vu_{0i}) \in \real^{\ndp \times \nobs}$ and $\mmT_0 = (\mvT_{0i}) \in \real^{\ndps \times \nobs}$. Then, $\DesignData$ is utilized to construct a surrogate to $\model$ that we shall use instead of $\model$ starting from the $(\nobs + 1)$th iteration. The surrogate is constructed via GP regression (see \sref{gp-approximation}). To this end, the forward model is approximated as
 \begin{equation} \elabel{gp-approximation}
-  \model | \vparam_\u \sim \gaussian{\vmean_\T}{\sigma^2_\T \mI}
+  \model | \tilde{\vz} \sim \gaussian{\vmean_\T}{\sigma^2_\T \mI}
 \end{equation}
 where the left-hand side is nothing else but $\mvT$,
 \begin{align}
-  & \vmean_\T^T = \hat{\fCov}(\vu_\data, \mU_0) \hat{\fCov}(\mU_0, \mU_0)^{-1} \mmT_0^T, \text{ and} \elabel{gp-mean} \\
+  & \vmean_\T^T = \tilde{\fCov}(\vu_\data, \mU_0) \tilde{\fCov}(\mU_0, \mU_0)^{-1} \mmT_0^T, \text{ and} \elabel{gp-mean} \\
   & \sigma^2_\T = \fCov{\vu_\data, \vu_\data} - \fCov{\mU_0, \mU_0}^{-1} \fCov{\mU_0, \vu_\data}. \elabel{gp-variance}
 \end{align}
-Here, $\vu_\data$ is a constrained version of \eref{kl-approximation} (see \sref{model-order-reduction}). Note that \eref{gp-approximation} differs from the one in \sref{gp-approximation} as we have $\ndcs$ outputs, which are assumed to be independent. Also, the kernel $\hat{\fCov}$ should not be confused with $\fCov$ in \eref{covariance-function}. We choose $\hat{\fCov}$ to be the squared exponential kernel:
+Here, $\vu_\data$ is a constrained version of \eref{kl-approximation} (see \sref{model-order-reduction}). Note that \eref{gp-approximation} differs from the one in \sref{gp-approximation} as we have $\ndps$ outputs, which are assumed to be independent. Also, the kernel $\tilde{\fCov}$ should not be confused with $\fCov$ in \eref{covariance-function}. We choose $\tilde{\fCov}$ to be the squared exponential kernel:
 \[
-  \hat{\fCov}(\r, \r') = \hat{\sigma}^2 \exp\left(-\frac{\norm{\r - \r'}^2}{2 \hat{\ell}^2}\right)
+  \tilde{\fCov}(\r, \r') = \tilde{\sigma}^2 \exp\left(-\frac{\norm{\r - \r'}^2}{2 \tilde{\ell}^2}\right)
 \]
-where the parameters $\hat{\sigma}^2$ and $\hat{\ell}$ are estimated from the data $\DesignData$ by maximizing the corresponding marginal likelihood function, which, again, should not be confused with the one in \eref{likelihood}. Additional details can be found in, \eg, \cite{mackay2003, rasmussen2006}.
+where the parameters $\tilde{\sigma}^2$ and $\tilde{\ell}$ are estimated from the data $\DesignData$ by maximizing the corresponding marginal likelihood function, which, again, should not be confused with the one in \eref{likelihood}. Additional details can be found in, \eg, \cite{mackay2003, rasmussen2006}.
 
-It can be seen that we have established a nested Bayesian inference model. The inner inference described in this subsection operates on a noise-free data set, $\DesignData$, and the outer inference described in \sref{statistical-model} operates on a noisy data set, $\Data$. Now, we merge the two together by revisiting \eref{likelihood} wherein we need to account for \eref{gp-approximation}. Specifically, the likelihood of the observed data $\mvT_\meas$ is now
+It can be seen that we have established a nested Bayesian inference model. The inner inference described in this subsection operates on $\DesignData$, and the outer inference described in \sref{statistical-model} operates on $\Data$. Now, we merge the two together by revisiting \eref{likelihood} wherein we need to account for \eref{gp-approximation}. Specifically, the likelihood of the observed data $\mvT_\meas$ is now
 \begin{equation} \elabel{noise-approximation-model}
   \mvT_\meas | \vparam \sim \gaussian{\vmean_\T}{\sigma_\noise^2 \mI + \sigma_\T^2 \mI}.
 \end{equation}
-Finally, the new posterior in the logarithmic space is
+Finally, the new posterior on the logarithmic scale is
 \begin{align}
-  & \ln \f{\vparam | \Data} = -\frac{\ndcs}{2} \ln(\sigma^2_\noise + \sigma^2_\T) - \frac{\norm{\mvT_\meas - \vmean_\T}^2}{2(\sigma^2_\noise + \sigma^2_\T)} \nonumber \\
-  & {} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - (1 + \frac{\nu_\u}{2}) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
-  & {} - (1 + \frac{\nu_\noise}{2}) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{\sigma^2_\noise} - \frac{\norm{\vz}^2}{2} + c \elabel{log-posterior}
+  & \ln \f{\vparam | \Data} + c_2 = -\frac{\ndps}{2} \ln \tilde{\sigma}^2_\noise - \frac{\norm{\mvT_\meas - \vmean_\T}^2}{2 \tilde{\sigma}^2_\noise} \nonumber \\
+  & {} - \frac{(\vu - \mu_\u \vI)^T\mCov^{-1}(\vu - \mu_\u \vI)}{2 \sigma_\u^2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} \nonumber \\
+  & {} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \tilde{\sigma}^2_\noise - \frac{\nu_\noise \tilde{\tau}_\noise^2}{2 \tilde{\sigma}^2_\noise} \elabel{log-posterior-surrogate}
 \end{align}
-where $\vmean_\T$ and $\sigma^2_\T$ are functions of $\vparam_\u$ defined by \eref{gp-mean} and \eref{gp-variance}, respectively, and $c$ is some constant.
+where, for convenience, we replace the inference for $\sigma^2_\noise$ with the inference for $\tilde{\sigma}^2_\noise = \sigma^2_\noise + \sigma^2_\T$ having a scaled inverse chi-squared prior (see \eref{sigma2-u-prior}) with the parameters $\nu_\noise$ and $\tilde{\tau}^2_\noise = \tau^2_\noise + \sigma^2_\T$; $\vmean_\T$ and $\sigma^2_\T$ are functions of $\vu_\data$ (see \eref{kl-approximation}, \eref{gp-mean}, and \eref{gp-variance}); $c_2$ is some offset constant with respect to $\vparam$.

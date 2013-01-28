@@ -1,4 +1,4 @@
-Since, at each point of the continuum of spatial locations on the wafer, $\u$ can potentially take a different value, $\u$ is infinite-dimensional. We model $\u$ as a square-integrable stochastic process $\u: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$ corresponding to the wafer. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\u$ is assumed to be a Gaussian process \cite{rasmussen2006}:
+Since, at each point of the continuum of spatial locations on the wafer, the QoI $\u$ can potentially take a different value, $\u$ is infinite-dimensional. We model $\u$ as a square-integrable stochastic process $\u: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$ corresponding to the wafer. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\u$ is assumed to be a Gaussian process \cite{rasmussen2006}:
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]
@@ -11,43 +11,49 @@ where
   & \fCov_\SE(\r, \r') = \exp\left(-\frac{\norm{\r - \r'}^2}{2 \ell_\SE^2}\right) \text{ and} \\
   & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU} \right)
 \end{align*}
-are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ weights the kernels; $\norm{\cdot}$ stands for the Euclidean distance; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters. In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu_\u$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu_\u, \sigma_\u^2 \}$ and denote the forward model by $\mvT = \model{\vparam_\u}$.
+are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ weights the kernels; $\norm{\cdot}$ stands for the Euclidean distance; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters. In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu_\u$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu_\u, \sigma_\u^2 \}$.
 
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
-The infinite-dimensional object $\u$ is reduced to the finite-dimensional one via the KL expansion introduced in \sref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ndies \ncores$ processing elements on the wafer. Consequently, we obtain an $\ndies \ncores$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^{\ndies \ncores}$:
+The infinite-dimensional object $\u$ is reduced to the finite-dimensional one via the KL expansion introduced in \sref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ncp = \nchips \nprocs$ processing elements on the wafer. Consequently, we obtain a $\ncp$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^\ncp$:
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu_\u \vI + \sigma_\u \mKL \vz
 \end{equation}
-where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, and $\vz = (\z_i) \in \real^\nvars$ are \rvs\ obeying the standard Gaussian distribution. In addition, we denote by $\vu_\data \in \real^{\ndata \ncores}$ those elements of $\vu$ that correspond to the observations in $\Data$. Note that we perform model order reduction in \eref{kl-approximation} where $\mKL \in \real^{\ndies \ncores \times \nvars}$ and $\nvars$ is typically much smaller than $\ndies \ncores$. Let us redefine $\vparam_\u$ as $\vparam_\u = \{ \mu_\u, \sigma_\u^2, \vz \}$.
+where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI$ denotes a vector with all elements equal to one. Note that model order reduction is implied in \eref{kl-approximation}; therefore, $\vz \in \real^\nvars$ where $\nvars$ is much smaller than $\ncp$. In addition, we denote by $\vu_\data \in \real^{\ndp}$, $\ndp = \ndata \nprocs$, those elements of $\vu$ that correspond to the observations in $\Data$. Let us emphasize the performed discretization by denoting the forward model as $\model{\vu_\data|\vparam_\u}$.
 
 \subsubsection{The likelihood function}
 Due to the imperfection of the measurement processes, the temperature profiles in $\Data$, stacked into $\mvT_\meas$, are assumed to deviate from the model prediction in \eref{model}. To account for this,
 \[
-  \mvT_\meas = \mvT + \vnoise = \model{\vparam_\u} + \vnoise
+  \mvT_\meas = \model{\vu_\data | \vparam_\u} + \vnoise = \mvT + \vnoise
 \]
-where $\vnoise$ is an $\ndcs$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent of $\u$ \cite{mackay2003, rasmussen2006, marzouk2009}. Therefore,
+where $\vnoise$ is an $\ndps$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent of $\u$ \cite{mackay2003, rasmussen2006, marzouk2009}. Therefore,
 \[
   \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
 \]
-where $\sigma^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. Let us denote the parameters to be inferred as
-\[
-  \vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \mu_\u, \sigma_\u^2, \sigma_\noise^2, \vz \}.
-\]
-The noise can be interpreted as
+where $\sigma^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. The noise can be interpreted as
 \begin{equation} \elabel{likelihood}
-  \mvT_\meas | \vparam \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}
+  \mvT_\meas | \vu_\data, \sigma_\noise^2 \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}
 \end{equation}
-yielding the likelihood function $\f{\Data | \vparam}$ of the data $\Data$.
+yielding the likelihood function of the data $\Data$.
 
 \subsubsection{The prior}
-We put the following priors on $\vparam$:
+Denote the parameters to be inferred as
+\[
+  \vparam = \vparam_\u \cup \{ \vu, \sigma_\noise^2 \} = \{ \vu, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}.
+\]
+We put the following hierarchical prior on $\vparam$:
 \begin{align}
+  & \vu | \mu_\u, \sigma^2_\u \sim \gaussian{\mu_\u \vI}{\sigma^2_\u \mCov}, \elabel{u-prior} \\
   & \mu_\u \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{mu-u-prior} \\
-  & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \elabel{sigma2-u-prior} \\
-  & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}, \text{ and} \elabel{sigma2-noise-prior} \\
-  & \z_i \sim \gaussian{0}{1}. \elabel{z-prior}
+  & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and} \elabel{sigma2-u-prior} \\
+  & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \elabel{sigma2-noise-prior}
 \end{align}
-The first three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common, in Bayesian settings, choice for the unknown mean and variance of a Gaussian model \cite{gelman2004}. It is relatively easy to specify $\mu_0$ and $\sigma^2_0$ of $\mu_\u$ as they are intuitive, and the corresponding information is usually available. The parameters $\nu_\u$ and $\nu_\noise$, representing the degree of beliefs, and $\tau^2_\u$ and $\tau^2_\u$, representing the presumable values of $\sigma^2_\u$ and $\sigma^2_\noise$, should be set according to the prior knowledge. In the absence of such knowledge, a non-informative prior can be chosen for $\sigma^2_\u$ and $\sigma^2_\noise$. The prior for $\z_i$ is due to the definition of a KL expansion for Gaussian processes \cite{marzouk2009}.
+The prior for $\vu$, where $\mCov = \mKL \mKL^T$, is due to \eref{kl-approximation}. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown \cite{gelman2004}.
 
 \subsubsection{The posterior}
-Taking the product of the likelihood in \eref{likelihood} and the priors in \eref{mu-u-prior}--\eref{z-prior}, we obtain a quantity proportional to the posterior. This quantity suffices the requirements of the Metropolis algorithm \cite{gelman2004}; thus, we can draw samples from the posterior. Each sample is then used in \eref{kl-approximation} to compute a sample of the quantity of interest being inferred, $\u$, for all processing elements on the wafer. Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluations of $\model$.
+Taking the product of the likelihood in \eref{likelihood} and the priors in \eref{u-prior}--\eref{sigma2-noise-prior}, we obtain
+\begin{align}
+  & \ln \f{\vparam | \Data} + c_1 = -\frac{\ndps}{2} \ln \sigma^2_\noise - \frac{\norm{\mvT_\meas - \mvT}^2}{2 \sigma^2_\noise} \nonumber \\
+  & {} - \frac{(\vu - \mu_\u \vI)^T\mCov^{-1}(\vu - \mu_\u \vI)}{2 \sigma_\u^2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} \nonumber \\
+  & {} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
+\end{align}
+where $c_1$ is some constant. This expression is sufficient for the Metropolis algorithm \cite{gelman2004}; thus, we can readily draw samples from the posterior. Each sample is then used in \eref{kl-approximation} to compute a sample of the quantity of interest being inferred, $\u$, for all processing elements on the wafer. Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$.

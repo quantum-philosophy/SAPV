@@ -28,6 +28,16 @@ else
   save('inference.mat', 'samples', 'fitness', 'acceptCount', '-v7.3');
 end
 
+time = 1:size(samples, 1);
+timeInterval = [ time(1) time(end) ];
+
+c1 = Color.pick(1);
+c2 = Color.pick(2);
+
+figure;
+plot(time, fitness, 'Color', c1);
+Plot.title('Log-posterior + constant');
+
 z       = samples(:, 1:(end - 3))';
 muu     = samples(:,    end - 2)';
 sigma2u = samples(:,    end - 1)';

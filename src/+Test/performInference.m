@@ -28,7 +28,9 @@ else
   save('inference.mat', 'samples', 'fitness', 'acceptCount', '-v7.3');
 end
 
-time = 1:size(samples, 1);
+sampleCount = size(samples, 1);
+
+time = 1:sampleCount;
 timeInterval = [ time(1) time(end) ];
 
 c1 = Color.pick(1);
@@ -43,7 +45,7 @@ muu     = samples(:,    end - 2)';
 sigma2u = samples(:,    end - 1)';
 sigma2e = samples(:,    end - 0)';
 
-inferredZ = mean(z(:, (end - 1e3):end), 2);
+inferredZ = mean(z(:, round(0.1 * sampleCount):end), 2);
 [ ~, inferredN ] = c.process.compute(inferredZ);
 
 nRange = [ -3, 3 ];

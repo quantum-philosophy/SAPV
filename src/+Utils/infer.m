@@ -141,12 +141,12 @@ function [ Samples, Fitness, acceptCount ] = infer(c, m, model)
       % Construct the surrogate and use it right away.
       %
       surrogate = Utils.substitute(c, nodes, responses);
-      [ qT, sigma2q ] = surrogate.evaluate(node);
+      [ qT, sigma2q ] = surrogate.evaluate(node');
     else
       %
       % Sampling the surrogate.
       %
-      [ qT, sigma2q ] = surrogate.evaluate(node);
+      [ qT, sigma2q ] = surrogate.evaluate(node');
     end
 
     %

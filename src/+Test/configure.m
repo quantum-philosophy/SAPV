@@ -113,7 +113,7 @@ function c = configure
   % Surrogate
   %
   c.surrogate = Options;
-  c.surrogate.nodeCount = NaN; % 1e3;
+  c.surrogate.nodeCount = 1e3;
 
   %
   % Inference.

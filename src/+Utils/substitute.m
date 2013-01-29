@@ -1,4 +1,4 @@
-function surrogate = substitute(c, m, nodes, responses)
+function surrogate = substitute(c, nodes, responses)
   %
   % Configure the surrogate construction algorithm.
   %
@@ -10,7 +10,7 @@ function surrogate = substitute(c, m, nodes, responses)
 
   options = Options;
   options.kernel = kernel;
-  options.verbose = true;
+  options.verbose = c.verbose;
 
   if nargin > 2
     %
@@ -23,11 +23,18 @@ function surrogate = substitute(c, m, nodes, responses)
     %
     % Since no data provided, we need to sample ourselves.
     %
+    model = Utils.forward(c, 'model', 'observed');
+
+    nominal = c.process.nominal;
+    deviation = c.process.deviation;
+    mapping = c.process.constrainMapping(c.observations.dieIndex);
+
     options.inputCount = c.process.dimensionCount;
     options.nodeCount = c.surrogate.nodeCount;
-    model = Utils.forward(c, 'model', 'observed');
-    surrogate = Regression.GaussianProcess( ...
-      'target', @(u) model.compute(norminv(u).'), options);
+    options.target = @(u) ...
+      model.compute(nominal + deviation * mapping * norminv(u).');
+
+    surrogate = Regression.GaussianProcess(options);
   end
 end
 

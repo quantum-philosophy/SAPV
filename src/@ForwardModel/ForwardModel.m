@@ -1,13 +1,8 @@
 classdef ForwardModel < HotSpot.Analytic
   properties (SetAccess = 'private')
-    timeIndex
-
     leakage
-    process
-
     dieCount
-    mapping
-
+    timeIndex
     Pdyn
   end
 
@@ -17,20 +12,9 @@ classdef ForwardModel < HotSpot.Analytic
 
       this = this@HotSpot.Analytic(options);
 
-      this.timeIndex = options.timeIndex;
-
       this.leakage = options.leakage;
-      this.process = options.process;
-
-      dieIndex = options.dieIndex;
-      if isempty(dieIndex)
-        this.dieCount = this.process.wafer.dieCount;
-        this.mapping = this.process.mapping;
-      else
-        this.dieCount = length(dieIndex);
-        this.mapping = this.process.constrainMapping(dieIndex);
-      end
-
+      this.dieCount = options.dieCount;
+      this.timeIndex = options.timeIndex;
       Pdyn = options.Pdyn;
       this.Pdyn = reshape(kron(Pdyn, ones(1, this.dieCount)), ...
         [ this.processorCount, this.dieCount, size(Pdyn, 2) ]);

@@ -6,12 +6,9 @@ function m = measure(c)
   %
   model = Utils.forward(c, 'model', 'complete');
 
-  [ u, n, m.z ] = c.process.sample;
-  m.n = reshape(n, [ c.system.processorCount, c.system.wafer.dieCount ]);
-  m.u = reshape(u, [ c.system.processorCount, c.system.wafer.dieCount ]);
+  [ m.u, m.n, m.z ] = c.process.sample;
 
-  T = model.compute(m.z);
-  m.T = reshape(T, [ c.system.processorCount, ...
+  m.T = reshape(model.compute(m.u(:)), [ c.system.processorCount, ...
     c.power.stepCount, c.system.wafer.dieCount ]);
 
   %

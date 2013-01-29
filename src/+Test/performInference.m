@@ -23,8 +23,7 @@ else
 
   %% Do the inference.
   %
-  [ samples, fitness, acceptCount ] = Utils.infer( ...
-    'data', m.Tmeas, 'model', model, 'verbose', true, c.inference);
+  [ samples, fitness, acceptCount ] = Utils.infer(c, m, model);
 
   save('inference.mat', 'samples', 'fitness', 'acceptCount', '-v7.3');
 end

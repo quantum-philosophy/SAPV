@@ -39,7 +39,7 @@ function c = configure
   power = DynamicPower(c.samplingInterval);
 
   c.power = Options;
-  c.power.Pdyn = 1.5 * power.compute(schedule);
+  c.power.Pdyn = 1.7 * power.compute(schedule);
   c.power.stepCount = size(c.power.Pdyn, 2);
 
   %
@@ -113,7 +113,7 @@ function c = configure
   % Surrogate
   %
   c.surrogate = Options;
-  c.surrogate.nodeCount = 1e3;
+  c.surrogate.nodeCount = NaN; % 1e3;
 
   %
   % Inference.

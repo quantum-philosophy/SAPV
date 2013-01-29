@@ -1,60 +1,76 @@
-function [ Samples, Fitness, acceptCount ] = infer(varargin)
-  options = Options(varargin{:});
-
-  if options.get('verbose', false)
+function [ Samples, Fitness, acceptCount ] = infer(c, m, model)
+  if c.verbose
     verbose = @(varargin) fprintf(varargin{:});
   else
     verbose = @(varargin) [];
   end
 
-  qmeasT = transpose(options.data(:));
-  model = options.model;
+  qmeasT = transpose(m.Tmeas(:));
+  mapping = c.process.constrainMapping(c.observations.dieIndex);
 
+  [ inputCount, dimensionCount ] = size(mapping);
   outputCount = length(qmeasT);
-  dimensionCount = model.process.dimensionCount;
-  sampleCount = options.sampleCount;
+  sampleCount = c.inference.sampleCount;
+
+  %
+  % Surrogate?
+  %
+  nodeCount = c.surrogate.nodeCount;
+  useSurrogate = ~isnan(nodeCount);
+
+  if useSurrogate
+    surrogate = NaN;
+    nodeIndex = 0;
+    nodes = zeros(nodeCount, inputCount);
+    responses = zeros(nodeCount, outputCount);
+  end
 
   %
   % The priors.
   %
-  mu0     = options.mu0;
-  sigma20 = options.sigma20;
+  mu0     = c.inference.mu0;
+  sigma20 = c.inference.sigma20;
 
-  nuu     = options.nuu;
-  tau2u   = options.tau2u;
+  nuu     = c.inference.nuu;
+  tau2u   = c.inference.tau2u;
 
-  nue     = options.nue;
-  tau2e   = options.tau2e;
+  nue     = c.inference.nue;
+  tau2e   = c.inference.tau2e;
 
   %
   % Normalization (excluding the noise).
   %
-  nmu    = options.mu0;
-  nsigma = sqrt(options.tau2u);
+  nmu    = c.inference.mu0;
+  nsigma = sqrt(c.inference.tau2u);
 
   mu0     = (mu0 - nmu) / nsigma;
   sigma20 = sigma20     / nmu^2;
   tau2u   = tau2u       / nsigma^2;
 
-  assert(mu0     == 0);
-  assert(tau2u   == 1);
+  assert(mu0   == 0);
+  assert(tau2u == 1);
+
+  function result = computeNode(z_, muu_, sigma2u_)
+    result = (nmu + nsigma * muu_) + ...
+      nsigma * sqrt(sigma2u_) * mapping * z_;
+  end
 
   function result = computeFitness( ...
-    qT, sigma2q, z, muu, sigma2u, sigma2e)
+    qT_, sigma2q_, z_, muu_, sigma2u_, sigma2e_)
 
     result = ...
-      - (outputCount / 2) * log(sigma2e + sigma2q) ...
-      - sum((qmeasT - qT).^2) / (sigma2e + sigma2q) / 2 ...
+      - (outputCount / 2) * log(sigma2e_ + sigma2q_) ...
+      - sum((qmeasT - qT_).^2) / (sigma2e_ + sigma2q_) / 2 ...
       ...
-      - sum(z.^2) / 2 ...
+      - sum(z_.^2) / 2 ...
       ...
-      - (muu - mu0)^2 / sigma20 / 2 ...
+      - (muu_ - mu0)^2 / sigma20 / 2 ...
       ...
-      - (1 + nuu / 2) * log(sigma2u) ...
-      - nuu * tau2u / sigma2u / 2 ...
+      - (1 + nuu / 2) * log(sigma2u_) ...
+      - nuu * tau2u / sigma2u_ / 2 ...
       ...
-      - (1 + nue / 2) * log(sigma2e) ...
-      - nue * tau2e / sigma2e / 2;
+      - (1 + nue / 2) * log(sigma2e_) ...
+      - nue * tau2e / sigma2e_ / 2;
   end
 
   Samples = zeros(sampleCount, dimensionCount + 3);
@@ -71,14 +87,14 @@ function [ Samples, Fitness, acceptCount ] = infer(varargin)
   %
   % The proposal distribution.
   %
-  proposalSigma = options.proposalRate * ...
+  proposalSigma = c.inference.proposalRate * ...
     [ ones(dimensionCount, 1); 0; 0; 0 ];
 
   %
   % The first sample is special.
   %
-  qT = model.compute(z, ...
-    nmu + nsigma * muu, nsigma^2 * sigma2u);
+  node = computeNode(z, muu, sigma2u);
+  qT = model.compute(node);
 
   sample = [ z; muu; sigma2u; sigma2e ];
   fitness = computeFitness(qT, 0, z, muu, sigma2u, sigma2e);
@@ -102,11 +118,36 @@ function [ Samples, Fitness, acceptCount ] = infer(varargin)
     sigma2u = proposalSample(   end - 1);
     sigma2e = proposalSample(   end - 0);
 
-    %
-    % Sample the forward model.
-    %
-    [ qT, sigma2q ] = model.compute(z, ...
-      nmu + nsigma * muu, nsigma^2 * sigma2u);
+    node = computeNode(z, muu, sigma2u);
+
+    if ~useSurrogate
+      %
+      % Regular sampling of the forward model.
+      %
+      qT = model.compute(node);
+      sigma2q = 0;
+    elseif i <= nodeCount
+      %
+      % Collecting data for the surrogate.
+      %
+      qT = model.compute(node);
+      sigma2q = 0;
+
+      nodeIndex = nodeIndex + 1;
+      nodes(nodeIndex, :) = node;
+      responses(nodeIndex, :) = qT;
+    elseif i == nodeCount + 1
+      %
+      % Construct the surrogate and use it right away.
+      %
+      surrogate = Utils.substitute(c, nodes, responses);
+      [ qT, sigma2q ] = surrogate.evaluate(node);
+    else
+      %
+      % Sampling the surrogate.
+      %
+      [ qT, sigma2q ] = surrogate.evaluate(node);
+    end
 
     %
     % Compute the fitness, which is proportional to the log-posterior.

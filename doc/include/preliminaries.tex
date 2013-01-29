@@ -31,6 +31,6 @@ It can be shown \cite{mackay2003, rasmussen2006} that the corresponding predicti
 \begin{align*}
   & f | \m{X}, \Data \sim \gaussian{\vmean}{\mCov}, \\
   & \vmean = \fCov{\m{X}, \m{X}_0} (\fCov{\m{X}_0, \m{X}_0} + \sigma^2_\noise \mI)^{-1} \v{y}_0, \\
-  & \mCov = \fCov{\m{X}, \m{X}} - (\fCov{\m{X}_0, \m{X}_0} + \sigma^2_\noise \mI)^{-1} \fCov{\m{X}_0, \m{X}},
+  & \mCov = \fCov{\m{X}, \m{X}} - \fCov{\m{X}, \m{X}_0} (\fCov{\m{X}_0, \m{X}_0} + \sigma^2_\noise \mI)^{-1} \fCov{\m{X}_0, \m{X}},
 \end{align*}
 where, conventionally, the covariance function $\fCov$ applied to two matrices of input variables denotes the matrix obtained by evaluating $\fCov$ on those variables.

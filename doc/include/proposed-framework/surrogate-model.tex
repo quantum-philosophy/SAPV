@@ -5,7 +5,7 @@ A natural way to speed up the computational process is to bypass \eref{thermal-s
 where the left-hand side is nothing else but $\mvT$,
 \begin{align}
   & \vmean_\T^T = \tilde{\fCov}(\vu_\data, \mU_0) \tilde{\fCov}(\mU_0, \mU_0)^{-1} \mmT_0^T, \text{ and} \elabel{gp-mean} \\
-  & \sigma^2_\T = \fCov{\vu_\data, \vu_\data} - \fCov{\mU_0, \mU_0}^{-1} \fCov{\mU_0, \vu_\data}. \elabel{gp-variance}
+  & \sigma^2_\T = \tilde{\fCov}(\vu_\data, \vu_\data) - \tilde{\fCov}(\vu_\data, \mU_0) \tilde{\fCov}(\mU_0, \mU_0)^{-1} \tilde{\fCov}(\mU_0, \vu_\data). \elabel{gp-variance}
 \end{align}
 Here, $\vu_\data$ is a constrained version of \eref{kl-approximation} (see \sref{model-order-reduction}). Note that \eref{gp-approximation} differs from the one in \sref{gp-approximation} as (a) there is no noise in $\DesignData$, and (b) there are $\ndps$ outputs, which are assumed to be independent. Also, the kernel $\tilde{\fCov}$ should not be confused with $\fCov$ in \eref{covariance-function}. We choose $\tilde{\fCov}$ to be the squared exponential kernel:
 \[

@@ -5,6 +5,7 @@ function Data = compute(this, L)
 
   processorCount = this.processorCount;
   dieCount = this.dieCount;
+  nodeCount = this.nodeCount;
   pointCount = size(L, 2);
 
   if isempty(timeIndex)
@@ -28,7 +29,7 @@ function Data = compute(this, L)
 
     data = zeros(processorCount, timeCount, dieCount);
 
-    X = zeros(this.nodeCount, dieCount);
+    X = zeros(nodeCount, dieCount);
     T = Tamb * ones(processorCount, dieCount);
 
     k = 1;

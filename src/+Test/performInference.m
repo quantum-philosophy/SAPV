@@ -39,6 +39,7 @@ c2 = Color.pick(2);
 figure;
 plot(time, fitness, 'Color', c1);
 Plot.title('Log-posterior + constant');
+xlim(timeInterval);
 
 z       = samples(:, 1:(end - 3))';
 muu     = samples(:,    end - 2)';

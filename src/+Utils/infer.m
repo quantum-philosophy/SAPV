@@ -1,9 +1,5 @@
-function [ Samples, Fitness, acceptCount ] = infer(c, m, model)
-  if c.verbose
-    verbose = @(varargin) fprintf(varargin{:});
-  else
-    verbose = @(varargin) [];
-  end
+function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
+  verbose = c.verbose;
 
   qmeasT = transpose(m.Tmeas(:));
   mapping = c.process.constrainMapping(c.observations.dieIndex);
@@ -85,33 +81,85 @@ function [ Samples, Fitness, acceptCount ] = infer(c, m, model)
   sigma2e = tau2e;
 
   %
-  % The proposal distribution.
+  % Initial values and the proposal distribution.
   %
-  proposalSigma = c.inference.proposalRate * ...
-    [ ones(dimensionCount, 1); 0; 0; 0 ];
+  function result = target(theta_)
+    z_       = theta_(1:(end - 3));
+    muu_     = theta_(   end - 2);
+    sigma2u_ = theta_(   end - 1)^2;
+    sigma2e_ = theta_(   end - 0)^2;
 
-  %
-  % The first sample is special.
-  %
-  node = computeNode(z, muu, sigma2u);
-  qT = model.compute(node);
+    node_ = computeNode(z_, muu_, sigma2u_);
+    qT_ = model.compute(node_);
 
-  sample = [ z; muu; sigma2u; sigma2e ];
-  fitness = computeFitness(qT, 0, z, muu, sigma2u, sigma2e);
+    result = -computeFitness( ...
+      qT_, 0, z_, muu_, sigma2u_, sigma2e_);
+  end
 
-  acceptCount = 0;
+  if c.inference.optimizationStepCount > 0
+    %
+    % Optimization.
+    %
+    options.MaxFunEvals = c.inference.optimizationStepCount;
+    options.LargeScale = 'off';
 
-  for i = 1:sampleCount
-    if mod(i, 10) == 0
-      verbose('Metropolis: finished %6.2f%%, accepted %6.2f%%.\n', ...
-        i / sampleCount * 100, acceptCount / i * 100);
+    if c.verbose
+      options.Display = 'iter';
+    else
+      options.Display = 'off';
     end
 
+    theta0 = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
+
+    if File.exist('hessian.mat')
+      c.printf('Optimization: loading the previously computed hessian.\n');
+      load('hessian.mat');
+    else
+      time = tic; c.printf('Optimization: in progress...\n');
+      [ sample, ~, ~, ~, ~, hessian ] = fminunc( ...
+        @target, theta0, options);
+      c.printf('Optimization: done in %.2f seconds.\n', toc(time));
+      save('hessian.mat', 'sample', 'hessian', '-v7.3');
+    end
+
+    [ U, L ] = eig(hessian);
+
+    proposalSigma = U * diag(1 ./ sqrt(abs(diag(L))));
+
+    sample(end - 1) = sample(end - 1)^2;
+    sample(end - 0) = sample(end - 0)^2;
+
+    %
+    % Reset the last ones for now.
+    %
+    sample(end - 2) = muu;
+    sample(end - 1) = sigma2u;
+    sample(end - 0) = sigma2e;
+    proposalSigma((end - 2):(end - 0), :) = 0;
+    proposalSigma(:, (end - 2):(end - 0)) = 0;
+
+    proposalSigma = c.inference.proposalRate * proposalSigma;
+  else
+    %
+    % No optimization.
+    %
+    proposalSigma = c.inference.proposalRate * ...
+      diag([ ones(dimensionCount, 1); 0; 0; 0 ]);
+
+    sample = [ z; muu; sigma2u; sigma2e ];
+  end
+
+  fitness = -Inf;
+  Acceptance = logical(zeros(1, sampleCount));
+
+  stallStepCount = c.inference.stallStepCount;
+
+  for i = 1:sampleCount
     %
     % Sample the proposal distribution.
     %
     proposalSample = sample + ...
-      proposalSigma .* randn(dimensionCount + 3, 1);
+      proposalSigma * randn(dimensionCount + 3, 1);
 
     z       = proposalSample(1:(end - 3));
     muu     = proposalSample(   end - 2);
@@ -164,7 +212,7 @@ function [ Samples, Fitness, acceptCount ] = infer(c, m, model)
       %
       sample = proposalSample;
       fitness = proposalFitness;
-      acceptCount = acceptCount + 1;
+      Acceptance(i) = true;
     end
 
     %
@@ -172,6 +220,26 @@ function [ Samples, Fitness, acceptCount ] = infer(c, m, model)
     %
     Samples(i, :) = sample;
     Fitness(i) = fitness;
+
+    %
+    % Stall?
+    %
+    if stallStepCount <= i && ...
+      sum(Acceptance((i - stallStepCount + 1):i)) == 0
+
+      fprintf('Metropolis: premature stopping as none is accepted during the last %d steps.\n', ...
+        stallStepCount);
+      sampleCount = i;
+      break;
+    end
+
+    if verbose && mod(i, 10) == 0
+      finished = 100 * i / sampleCount;
+      accepted = 100 * mean(Acceptance(1:i));
+      rate     = 100 * mean(Acceptance(max(1, i - 1e2 + 1):i));
+      fprintf('Metropolis: finished %6.2f%%, accepted %6.2f%%, rate %6.2f%%.\n', ...
+        finished, accepted, rate);
+    end
   end
 
   %
@@ -179,4 +247,11 @@ function [ Samples, Fitness, acceptCount ] = infer(c, m, model)
   %
   Samples(:, end - 2) = nmu + nsigma   * Samples(:, end - 2);
   Samples(:, end - 1) =       nsigma^2 * Samples(:, end - 1);
+
+  %
+  % Truncate the output.
+  %
+  Samples    = Samples   (1:sampleCount, :);
+  Fitness    = Fitness   (1:sampleCount);
+  Acceptance = Acceptance(1:sampleCount);
 end

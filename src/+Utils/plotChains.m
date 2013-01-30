@@ -16,6 +16,7 @@ function plotChains(z, trueZ)
     line(time, z(i, :), 'Color', c1);
     line(timeInterval, trueZ(i) * [ 1 1 ], 'Color', c2);
     set(gca, 'XTick', timeInterval);
+    xlim(timeInterval);
   end
 
   z = bsxfun(@rdivide, cumsum(z, 2), time);
@@ -26,5 +27,6 @@ function plotChains(z, trueZ)
     line(time, z(i, :), 'Color', c1);
     line(timeInterval, trueZ(i) * [ 1 1 ], 'Color', c2);
     set(gca, 'XTick', timeInterval);
+    xlim(timeInterval);
   end
 end

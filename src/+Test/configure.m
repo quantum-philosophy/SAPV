@@ -122,7 +122,7 @@ function c = configure(processorCount, taskCount)
   % Surrogate
   %
   c.surrogate = Options;
-  c.surrogate.nodeCount = 1e3;
+  c.surrogate.nodeCount = NaN; % 1e3;
 
   %
   % Inference.
@@ -131,8 +131,11 @@ function c = configure(processorCount, taskCount)
   %
   c.inference = Options;
   c.inference.sampleCount = 1e4;
+  c.inference.stallStepCount = 1e3;
 
-  c.inference.proposalRate = 0.05; % ... of the standard deviation.
+  % The proposal distribution.
+  c.inference.optimizationStepCount = NaN; % 3e3;
+  c.inference.proposalRate = 0.05; % ... a portion of the standard deviation.
 
   % The prior on the mean of the QoI.
   c.inference.mu0 = c.process.nominal;

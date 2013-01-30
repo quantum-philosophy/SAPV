@@ -8,7 +8,7 @@ function surrogate = substitute(c, nodes, responses)
     'lowerBound', [ 1e-3, 1e-3 ], ...
     'upperBound', [ 2, 10 ]);
 
-  options = Options;
+  options = c.surrogate;
   options.kernel = kernel;
   options.verbose = c.verbose;
 
@@ -30,7 +30,6 @@ function surrogate = substitute(c, nodes, responses)
     mapping = c.process.constrainMapping(c.observations.dieIndex);
 
     options.inputCount = c.process.dimensionCount;
-    options.nodeCount = c.surrogate.nodeCount;
     options.target = @(u) ...
       model.compute(nominal + deviation * mapping * norminv(u).');
 

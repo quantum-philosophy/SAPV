@@ -116,7 +116,9 @@ function c = configure(processorCount, taskCount)
   % Surrogate
   %
   c.surrogate = Options;
-  c.surrogate.nodeCount = NaN; % 1e3;
+  c.surrogate.nodeCount = 1e3;
+  c.surrogate.optimizationStepCount = 1e2;
+  c.surrogate.noiseVariance = 0.00;
 
   %
   % Inference.

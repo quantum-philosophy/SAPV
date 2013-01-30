@@ -115,23 +115,24 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       options.Display = 'off';
     end
 
-    theta0 = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
+    theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
 
     if File.exist('hessian.mat')
       printf('Optimization: loading the previously computed hessian.\n');
       load('hessian.mat');
     else
       time = tic; printf('Optimization: in progress...\n');
-      [ sample, ~, ~, ~, ~, hessian ] = fminunc( ...
-        @target, theta0, options);
+      [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
+        @target, theta, options);
       printf('Optimization: done in %.2f seconds.\n', toc(time));
-      save('hessian.mat', 'sample', 'hessian', '-v7.3');
+      save('hessian.mat', 'theta', 'hessian', '-v7.3');
     end
 
     [ U, L ] = eig(hessian);
 
     proposalSigma = U * diag(1 ./ sqrt(abs(diag(L))));
 
+    sample = theta;
     sample(end - 1) = sample(end - 1)^2;
     sample(end - 0) = sample(end - 0)^2;
 

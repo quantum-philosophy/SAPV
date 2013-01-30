@@ -1,6 +1,12 @@
 function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   verbose = c.verbose;
 
+  if verbose
+    printf = @(varargin) fprintf(varargin{:});
+  else
+    printf = @(varargin) [];
+  end
+
   qmeasT = transpose(m.Tmeas(:));
   mapping = c.process.constrainMapping(c.observations.dieIndex);
 
@@ -103,7 +109,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     options.MaxFunEvals = c.inference.optimizationStepCount;
     options.LargeScale = 'off';
 
-    if c.verbose
+    if verbose
       options.Display = 'iter';
     else
       options.Display = 'off';
@@ -112,13 +118,13 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     theta0 = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
 
     if File.exist('hessian.mat')
-      c.printf('Optimization: loading the previously computed hessian.\n');
+      printf('Optimization: loading the previously computed hessian.\n');
       load('hessian.mat');
     else
-      time = tic; c.printf('Optimization: in progress...\n');
+      time = tic; printf('Optimization: in progress...\n');
       [ sample, ~, ~, ~, ~, hessian ] = fminunc( ...
         @target, theta0, options);
-      c.printf('Optimization: done in %.2f seconds.\n', toc(time));
+      printf('Optimization: done in %.2f seconds.\n', toc(time));
       save('hessian.mat', 'sample', 'hessian', '-v7.3');
     end
 
@@ -227,7 +233,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     if stallStepCount <= i && ...
       sum(Acceptance((i - stallStepCount + 1):i)) == 0
 
-      fprintf('Metropolis: premature stopping as none is accepted during the last %d steps.\n', ...
+      printf('Metropolis: premature stopping as none is accepted during the last %d steps.\n', ...
         stallStepCount);
       sampleCount = i;
       break;
@@ -237,7 +243,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       finished = 100 * i / sampleCount;
       accepted = 100 * mean(Acceptance(1:i));
       rate     = 100 * mean(Acceptance(max(1, i - 1e2 + 1):i));
-      fprintf('Metropolis: finished %6.2f%%, accepted %6.2f%%, rate %6.2f%%.\n', ...
+      printf('Metropolis: finished %6.2f%%, accepted %6.2f%%, rate %6.2f%%.\n', ...
         finished, accepted, rate);
     end
   end

@@ -6,12 +6,6 @@ function c = configure(processorCount, taskCount)
 
   c.verbose = true;
 
-  if c.verbose
-    c.printf = @(varargin) fprintf(varargin{:});
-  else
-    c.printf = @(varargin) [];
-  end
-
   %
   % System
   %

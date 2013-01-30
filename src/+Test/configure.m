@@ -1,15 +1,23 @@
-function c = configure
+function c = configure(processorCount, taskCount)
+  if nargin < 1, processorCount = 2; end
+  if nargin < 2, taskCount = 20 * processorCount; end
+
   c = Options;
 
   c.verbose = true;
+
+  if c.verbose
+    c.printf = @(varargin) fprintf(varargin{:});
+  else
+    c.printf = @(varargin) [];
+  end
 
   %
   % System
   %
   c.system = Options;
-  c.system.processorCount = 2;
+  c.system.processorCount = processorCount;
 
-  taskCount = 40;
   tgffConfig = File.join('+Test', 'Assets', ...
     sprintf('%03d_%03d.tgff', c.system.processorCount, taskCount));
 
@@ -39,7 +47,7 @@ function c = configure
   power = DynamicPower(c.samplingInterval);
 
   c.power = Options;
-  c.power.Pdyn = 1.7 * power.compute(schedule);
+  c.power.Pdyn = power.compute(schedule);
   c.power.stepCount = size(c.power.Pdyn, 2);
 
   %
@@ -80,7 +88,8 @@ function c = configure
   end
 
   filename = File.temporal([ 'ProcessVariation_', ...
-    DataHash({ eta, lse, lou, Utils.toString(processOptions) }), '.mat' ]);
+    DataHash({ Utils.toString(c.system.wafer), ...
+      eta, lse, lou, Utils.toString(processOptions) }), '.mat' ]);
 
   if File.exist(filename)
     load(filename);

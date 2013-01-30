@@ -128,8 +128,8 @@ function c = configure(processorCount, taskCount)
   c.inference.stallStepCount = 1e3;
 
   % The proposal distribution.
-  c.inference.optimizationStepCount = NaN; % 3e3;
-  c.inference.proposalRate = 0.05; % ... a portion of the standard deviation.
+  c.inference.optimizationStepCount = 3e3;
+  c.inference.proposalRate = 0.30; % ... a portion of the standard deviation.
 
   % The prior on the mean of the QoI.
   c.inference.mu0 = c.process.nominal;

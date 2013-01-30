@@ -1,5 +1,6 @@
 function setup
   use('LinearAlgebra');
+  use('DataAnalysis');
   use('TemperatureAnalysis');
   use('SystemSimulation');
   use('Approximation');

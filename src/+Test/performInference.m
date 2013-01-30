@@ -23,9 +23,9 @@ else
 
   %% Do the inference.
   %
-  [ samples, fitness, acceptCount ] = Utils.infer(c, m, model);
+  [ samples, fitness, acceptance ] = Utils.infer(c, m, model);
 
-  save('inference.mat', 'samples', 'fitness', 'acceptCount', '-v7.3');
+  save('inference.mat', 'samples', 'fitness', 'acceptance', '-v7.3');
 end
 
 sampleCount = size(samples, 1);
@@ -58,6 +58,11 @@ colormap(Color.map(m.n, nRange));
 plot(c.process, inferredN);
 Plot.title('Quantity of interest (inferred)');
 colormap(Color.map(inferredN, nRange));
+
+fprintf('Error:\n');
+fprintf('  Norm:  %.4e\n', Error.computeL2(m.n, inferredN));
+fprintf('  RMSE:  %.4e\n', Error.computeRMSE(m.n, inferredN));
+fprintf('  NRMSE: %.4e\n', Error.computeNRMSE(m.n, inferredN));
 
 Utils.plotChains(z, m.z);
 

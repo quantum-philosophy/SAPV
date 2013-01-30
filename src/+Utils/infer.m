@@ -160,6 +160,8 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
 
   stallStepCount = c.inference.stallStepCount;
 
+  time = tic;
+
   for i = 1:sampleCount
     %
     % Sample the proposal distribution.
@@ -239,14 +241,16 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       break;
     end
 
-    if verbose && mod(i, 10) == 0
+    if verbose && mod(i, 1e2) == 0
       finished = 100 * i / sampleCount;
       accepted = 100 * mean(Acceptance(1:i));
-      rate     = 100 * mean(Acceptance(max(1, i - 1e2 + 1):i));
+      rate     = 100 * mean(Acceptance((i - 1e2 + 1):i));
       printf('Metropolis: finished %6.2f%%, accepted %6.2f%%, rate %6.2f%%.\n', ...
         finished, accepted, rate);
     end
   end
+
+  printf('Metropolis: done in %.2f seconds.\n', toc(time));
 
   %
   % Do not forget to denormalize the result!

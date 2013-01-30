@@ -14,6 +14,7 @@ function plotChains(z, trueZ)
   for i = 1:dimensionCount
     subplot(rows, cols, i);
     line(time, z(i, :), 'Color', c1);
+    line(timeInterval, mean(z(i, :)) * [ 1 1 ], 'Color', c1);
     line(timeInterval, trueZ(i) * [ 1 1 ], 'Color', c2);
     set(gca, 'XTick', timeInterval);
     xlim(timeInterval);

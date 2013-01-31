@@ -159,8 +159,6 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   fitness = -Inf;
   Acceptance = logical(zeros(1, sampleCount));
 
-  stallStepCount = c.inference.stallStepCount;
-
   time = tic;
 
   for i = 1:sampleCount
@@ -234,7 +232,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       finished = 100 * i / sampleCount;
       accepted = 100 * mean(Acceptance(1:i));
       rate     = 100 * mean(Acceptance((i - 1e2 + 1):i));
-      printf('Metropolis: finished %5.2f%%, accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
+      printf('Metropolis: finished %6.2f%%, accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
         finished, accepted, rate, fitness);
     end
   end

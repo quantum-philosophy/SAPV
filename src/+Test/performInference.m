@@ -75,12 +75,12 @@ sigma2e = cumsum(sigma2e) ./ time;
 figure;
 plot(time, muu, 'Color', c1);
 line(timeInterval, c.process.nominal * [ 1 1 ], 'Color', c2);
-Plot.title('Mean of the QoI (normalized)');
+Plot.title('Mean of the QoI');
 
 figure;
 plot(time, sigma2u, 'Color', c1);
 line(timeInterval, c.process.deviation^2 * [ 1 1 ], 'Color', c2);
-Plot.title('Variance of the QoI (normalized)');
+Plot.title('Variance of the QoI');
 
 figure;
 plot(time, sigma2e, 'Color', c1);

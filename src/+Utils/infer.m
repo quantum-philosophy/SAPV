@@ -129,8 +129,14 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     end
 
     [ U, L ] = eig(hessian);
+    L = diag(L);
 
-    proposalSigma = U * diag(1 ./ sqrt(abs(diag(L))));
+    negativeCount = sum(L < 0);
+
+    printf('Optimization: %d out of %d eigenvalues are negative.\n', ...
+      negativeCount, length(L));
+
+    proposalSigma = U * diag(1 ./ sqrt(abs(L)));
 
     sample = theta;
     sample(end - 1) = sample(end - 1)^2;

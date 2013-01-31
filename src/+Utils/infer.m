@@ -230,18 +230,6 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     Samples(i, :) = sample;
     Fitness(i) = fitness;
 
-    %
-    % Stall?
-    %
-    if stallStepCount <= i && ...
-      sum(Acceptance((i - stallStepCount + 1):i)) == 0
-
-      printf('Metropolis: premature stopping as none is accepted during the last %d steps.\n', ...
-        stallStepCount);
-      sampleCount = i;
-      break;
-    end
-
     if verbose && mod(i, 1e2) == 0
       finished = 100 * i / sampleCount;
       accepted = 100 * mean(Acceptance(1:i));
@@ -251,7 +239,8 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     end
   end
 
-  printf('Metropolis: done in %.2f seconds.\n', toc(time));
+  printf('Metropolis: done with %d samples in %.2f seconds.\n', ...
+    sampleCount, toc(time));
 
   %
   % Do not forget to denormalize the result!

@@ -128,7 +128,6 @@ function c = configure(processorCount, taskCount)
   %
   c.inference = Options;
   c.inference.sampleCount = 1e4;
-  c.inference.stallStepCount = 1e3;
 
   % The proposal distribution.
   c.inference.optimizationStepCount = 3e3;

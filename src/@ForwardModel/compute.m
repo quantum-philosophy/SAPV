@@ -25,7 +25,7 @@ function Data = compute(this, L)
 
   Data = zeros(pointCount, processorCount * timeCount * dieCount);
 
-  parfor p = 1:pointCount
+  for p = 1:pointCount
     l = L(:, :, p);
 
     data = zeros(processorCount, timeCount, dieCount);

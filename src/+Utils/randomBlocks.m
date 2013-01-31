@@ -1,12 +1,9 @@
-function index = randomBlocks(X, Y, W, H, count)
-  L = min(X);
-  R = max(X) + W;
+function index = randomBlocks(IJ, count)
+  I = IJ(:, 1);
+  J = IJ(:, 2);
 
-  B = min(Y);
-  T = max(Y) + H;
-
-  rows = round((T - B) / H);
-  cols = round((R - L) / W);
+  rows = length(unique(I));
+  cols = length(unique(J));
 
   index = zeros(1, count);
 
@@ -14,18 +11,14 @@ function index = randomBlocks(X, Y, W, H, count)
     i = randi(rows);
     j = randi(cols);
 
-    y = (i - 1) * H + B;
-    x = (j - 1) * W + L;
+    K = find(abs(I - i) + abs(J - j) == 0);
 
-    I = find(abs(X - x) + abs(Y - y) == 0);
+    if isempty(K), continue; end
+    assert(isscalar(K));
 
-    if isempty(I), continue; end
+    if ismember(K, index), continue; end
 
-    assert(isscalar(I));
-
-    if ismember(I, index), continue; end
-
-    index(count) = I;
+    index(count) = K;
     count = count - 1;
   end
 

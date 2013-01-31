@@ -14,6 +14,12 @@ plot(c.system.wafer, c.observations.dieIndex);
 %
 m = Utils.measure(c);
 
+nRange = [ -3, 3 ];
+
+plot(c.process, m.n);
+Plot.title('Quantity of interest (true)');
+colormap(Color.map(m.n, nRange));
+
 if File.exist('inference.mat')
   load('inference.mat');
 else
@@ -48,12 +54,6 @@ sigma2e = samples(:,    end - 0)';
 
 inferredZ = mean(z(:, round(0.1 * sampleCount):end), 2);
 [ ~, inferredN ] = c.process.compute(inferredZ);
-
-nRange = [ -3, 3 ];
-
-plot(c.process, m.n);
-Plot.title('Quantity of interest (true)');
-colormap(Color.map(m.n, nRange));
 
 plot(c.process, inferredN);
 Plot.title('Quantity of interest (inferred)');

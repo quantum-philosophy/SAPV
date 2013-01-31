@@ -1,5 +1,6 @@
 function Data = compute(this, L)
-  leakage = this.leakage;
+  leak = this.leakage.evaluate;
+
   timeIndex = this.timeIndex;
   Pdyn = this.Pdyn;
 
@@ -36,7 +37,7 @@ function Data = compute(this, L)
     i = 1;
     while k <= timeCount
       for j = i:timeIndex(k)
-        X = E * X + D * (Pdyn(:, :, j) + leakage.evaluate(l, T));
+        X = E * X + D * (Pdyn(:, :, j) + leak(l, T));
         T = BT * X + Tamb;
       end
       data(:, k, :) = T;

@@ -49,8 +49,9 @@ function c = configure(processorCount, taskCount)
   %
   leakageOptions = Options( ...
     'filename', File.join('+Test', 'Assets', 'inverter_45nm.leak'), ...
-    'order', [ 1, 2 ], 'scale', [ 1, 0.7, 0; 1, 1, 1 ]);
-  c.leakage = LeakagePower(c.power.Pdyn, leakageOptions);
+    'order', [ 1, 2 ], 'scale', [ 1, 0.7, 0; 1, 1, 1 ], ...
+    'dynamicPower', c.power.Pdyn);
+  c.leakage = LeakagePower(leakageOptions);
 
   %
   % Process variation
@@ -116,7 +117,7 @@ function c = configure(processorCount, taskCount)
   % Surrogate
   %
   c.surrogate = Options;
-  c.surrogate.nodeCount = 1e3;
+  c.surrogate.nodeCount = NaN;
   c.surrogate.optimizationStepCount = 1e2;
   c.surrogate.noiseVariance = 0.00;
 

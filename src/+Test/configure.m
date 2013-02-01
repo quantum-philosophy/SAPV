@@ -126,7 +126,7 @@ function c = configure(processorCount, taskCount)
   c.inference.sampleCount = 1e4;
 
   % The proposal distribution.
-  c.inference.optimizationStepCount = 3e3;
+  c.inference.optimizationStepCount = 10e3;
   c.inference.proposalRate = 0.30; % ... a portion of the standard deviation.
 
   % The prior on the mean of the QoI.
@@ -136,14 +136,14 @@ function c = configure(processorCount, taskCount)
   % The prior on the variance of the QoI.
   %
   % As if from...
-  c.inference.nuu = 2;
+  c.inference.nuu = 10;
   % ... observations we concluded that it should be...
   c.inference.tau2u = c.process.deviation^2;
 
   % The prior on the variance of the noise.
   %
   % As if from...
-  c.inference.nue = 2;
+  c.inference.nue = 10;
   % ... observations we concluded that it should be...
   c.inference.tau2e = c.observations.deviation^2;
 end

@@ -142,25 +142,31 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     sample(end - 1) = sample(end - 1)^2;
     sample(end - 0) = sample(end - 0)^2;
 
-    %
-    % Reset the last ones for now.
-    %
-    sample(end - 2) = muu;
-    sample(end - 1) = sigma2u;
-    sample(end - 0) = sigma2e;
-    proposalSigma((end - 2):(end - 0), :) = 0;
-    proposalSigma(:, (end - 2):(end - 0)) = 0;
-
     proposalSigma = c.inference.proposalRate * proposalSigma;
   else
     %
     % No optimization.
     %
+    sample = [ z; muu; sigma2u; sigma2e ];
+
     proposalSigma = c.inference.proposalRate * ...
       diag([ ones(dimensionCount, 1); 0; 0; 0 ]);
-
-    sample = [ z; muu; sigma2u; sigma2e ];
   end
+
+  %
+  % Reset the last ones for now.
+  %
+  sample(end - 2) = muu;
+  proposalSigma(end - 2, :) = 0;
+  proposalSigma(:, end - 2) = 0;
+
+  sample(end - 1) = sigma2u;
+  proposalSigma(end - 1, :) = 0;
+  proposalSigma(:, end - 1) = 0;
+
+  sample(end - 0) = sigma2e;
+  proposalSigma(end - 0, :) = 0;
+  proposalSigma(:, end - 0) = 0;
 
   fitness = -Inf;
   Acceptance = logical(zeros(1, sampleCount));

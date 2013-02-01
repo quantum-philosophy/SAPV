@@ -61,12 +61,11 @@ colormap(Color.map(inferredN, nRange));
 
 fprintf('Error:\n');
 fprintf('  Norm:  %.4e\n', Error.computeL2(m.n, inferredN));
+fprintf('  MSE:   %.4e\n', Error.computeMSE(m.n, inferredN));
 fprintf('  RMSE:  %.4e\n', Error.computeRMSE(m.n, inferredN));
 fprintf('  NRMSE: %.4e\n', Error.computeNRMSE(m.n, inferredN));
 
 Utils.plotChains(z, m.z);
-
-return;
 
 muu     = cumsum(muu    ) ./ time;
 sigma2u = cumsum(sigma2u) ./ time;

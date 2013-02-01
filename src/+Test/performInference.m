@@ -29,10 +29,14 @@ else
 
   %% Do the inference.
   %
+  time = tic;
   [ samples, fitness, acceptance ] = Utils.infer(c, m, model);
+  time = toc(time);
 
-  save('inference.mat', 'samples', 'fitness', 'acceptance', '-v7.3');
+  save('inference.mat', 'time', 'samples', 'fitness', 'acceptance', '-v7.3');
 end
+
+fprintf('Total time: %.2f minutes.\n', time / 60);
 
 sampleCount = size(samples, 1);
 

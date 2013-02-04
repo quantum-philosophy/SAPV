@@ -4,6 +4,7 @@ function c = configure(processorCount, taskCount)
 
   c = Options;
 
+  c.stamp = @(name) sprintf('%03d_%s', processorCount, name);
   c.verbose = true;
 
   %

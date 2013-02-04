@@ -117,15 +117,16 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
 
     theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
 
-    if File.exist('hessian.mat')
+    filename = c.stamp('hessian.mat');
+    if File.exist(filename)
       printf('Optimization: loading the previously computed hessian.\n');
-      load('hessian.mat');
+      load(filename);
     else
       time = tic; printf('Optimization: in progress...\n');
       [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
         @target, theta, options);
       printf('Optimization: done in %.2f seconds.\n', toc(time));
-      save('hessian.mat', 'theta', 'hessian', '-v7.3');
+      save(filename, 'theta', 'hessian', '-v7.3');
     end
 
     [ U, L ] = eig(hessian);

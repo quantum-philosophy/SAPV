@@ -1,36 +1,7 @@
-function [ c, m, results, samples ] = perform(varargin)
-  %% Configure the test case.
-  %
-  c = Test.configure(varargin{:});
-
-  if c.verbose
-    printf = @(varargin) fprintf(varargin{:});
-  else
-    printf = @(varargin) [];
-  end
-
-  plot(c.system.wafer, c.observations.dieIndex);
-
-  %% Measure temperature profiles.
-  %
-  filename = c.stamp('measurement.mat');
-  if File.exist(filename)
-    printf('Measurement: loading cashed data in "%s"...\n', filename);
-    load(filename);
-  else
-    time = tic;
-    m = Utils.measure(c);
-    time = toc(time);
-
-    save(filename, 'time', 'm', '-v7.3');
-  end
-  time = 0;
-
-  printf('Measurement: done in %.2f minutes.\n', time / 60);
-
+function [ results, samples ] = perform(c, m)
   filename = c.stamp('inference.mat');
   if File.exist(filename);
-    printf('Inference: loading cashed data in "%s"...\n', filename);
+    c.printf('Inference: loading cashed data in "%s"...\n', filename);
     load(filename);
   else
     %% Initialize the forward model.
@@ -46,7 +17,7 @@ function [ c, m, results, samples ] = perform(varargin)
     save(filename, 'time', 'samples', 'fitness', 'acceptance', '-v7.3');
   end
 
-  printf('Inference: done in %.2f minutes.\n', time / 60);
+  c.printf('Inference: done in %.2f minutes.\n', time / 60);
 
   count = size(samples, 1);
 

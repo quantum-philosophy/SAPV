@@ -7,6 +7,12 @@ function c = configure(processorCount, taskCount)
   c.stamp = @(name) sprintf('%03d_%s', processorCount, name);
   c.verbose = true;
 
+  if c.verbose
+    c.printf = @(varargin) fprintf(varargin{:});
+  else
+    c.printf = @(varargin) [];
+  end
+
   %
   % System
   %

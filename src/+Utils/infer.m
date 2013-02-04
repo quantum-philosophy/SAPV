@@ -1,12 +1,6 @@
 function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   verbose = c.verbose;
 
-  if verbose
-    printf = @(varargin) fprintf(varargin{:});
-  else
-    printf = @(varargin) [];
-  end
-
   qmeasT = transpose(m.Tmeas(:));
   mapping = c.process.constrainMapping(c.observations.dieIndex);
 
@@ -119,13 +113,13 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
 
     filename = c.stamp('hessian.mat');
     if File.exist(filename)
-      printf('Optimization: loading the previously computed hessian.\n');
+      c.printf('Optimization: loading the previously computed hessian.\n');
       load(filename);
     else
-      time = tic; printf('Optimization: in progress...\n');
+      time = tic; c.printf('Optimization: in progress...\n');
       [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
         @target, theta, options);
-      printf('Optimization: done in %.2f seconds.\n', toc(time));
+      c.printf('Optimization: done in %.2f seconds.\n', toc(time));
       save(filename, 'theta', 'hessian', '-v7.3');
     end
 
@@ -134,7 +128,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
 
     negativeCount = sum(L < 0);
 
-    printf('Optimization: %d out of %d eigenvalues are negative.\n', ...
+    c.printf('Optimization: %d out of %d eigenvalues are negative.\n', ...
       negativeCount, length(L));
 
     proposalSigma = U * diag(1 ./ sqrt(abs(L)));
@@ -245,12 +239,12 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       finished = 100 * i / sampleCount;
       accepted = 100 * mean(Acceptance(1:i));
       rate     = 100 * mean(Acceptance((i - 1e2 + 1):i));
-      printf('Metropolis: finished %6.2f%%, accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
+      c.printf('Metropolis: finished %6.2f%%, accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
         finished, accepted, rate, fitness);
     end
   end
 
-  printf('Metropolis: done with %d samples in %.2f seconds.\n', ...
+  c.printf('Metropolis: done with %d samples in %.2f seconds.\n', ...
     sampleCount, toc(time));
 
   %

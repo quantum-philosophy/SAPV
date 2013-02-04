@@ -2,5 +2,6 @@ clear all;
 close all;
 setup;
 
-[ c, m, results, samples ] = Utils.perform;
-Utils.plotResults(c, m, results, samples);
+[ c, m ] = Utils.prepare;
+[ results, samples ] = Utils.perform(c, m);
+Utils.plot(c, m, results, samples);

@@ -1,4 +1,4 @@
-function plotResults(c, m, results, samples)
+function plot(c, m, results, samples)
   sampleCount = samples.count;
 
   time = 1:sampleCount;
@@ -19,7 +19,7 @@ function plotResults(c, m, results, samples)
   colormap(Color.map(m.n, nRange));
 
   plot(c.process, results.n);
-  Plot.title('Inferred QoI (error %e)', results.error);
+  Plot.title('Inferred QoI (error %.4f)', results.error);
   colormap(Color.map(results.n, nRange));
 
   dimensionCount = c.process.dimensionCount;

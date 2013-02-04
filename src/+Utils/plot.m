@@ -30,17 +30,22 @@ function plot(c, m, results, samples)
   time = 1:sampleCount;
   timeInterval = [ time(1) time(end) ];
 
+  z = samples.z;
+
+  figure;
+  plotmatrix(z(:, round(c.inference.burninRate * sampleCount):end)');
+
   figure;
   for i = 1:dimensionCount
     subplot(rows, cols, i);
-    line(time, samples.z(i, :), 'Color', c1);
+    line(time, z(i, :), 'Color', c1);
     line(timeInterval, results.z(i) * [ 1 1 ], 'Color', c1);
     line(timeInterval, m.z(i) * [ 1 1 ], 'Color', c2);
     set(gca, 'XTick', timeInterval);
     xlim(timeInterval);
   end
 
-  z = bsxfun(@rdivide, cumsum(samples.z, 2), time);
+  z = bsxfun(@rdivide, cumsum(z, 2), time);
 
   figure;
   for i = 1:dimensionCount

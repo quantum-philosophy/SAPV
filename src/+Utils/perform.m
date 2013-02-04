@@ -42,11 +42,7 @@ function [ results, samples ] = perform(c, m)
   samples.fitness = fitness;
   samples.acceptance = acceptance;
 
-  %
-  % NOTE: We are discarding 10% of the samples. May be we should
-  % through away more?
-  %
-  z = mean(z(:, round(0.1 * count):end), 2);
+  z = mean(z(:, round(c.inference.burninRate * count):end), 2);
   [ u, n ] = c.process.compute(z);
 
   results = Options;

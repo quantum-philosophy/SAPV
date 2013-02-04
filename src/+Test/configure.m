@@ -149,10 +149,11 @@ function c = configure(processorCount, taskCount)
   %
   c.inference = Options;
   c.inference.sampleCount = 1e4;
+  c.inference.burninRate = 0.50;
 
   % The proposal distribution.
   c.inference.optimizationStepCount = 1e4;
-  c.inference.proposalRate = 0.30; % ... a portion of the standard deviation.
+  c.inference.proposalRate = 0.20; % ... a portion of the standard deviation.
 
   % The prior on the mean of the QoI.
   c.inference.mu0 = c.process.nominal;

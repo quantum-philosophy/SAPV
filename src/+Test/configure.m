@@ -4,8 +4,26 @@ function c = configure(processorCount, taskCount)
 
   c = Options;
 
-  c.stamp = @(name) sprintf('%03d_%s', processorCount, name);
   c.verbose = true;
+  c.stamp = @stamp;
+
+  function string = stamp(name)
+    hash = DataHash(c.toString);
+
+    match = regexp(name, '^(.)+\.([^.])+$', 'tokens');
+    if ~isempty(match)
+      name = match{1}{1};
+      extension = match{1}{2};
+    else
+      extension = [];
+    end
+
+    string = sprintf('%03d_%s_%s', processorCount, name, hash);
+
+    if ~isempty(extension)
+      string = [ string, '.', extension ];
+    end
+  end
 
   if c.verbose
     c.printf = @(varargin) fprintf(varargin{:});
@@ -133,7 +151,7 @@ function c = configure(processorCount, taskCount)
   c.inference.sampleCount = 1e4;
 
   % The proposal distribution.
-  c.inference.optimizationStepCount = 10e3;
+  c.inference.optimizationStepCount = 1e4;
   c.inference.proposalRate = 0.30; % ... a portion of the standard deviation.
 
   % The prior on the mean of the QoI.

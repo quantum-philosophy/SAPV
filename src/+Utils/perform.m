@@ -50,6 +50,7 @@ function [ results, samples ] = perform(c, m)
   [ u, n ] = c.process.compute(z);
 
   results = Options;
+  results.time = time;
   results.z = z;
   results.n = n;
   results.u = u;

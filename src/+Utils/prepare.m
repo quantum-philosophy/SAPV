@@ -18,7 +18,8 @@ function [ c, m ] = perform(varargin)
 
     save(filename, 'time', 'm', '-v7.3');
   end
-  time = 0;
+
+  m.time = time;
 
   c.printf('Measurement: done in %.2f minutes.\n', time / 60);
 end

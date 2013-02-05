@@ -96,57 +96,99 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       qT_, 0, z_, muu_, sigma2u_, sigma2e_);
   end
 
-  if c.inference.optimizationStepCount > 0
-    %
-    % Optimization.
-    %
-    options.MaxFunEvals = c.inference.optimizationStepCount;
-    options.LargeScale = 'off';
-
-    if verbose
-      options.Display = 'iter';
-    else
-      options.Display = 'off';
-    end
-
-    theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
-
-    filename = c.stamp('hessian.mat');
-    if File.exist(filename)
-      c.printf('Optimization: loading the previously computed hessian.\n');
-      load(filename);
-    else
-      time = tic; c.printf('Optimization: in progress...\n');
-      [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
-        @target, theta, options);
-      c.printf('Optimization: done in %.2f seconds.\n', toc(time));
-      save(filename, 'theta', 'hessian', '-v7.3');
-    end
-
-    [ U, L ] = eig(hessian);
-    L = diag(L);
-
-    negativeCount = sum(L < 0);
-
-    c.printf('Optimization: %d out of %d eigenvalues are negative.\n', ...
-      negativeCount, length(L));
-
-    proposalSigma = U * diag(1 ./ sqrt(abs(L)));
-
-    sample = theta;
-    sample(end - 1) = sample(end - 1)^2;
-    sample(end - 0) = sample(end - 0)^2;
-
-    proposalSigma = c.inference.proposalRate * proposalSigma;
-  else
+  %
+  % Optimize?
+  %
+  switch lower(c.inference.optimizationMethod)
+  case 'none'
     %
     % No optimization.
     %
     sample = [ z; muu; sigma2u; sigma2e ];
+    proposalSigma = eye(dimensionCount + 3);
+  case 'csminwel'
+    %
+    % Using the library suggested by Mattias.
+    %
+    filename = c.stamp('inverseHessian.mat');
+    if File.exist(filename)
+      c.printf('Optimization: loading the previously computed inverse Hessian.\n');
+      load(filename);
+    else
+      theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
 
-    proposalSigma = c.inference.proposalRate * ...
-      diag([ ones(dimensionCount, 1); 0; 0; 0 ]);
+      options = Options;
+      options.verbose = verbose;
+      options.maximalIterationCount = c.inference.optimizationStepCount;
+      options.stallThreshold = c.inference.optimizationStallThreshold;
+
+      time = tic; c.printf('Optimization: in progress...\n');
+      [ ~, theta, ~, inverseHessian ] = csminwel( ...
+        @target, theta, 1e-4 * eye(length(theta)), [], options);
+      time = toc(time);
+
+      save(filename, 'time', 'theta', 'inverseHessian', '-v7.3');
+    end
+
+    c.printf('Optimization: done in %.2f minutes.\n', time / 60);
+
+    %
+    % Now, we have the inverse Hessian matrix at a posterior mode,
+    % and we need to turn into a Cholesky-like multiplier.
+    %
+    proposalSigma = chol(inverseHessian, 'lower');
+
+    sample = theta;
+    sample(end - 1) = sample(end - 1)^2;
+    sample(end - 0) = sample(end - 0)^2;
+  case 'fminunc'
+    %
+    % Using MATLAB's facilities.
+    %
+    filename = c.stamp('hessian.mat');
+    if File.exist(filename)
+      c.printf('Optimization: loading the previously computed Hessian.\n');
+      load(filename);
+    else
+      theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
+
+      options.MaxFunEvals = c.inference.optimizationStepCount;
+      options.LargeScale = 'off';
+      if verbose, options.Display = 'iter';
+      else options.Display = 'off'; end
+
+      time = tic; c.printf('Optimization: in progress...\n');
+      [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
+        @target, theta, options);
+      time = toc(time);
+
+      save(filename, 'time', 'theta', 'hessian', '-v7.3');
+    end
+
+    c.printf('Optimization: done in %.2f minutes.\n', time / 60);
+
+    %
+    % Now, we have the Hessian matrix at a posterior mode, and
+    % we need to invert it and turn into a Cholesky-like multiplier.
+    %
+    [ U, L ] = eig(hessian);
+    L = diag(L);
+    proposalSigma = U * diag(1 ./ sqrt(abs(L)));
+
+    c.printf('Optimization: %d out of %d eigenvalues are negative.\n', ...
+      sum(L < 0), length(L));
+
+    sample = theta;
+    sample(end - 1) = sample(end - 1)^2;
+    sample(end - 0) = sample(end - 0)^2;
+  otherwise
+    assert(false);
   end
+
+  %
+  % NOTE: Do not forget about the tuning constant!
+  %
+  proposalSigma = c.inference.proposalRate * proposalSigma;
 
   %
   % Reset the last ones for now.

@@ -152,7 +152,9 @@ function c = configure(processorCount, taskCount)
   c.inference.burninRate = 0.50;
 
   % The proposal distribution.
+  c.inference.optimizationMethod = 'csminwel';
   c.inference.optimizationStepCount = 1e4;
+  c.inference.optimizationStallThreshold = 1e-4;
   c.inference.proposalRate = 0.20; % ... a portion of the standard deviation.
 
   % The prior on the mean of the QoI.

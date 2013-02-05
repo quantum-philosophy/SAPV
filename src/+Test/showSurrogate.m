@@ -2,18 +2,7 @@ clear all;
 close all;
 setup;
 
-Utils.fixRNG;
-
-%% Configure the test case.
-%
-c = Test.configure;
-
-%% Measure temperature profiles.
-%
-fprintf('Measurements: simulation...\n');
-time = tic;
-m = Utils.measure(c);
-fprintf('Measurements: done in %.2f seconds.\n', toc(time));
+[ c, m ] = Utils.prepare;
 
 %% Display the wafer and chosen dies.
 %

@@ -121,14 +121,30 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       proposalSigma_(1:dimensionCount, 1:dimensionCount);
 
     l = dimensionCount + 1;
+    k = dimensionCount + 1;
+    I = 1:dimensionCount;
 
-    if ~fixMuu, assert(false); end
+    if ~fixMuu
+      I = [ I l ];
+      proposalSigma__(l, I) = proposalSigma_(k, 1:k);
+      proposalSigma__(I, l) = proposalSigma_(1:k, k);
+      k = k + 1;
+    end
     l = l + 1;
 
-    if ~fixSigma2u, assert(false); end
+    if ~fixSigma2u
+      I = [ I l ];
+      proposalSigma__(l, I) = proposalSigma_(k, 1:k);
+      proposalSigma__(I, l) = proposalSigma_(1:k, k);
+      k = k + 1;
+    end
     l = l + 1;
 
-    if ~fixSigma2u, assert(false); end
+    if ~fixSigma2e
+      I = [ I l ];
+      proposalSigma__(l, I) = proposalSigma_(k, 1:k);
+      proposalSigma__(I, l) = proposalSigma_(1:k, k);
+    end
   end
 
   function result = target(theta_)

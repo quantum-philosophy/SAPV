@@ -96,7 +96,7 @@ function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = csminwel(fcn, x
               f3 = f; x3 = x; badg3 = 1; retcode3 = 101;
             else
               gcliff = ((f2 - f1) / ((norm(x2 - x1))^2)) * (x2 - x1);
-              if size(x0, 2) > 1, gcliff = gcliff', end
+              if size(x0, 2) > 1, gcliff = gcliff'; end
               [ f3 x3 fc retcode3 ] = csminit(fcn, x, f, gcliff, 0, eye(parameterCount));
               functionCount = functionCount + fc;
               if retcode3 == 2 | retcode3 == 4
@@ -258,8 +258,8 @@ function [ fhat, xhat, functionCount, retcode ] = csminit(fcn, x0, f0, g0, badg,
   dxnorm = norm(dx);
 
   if dxnorm > 1e12
-     warning('Near-singular H problem.')
-     dx = dx * FCHANGE / dxnorm;
+    warning('Near-singular H problem.')
+    dx = dx * FCHANGE / dxnorm;
   end
 
   dfhat = dx' * g0;
@@ -325,7 +325,7 @@ function [ fhat, xhat, functionCount, retcode ] = csminit(fcn, x0, f0, g0, badg,
       lambda = lambda / factor;
       if abs(lambda) < MINLAMB
         if (lambda > 0) & (f0 <= fhat)
-          lambda = -lambda*factor^6
+          lambda = -lambda * factor^6;
         else
           if lambda < 0
             retcode = 6;
@@ -358,7 +358,7 @@ function [ fhat, xhat, functionCount, retcode ] = csminit(fcn, x0, f0, g0, badg,
       end
 
       lambda = lambda * factor;
-      if abs(lambda) > 1e20;
+      if abs(lambda) > 1e20
         retcode = 5;
         done = true;
       end

@@ -83,11 +83,56 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   %
   % Initial values and the proposal distribution.
   %
+  fixMuu     = c.inference.optimization.fixMuu;
+  fixSigma2u = c.inference.optimization.fixSigma2u;
+  fixSigma2e = c.inference.optimization.fixSigma2e;
+
+  function theta_ = encode(z_, muu_, sigma2u_, sigma2e_)
+    theta_ = z_;
+    if ~fixMuu,     theta_ = [ theta_; muu_           ]; end
+    if ~fixSigma2u, theta_ = [ theta_; sqrt(sigma2u_) ]; end
+    if ~fixSigma2e, theta_ = [ theta_; sqrt(sigma2e_) ]; end
+  end
+
+  function [ z_, muu_, sigma2u_, sigma2e_ ] = decode(theta_)
+    z_ = theta_(1:dimensionCount);
+
+    k = dimensionCount + 1;
+
+    if fixMuu, muu_ = muu;
+    else muu_ = theta_(k); k = k + 1; end
+
+    if fixSigma2u, sigma2u_ = sigma2u;
+    else sigma2u_ = theta_(k)^2; k = k + 1; end
+
+    if fixSigma2e, sigma2e_ = sigma2e;
+    else sigma2e_ = theta_(k)^2; end
+  end
+
+  function sample_ = pack(theta_)
+    [ z_, muu_, sigma2u_, sigma2e_ ] = decode(theta_);
+    sample_ = [ z_; muu_; sigma2u_; sigma2e_ ];
+  end
+
+  function proposalSigma__ = adjust(proposalSigma_)
+    proposalSigma__ = zeros(dimensionCount + 3);
+
+    proposalSigma__(1:dimensionCount, 1:dimensionCount) = ...
+      proposalSigma_(1:dimensionCount, 1:dimensionCount);
+
+    l = dimensionCount + 1;
+
+    if ~fixMuu, assert(false); end
+    l = l + 1;
+
+    if ~fixSigma2u, assert(false); end
+    l = l + 1;
+
+    if ~fixSigma2u, assert(false); end
+  end
+
   function result = target(theta_)
-    z_       = theta_(1:(end - 3));
-    muu_     = theta_(   end - 2);
-    sigma2u_ = theta_(   end - 1)^2;
-    sigma2e_ = theta_(   end - 0)^2;
+    [ z_, muu_, sigma2u_, sigma2e_ ] = decode(theta_);
 
     node_ = computeNode(z_, muu_, sigma2u_);
     qT_ = model.compute(node_);
@@ -99,73 +144,74 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   %
   % Optimize?
   %
-  switch lower(c.inference.optimizationMethod)
+  switch lower(c.inference.optimization.method)
   case 'none'
     %
     % No optimization.
     %
     sample = [ z; muu; sigma2u; sigma2e ];
-    proposalSigma = eye(dimensionCount + 3);
+    proposalSigma = diag(sqrt( ...
+      [ ones(1, dimensionCount), sigma20, tau2u, tau2e ]));
   case 'csminwel'
     %
     % Using the library suggested by Mattias.
     %
-    filename = c.stamp('inverseHessian.mat');
+    filename = c.stamp('inverseHessian.mat', qmeasT);
     if File.exist(filename)
       c.printf('Optimization: loading the previously computed inverse Hessian.\n');
       load(filename);
     else
-      theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
+      theta = encode(z, muu, sigma2u, sigma2e);
 
       options = Options;
       options.verbose = verbose;
-      options.maximalIterationCount = c.inference.optimizationStepCount;
-      options.stallThreshold = c.inference.optimizationStallThreshold;
+      options.maximalIterationCount = c.inference.optimization.maximalStepCount;
+      options.stallThreshold = c.inference.optimization.stallThreshold;
 
       time = tic; c.printf('Optimization: in progress...\n');
-      [ ~, theta, ~, inverseHessian ] = csminwel( ...
+      [ objective, theta, ~, inverseHessian ] = csminwel( ...
         @target, theta, 1e-4 * eye(length(theta)), [], options);
       time = toc(time);
 
-      save(filename, 'time', 'theta', 'inverseHessian', '-v7.3');
+      save(filename, 'time', 'objective', 'theta', 'inverseHessian', '-v7.3');
     end
 
     c.printf('Optimization: done in %.2f minutes.\n', time / 60);
+
+    sample = pack(theta);
 
     %
     % Now, we have the inverse Hessian matrix at a posterior mode,
     % and we need to turn into a Cholesky-like multiplier.
     %
-    proposalSigma = chol(inverseHessian, 'lower');
-
-    sample = theta;
-    sample(end - 1) = sample(end - 1)^2;
-    sample(end - 0) = sample(end - 0)^2;
+    proposalSigma = adjust(chol(inverseHessian, 'lower'));
   case 'fminunc'
     %
     % Using MATLAB's facilities.
     %
-    filename = c.stamp('hessian.mat');
+    filename = c.stamp('hessian.mat', qmeasT);
     if File.exist(filename)
       c.printf('Optimization: loading the previously computed Hessian.\n');
       load(filename);
     else
-      theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
+      theta = encode(z, muu, sigma2u, sigma2e);
 
-      options.MaxFunEvals = c.inference.optimizationStepCount;
+      options.MaxFunEvals = c.inference.optimization.maximalStepCount;
       options.LargeScale = 'off';
       if verbose, options.Display = 'iter';
       else options.Display = 'off'; end
 
       time = tic; c.printf('Optimization: in progress...\n');
-      [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
+      [ theta, objective ~, ~, ~, hessian ] = fminunc( ...
         @target, theta, options);
       time = toc(time);
 
-      save(filename, 'time', 'theta', 'hessian', '-v7.3');
+      save(filename, 'time', 'theta', 'objective', 'hessian', '-v7.3');
     end
 
     c.printf('Optimization: done in %.2f minutes.\n', time / 60);
+
+    sample = pack(theta);
 
     %
     % Now, we have the Hessian matrix at a posterior mode, and
@@ -173,14 +219,10 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     %
     [ U, L ] = eig(hessian);
     L = diag(L);
-    proposalSigma = U * diag(1 ./ sqrt(abs(L)));
+    proposalSigma = adjust(U * diag(1 ./ sqrt(abs(L))));
 
     c.printf('Optimization: %d out of %d eigenvalues are negative.\n', ...
       sum(L < 0), length(L));
-
-    sample = theta;
-    sample(end - 1) = sample(end - 1)^2;
-    sample(end - 0) = sample(end - 0)^2;
   otherwise
     assert(false);
   end
@@ -190,33 +232,17 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   %
   proposalSigma = c.inference.proposalRate * proposalSigma;
 
-  %
-  % Reset the last ones for now.
-  %
-  sample(end - 2) = muu;
-  proposalSigma(end - 2, :) = 0;
-  proposalSigma(:, end - 2) = 0;
-
-  sample(end - 1) = sigma2u;
-  proposalSigma(end - 1, :) = 0;
-  proposalSigma(:, end - 1) = 0;
-
-  sample(end - 0) = sigma2e;
-  proposalSigma(end - 0, :) = 0;
-  proposalSigma(:, end - 0) = 0;
-
   fitness = -Inf;
+  proposalSample = sample;
+
   Acceptance = logical(zeros(1, sampleCount));
 
   time = tic;
 
   for i = 1:sampleCount
     %
-    % Sample the proposal distribution.
+    % Process the proposed sample.
     %
-    proposalSample = sample + ...
-      proposalSigma * randn(dimensionCount + 3, 1);
-
     z       = proposalSample(1:(end - 3));
     muu     = proposalSample(   end - 2);
     sigma2u = proposalSample(   end - 1);
@@ -281,9 +307,15 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       finished = 100 * i / sampleCount;
       accepted = 100 * mean(Acceptance(1:i));
       rate     = 100 * mean(Acceptance((i - 1e2 + 1):i));
-      c.printf('Metropolis: finished %6.2f%%, accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
-        finished, accepted, rate, fitness);
+      c.printf('Metropolis: finished %6.2f%% (%6d/%6d), accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
+        finished, i, sampleCount, accepted, rate, fitness);
     end
+
+    %
+    % Propose a new sample!
+    %
+    proposalSample = sample + ...
+      proposalSigma * randn(dimensionCount + 3, 1);
   end
 
   c.printf('Metropolis: done with %d samples in %.2f seconds.\n', ...

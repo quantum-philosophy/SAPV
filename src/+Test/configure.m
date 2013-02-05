@@ -7,8 +7,8 @@ function c = configure(processorCount, taskCount)
   c.verbose = true;
   c.stamp = @stamp;
 
-  function string = stamp(name)
-    hash = DataHash(c.toString);
+  function string = stamp(name, varargin)
+    hash = DataHash({ c.toString, varargin });
 
     match = regexp(name, '^(.)+\.([^.])+$', 'tokens');
     if ~isempty(match)
@@ -151,12 +151,6 @@ function c = configure(processorCount, taskCount)
   c.inference.sampleCount = 1e4;
   c.inference.burninRate = 0.50;
 
-  % The proposal distribution.
-  c.inference.optimizationMethod = 'csminwel';
-  c.inference.optimizationStepCount = 1e4;
-  c.inference.optimizationStallThreshold = 1e-4;
-  c.inference.proposalRate = 0.20; % ... a portion of the standard deviation.
-
   % The prior on the mean of the QoI.
   c.inference.mu0 = c.process.nominal;
   c.inference.sigma20 = (0.01 * c.process.nominal)^2;
@@ -174,4 +168,15 @@ function c = configure(processorCount, taskCount)
   c.inference.nue = 10;
   % ... observations we concluded that it should be...
   c.inference.tau2e = c.observations.deviation^2;
+
+  % The proposal distribution.
+  c.inference.optimization = Options;
+  c.inference.optimization.method = 'csminwel';
+  c.inference.optimization.maximalStepCount = 1e4;
+  c.inference.optimization.stallThreshold = 1e-4;
+  c.inference.optimization.fixMuu     = true;
+  c.inference.optimization.fixSigma2u = true;
+  c.inference.optimization.fixSigma2e = true;
+
+  c.inference.proposalRate = 0.5; % ... a portion of the standard deviation.
 end

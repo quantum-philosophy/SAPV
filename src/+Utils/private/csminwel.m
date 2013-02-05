@@ -1,4 +1,4 @@
-function [ fh, xh, gh, H, iterationCount, functionCount, retcodeh ] = csminwel(fcn, x0, H0, grad, varargin)
+function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = csminwel(fcn, x0, H0, grad, varargin)
   %
   % Minimization using the quasi-Newton method with BFGS updates.
   %
@@ -14,7 +14,7 @@ function [ fh, xh, gh, H, iterationCount, functionCount, retcodeh ] = csminwel(f
 
   verbose = options.get('verbose', false);
   threshold = options.get('stallThreshold', 1e-7);
-  maximalIterationCount = options.get('maximalIterationCount', 1e4);
+  maximalStepCount = options.get('maximalStepCount', 1e4);
 
   if verbose
     printf = @(varargin) fprintf(varargin{:});
@@ -23,7 +23,7 @@ function [ fh, xh, gh, H, iterationCount, functionCount, retcodeh ] = csminwel(f
   end
 
   done = false;
-  iterationCount = 0;
+  stepCount = 0;
   functionCount = 0;
   useNumericalGradient = isempty(grad);
   parameterCount = max(size(x0));
@@ -50,12 +50,12 @@ function [ fh, xh, gh, H, iterationCount, functionCount, retcodeh ] = csminwel(f
   H = H0;
 
   while ~done
-    iterationCount = iterationCount + 1;
+    stepCount = stepCount + 1;
     g1 = []; g2 = []; g3 = [];
     [ f1 x1 fc retcode1 ] = csminit(fcn, x, f, g, badg, H);
     functionCount = functionCount + fc;
 
-    printf('%10d: evaluations %10d, objective %10.4f.\n', iterationCount, functionCount, f);
+    printf('%10d: evaluations %10d, objective %10.4f.\n', stepCount, functionCount, f);
 
     if retcode1 ~= 1
       if retcode1 == 2 | retcode1 == 4
@@ -164,7 +164,7 @@ function [ fh, xh, gh, H, iterationCount, functionCount, retcodeh ] = csminwel(f
       H = bfgsi(H, gh - g, xh - x);
     end
 
-    if iterationCount > maximalIterationCount
+    if stepCount > maximalStepCount
       printf('The limit on the number of iterations has been reached.\n');
       done = true;
     elseif stuck

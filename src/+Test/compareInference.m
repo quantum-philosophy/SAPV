@@ -1,43 +1,66 @@
-clear all;
-setup;
+function compareInference(platformDimensions)
+  clear all;
+  setup;
 
-[ c, m ] = Utils.prepare;
+  if nargin == 0, platformDimensions = [ 2 ]; end
+  platformCount = length(platformDimensions);
 
-c.inference.optimization.method = 'none';
-c.inference.proposalRate = 0.05;
-results{1} = Utils.perform(c, m);
+  methodNames   = { 'none', 'fminunc', 'csminwel' };
+  proposalRates = [   0.05,      0.50,       0.50 ];
+  methodCount = length(methodNames);
 
-c.inference.optimization.method = 'fminunc';
-c.inference.proposalRate = 0.50;
-results{2} = Utils.perform(c, m);
+  results = cell(platformCount, methodCount);
 
-c.inference.optimization.method = 'csminwel';
-c.inference.proposalRate = 0.50;
-results{3} = Utils.perform(c, m);
+  for i = 1:platformCount
+    processorCount = platformDimensions(i);
+    [ c, m ] = Utils.prepare(processorCount);
 
-names = { 'none', 'fminunc', 'csminwel' };
-count = length(names);
+    for j = 1:methodCount
+      c.inference.optimization.method = methodNames{j};
+      c.inference.proposalRate = proposalRates(j);
+      results{i, j} = Utils.perform(c, m);
+    end
 
-%% Header.
-%
-fprintf('%15s', 'Optimization');
-for i = 1:count
-  fprintf(' %15s', names{i});
+    fprintf('Platform with %3d processing elements.\n', processorCount);
+    reportResults(methodNames, results(i, :));
+  end
+
+  if platformCount == 1, return; end
+
+  %
+  % Summarize everything.
+  %
+  for i = 1:platformCount
+    processorCount = platformDimensions(i);
+    fprintf('Platform with %3d processing elements.\n', processorCount);
+    reportResults(methodName, results(i, :));
+  end
 end
-fprintf('\n');
 
-%% Timing.
-%
-fprintf('%15s', 'Time, m');
-for i = 1:count
-  fprintf(' %15.2f', results{i}.time / 60);
-end
-fprintf('\n');
+function reportResults(names, results)
+  methodCount = length(results);
 
-%% Accuracy.
-%
-fprintf('%15s', 'NRMSE, %');
-for i = 1:count
-  fprintf(' %15.2f', results{i}.error * 100);
+  %% Header.
+  %
+  fprintf('%15s', 'Optimization');
+  for i = 1:methodCount
+    fprintf(' %15s', names{i});
+  end
+  fprintf('\n');
+
+  %% Timing.
+  %
+  fprintf('%15s', 'Time, m');
+  for i = 1:methodCount
+    fprintf(' %15.2f', results{i}.time / 60);
+  end
+  fprintf('\n');
+
+  %% Accuracy.
+  %
+  fprintf('%15s', 'NRMSE, %');
+  for i = 1:methodCount
+    fprintf(' %15.2f', results{i}.error * 100);
+  end
+  fprintf('\n');
 end
-fprintf('\n');

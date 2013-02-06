@@ -19,7 +19,7 @@ function plot(c, m, results, samples)
   colormap(Color.map(m.n, nRange));
 
   plot(c.process, results.n);
-  Plot.title('Inferred QoI (error %.4f)', results.error);
+  Plot.title('Inferred QoI (error %.2f%%)', results.error * 100);
   colormap(Color.map(results.n, nRange));
 
   dimensionCount = c.process.dimensionCount;

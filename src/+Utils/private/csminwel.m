@@ -15,6 +15,7 @@ function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = csminwel(fcn, x
   verbose = options.get('verbose', false);
   threshold = options.get('stallThreshold', 1e-7);
   maximalStepCount = options.get('maximalStepCount', 1e4);
+  maximalFunctionCount = options.get('maximalFunctionCount', 1e4);
 
   if verbose
     printf = @(varargin) fprintf(varargin{:});
@@ -165,7 +166,10 @@ function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = csminwel(fcn, x
     end
 
     if stepCount > maximalStepCount
-      printf('The limit on the number of iterations has been reached.\n');
+      printf('The maximal number of iterations has been reached.\n');
+      done = true;
+    elseif functionCount > maximalFunctionCount
+      printf('The maximal number of function evaluations has been reached.\n');
       done = true;
     elseif stuck
       printf('The improvement of the objective function has dropped below %e.\n', threshold);

@@ -184,7 +184,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
 
       options = Options;
       options.verbose = verbose;
-      options.maximalIterationCount = c.inference.optimization.maximalStepCount;
+      options.maximalFunctionCount = c.inference.optimization.maximalStepCount;
       options.stallThreshold = c.inference.optimization.stallThreshold;
 
       time = tic; c.printf('Optimization: in progress...\n');
@@ -216,6 +216,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       theta = encode(z, muu, sigma2u, sigma2e);
 
       options.MaxFunEvals = c.inference.optimization.maximalStepCount;
+      optinos.TolFun = c.inference.optimization.stallThreshold;
       options.LargeScale = 'off';
       if verbose, options.Display = 'iter';
       else options.Display = 'off'; end

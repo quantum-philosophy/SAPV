@@ -3,16 +3,16 @@ setup;
 
 [ c, m ] = Utils.prepare;
 
-c.inference.optimizationMethod = 'none';
+c.inference.optimization.method = 'none';
 c.inference.proposalRate = 0.05;
 results{1} = Utils.perform(c, m);
 
-c.inference.optimizationMethod = 'fminunc';
-c.inference.proposalRate = 0.20;
+c.inference.optimization.method = 'fminunc';
+c.inference.proposalRate = 0.50;
 results{2} = Utils.perform(c, m);
 
-c.inference.optimizationMethod = 'csminwel';
-c.inference.proposalRate = 0.20;
+c.inference.optimization.method = 'csminwel';
+c.inference.proposalRate = 0.50;
 results{3} = Utils.perform(c, m);
 
 names = { 'none', 'fminunc', 'csminwel' };

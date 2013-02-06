@@ -1,8 +1,20 @@
-function compareInference(platformDimensions)
-  clear all;
+function compareInference(save)
   setup;
 
-  if nargin == 0, platformDimensions = [ 2 ]; end
+  if nargin == 0, save = false; end
+
+  if save
+    c = clock;
+    prefix = sprintf('%04d-%02d-%02d %02d-%02d-%02d', ...
+      c(1), c(2), c(3), c(4), c(5), round(c(6)));
+    mkdir(prefix);
+    file = fopen(File.join(prefix, 'report.txt'), 'w');
+    printf = @(varargin) fprintf(file, varargin{:});
+  else
+    printf = @fprintf;
+  end
+
+  platformDimensions = [ 2, 4, 8, 16, 32 ];
   platformCount = length(platformDimensions);
 
   methodNames   = { 'none', 'fminunc', 'csminwel' };
@@ -18,49 +30,57 @@ function compareInference(platformDimensions)
     for j = 1:methodCount
       c.inference.optimization.method = methodNames{j};
       c.inference.proposalRate = proposalRates(j);
-      results{i, j} = Utils.perform(c, m);
+      [ results{i, j}, samples ] = Utils.perform(c, m);
+      if save
+        casePrefix = sprintf('%03d %s', processorCount, methodNames{j});
+        casePrefix = File.join(prefix, casePrefix);
+        mkdir(casePrefix);
+        Utils.plot(c, m, results{i, j}, samples, casePrefix);
+        close all;
+      end
     end
 
     fprintf('Platform with %3d processing elements.\n', processorCount);
-    reportResults(methodNames, results(i, :));
+    report(@fprintf, methodNames, results(i, :));
   end
-
-  if platformCount == 1, return; end
 
   %
   % Summarize everything.
   %
   for i = 1:platformCount
     processorCount = platformDimensions(i);
-    fprintf('Platform with %3d processing elements.\n', processorCount);
-    reportResults(methodNames, results(i, :));
+    printf('Platform with %3d processing elements.\n', processorCount);
+    report(printf, methodNames, results(i, :));
+    printf('\n');
   end
+
+  if save, fclose(file); end
 end
 
-function reportResults(names, results)
+function report(printf, names, results)
   methodCount = length(results);
 
   %% Header.
   %
-  fprintf('%15s', 'Optimization');
+  printf('%15s', 'Optimization');
   for i = 1:methodCount
-    fprintf(' %15s', names{i});
+    printf(' %15s', names{i});
   end
-  fprintf('\n');
+  printf('\n');
 
   %% Timing.
   %
-  fprintf('%15s', 'Time, m');
+  printf('%15s', 'Time, m');
   for i = 1:methodCount
-    fprintf(' %15.2f', results{i}.time / 60);
+    printf(' %15.2f', results{i}.time / 60);
   end
-  fprintf('\n');
+  printf('\n');
 
   %% Accuracy.
   %
-  fprintf('%15s', 'NRMSE, %');
+  printf('%15s', 'NRMSE, %');
   for i = 1:methodCount
-    fprintf(' %15.2f', results{i}.error * 100);
+    printf(' %15.2f', results{i}.error * 100);
   end
-  fprintf('\n');
+  printf('\n');
 end

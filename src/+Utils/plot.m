@@ -1,10 +1,7 @@
-function plot(c, m, results, samples, save)
-  if nargin > 4 && save
-    k = clock;
-    prefix = sprintf('%04d-%02d-%02d %02d-%02d-%02d %03d', ...
-      k(1), k(2), k(3), k(4), k(5), round(k(6)), c.system.processorCount);
-    mkdir(prefix);
-    save = @(name, varargin) Plot.save(File.join(prefix, name), varargin{:});
+function plot(c, m, results, samples, savePrefix)
+  if nargin > 4
+    save = @(name, varargin) ...
+      Plot.save(File.join(savePrefix, name), varargin{:});
   else
     save = @(varargin) [];
   end

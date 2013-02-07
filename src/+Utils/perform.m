@@ -27,28 +27,35 @@ function [ results, samples ] = perform(c, m)
   sigma2e = samples(:,    end - 0)';
 
   samples = Options;
+
   samples.count = count;
   samples.z = z;
-
-  if length(unique(muu)) > 1, samples.muu = muu;
-  else samples.muu = []; end
-
-  if length(unique(sigma2u)) > 1, samples.sigma2u = sigma2u;
-  else samples.sigma2u = []; end
-
-  if length(unique(sigma2e)) > 1, samples.sigma2e = sigma2e;
-  else samples.sigma2e = []; end
+  samples.muu = muu;
+  samples.sigma2u = sigma2u;
+  samples.sigma2e = sigma2e;
 
   samples.fitness = fitness;
   samples.acceptance = acceptance;
 
-  z = mean(z(:, round(c.inference.burninRate * count):end), 2);
+  burnCount = round(c.inference.burninRate * count);
+
+  z = mean(z(:, burnCount:end), 2);
   [ u, n ] = c.process.compute(z);
+
+  muu = mean(muu(burnCount:end));
+  sigma2u = mean(sigma2u(burnCount:end));
+  sigma2e = mean(sigma2e(burnCount:end));
 
   results = Options;
   results.time = time;
+
   results.z = z;
   results.n = n;
   results.u = u;
+
+  results.muu = muu;
+  results.sigma2u = sigma2u;
+  results.sigma2e = sigma2e;
+
   results.error = Error.computeNRMSE(m.n, n);
 end

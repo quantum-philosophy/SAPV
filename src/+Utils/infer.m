@@ -83,9 +83,9 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   %
   % Initial values and the proposal distribution.
   %
-  fixMuu     = c.inference.optimization.fixMuu;
-  fixSigma2u = c.inference.optimization.fixSigma2u;
-  fixSigma2e = c.inference.optimization.fixSigma2e;
+  fixMuu     = c.inference.fixMuu;
+  fixSigma2u = c.inference.fixSigma2u;
+  fixSigma2e = c.inference.fixSigma2e;
 
   function theta_ = encode(z_, muu_, sigma2u_, sigma2e_)
     theta_ = z_;

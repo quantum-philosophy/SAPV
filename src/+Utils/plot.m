@@ -6,40 +6,39 @@ function plot(c, m, results, samples, savePrefix)
     save = @(varargin) [];
   end
 
-  sampleCount = samples.count;
-
-  time = 1:sampleCount;
-  timeInterval = [ time(1) time(end) ];
-
-  c1 = Color.pick(1);
-  c2 = Color.pick(2);
-
-  %
-  % The log-posterior.
-  %
-  figure;
-  plot(time, samples.fitness, 'Color', c1);
-  Plot.title('Log-posterior + constant');
-  xlim(timeInterval);
-  save('log-posterior.pdf');
-
   nRange = [ -3, 3 ];
 
   %
   % The true quantity of interest.
   %
   plot(c.process, m.n);
-  Plot.title('True QoI');
   colormap(Color.map(m.n, nRange));
+  Plot.title('True QoI');
   save('u true.pdf');
 
   %
   % The inferred quantity of interest.
   %
   plot(c.process, results.n);
-  Plot.title('Inferred QoI (error %.2f%%)', results.error * 100);
   colormap(Color.map(results.n, nRange));
+  Plot.title('Inferred QoI (error %.2f%%)', results.error * 100);
   save('u inferred.pdf');
+
+  time = 1:samples.count;
+
+  %
+  % The log-posterior.
+  %
+  figure;
+  trace('Log-posterior + constant', samples.fitness);
+  save('log-posterior.pdf');
+
+  %
+  % The acceptance rate.
+  %
+  figure;
+  trace('Acceptance rate', cumsum(samples.acceptance) ./ time);
+  save('acceptance.pdf');
 
   %
   % The independent random variables, i.e., the z's.
@@ -49,71 +48,68 @@ function plot(c, m, results, samples, savePrefix)
   cols = floor(sqrt(dimensionCount));
   rows = ceil(dimensionCount / cols);
 
-  time = 1:sampleCount;
-  timeInterval = [ time(1) time(end) ];
-
-  z = samples.z;
-
-  figure;
-  plotmatrix(z(:, round(c.inference.burninRate * sampleCount):end)');
-  save('z scatter plot.png', 'format', 'png');
+  minZ = min([ samples.z(:); m.z(:) ]);
+  maxZ = max([ samples.z(:); m.z(:) ]);
 
   figure;
   for i = 1:dimensionCount
     subplot(rows, cols, i);
-    line(time, z(i, :), 'Color', c1);
-    line(timeInterval, results.z(i) * [ 1 1 ], 'Color', c1);
-    line(timeInterval, m.z(i) * [ 1 1 ], 'Color', c2);
-    set(gca, 'XTick', timeInterval);
-    xlim(timeInterval);
+    trace([], samples.z(i, :), results.z(i), m.z(i));
+    set(gca, 'XTick', [ time(1) time(end) ]);
+    ylim([ minZ, maxZ ]);
   end
   save('z.pdf');
 
-  z = bsxfun(@rdivide, cumsum(z, 2), time);
-
   figure;
-  for i = 1:dimensionCount
-    subplot(rows, cols, i);
-    line(time, z(i, :), 'Color', c1);
-    line(timeInterval, m.z(i) * [ 1 1 ], 'Color', c2);
-    set(gca, 'XTick', timeInterval);
-    xlim(timeInterval);
-  end
-  save('z average.pdf');
+  plotmatrix(samples.z(:, ...
+    round(c.inference.burninRate * samples.count):end)');
+  save('z scatter plot.png', 'format', 'png');
 
   %
   % The mean of the quantity of interest.
   %
-  if ~isempty(samples.muu)
+  if ~c.inference.fixMuu
     figure;
-    muu = cumsum(samples.muu) ./ time;
-    plot(time, muu, 'Color', c1);
-    line(timeInterval, c.process.nominal * [ 1 1 ], 'Color', c2);
-    Plot.title('Mean of the QoI');
+    trace('Mean of the QoI', cumsum(samples.muu) ./ time, ...
+      results.muu, c.process.nominal);
     save('muu.pdf');
   end
 
   %
   % The variance of the quantity of interest.
   %
-  if ~isempty(samples.sigma2u)
+  if ~c.inference.fixSigma2u
     figure;
-    sigma2u = cumsum(samples.sigma2u) ./ time;
-    plot(time, sigma2u, 'Color', c1);
-    line(timeInterval, c.process.deviation^2 * [ 1 1 ], 'Color', c2);
-    Plot.title('Variance of the QoI');
+    trace('Variance of the QoI', cumsum(samples.sigma2u) ./ time, ...
+      results.sigma2u, c.process.deviation^2);
     save('sigma2u.pdf');
   end
 
   %
   % The variance of the noise.
   %
-  if ~isempty(samples.sigma2e)
+  if ~c.inference.fixSigma2e
     figure;
-    sigma2e = cumsum(samples.sigma2e) ./ time;
-    plot(time, sigma2e, 'Color', c1);
-    line(timeInterval, c.observations.deviation^2 * [ 1 1 ], 'Color', c2);
-    Plot.title('Variance of the noise');
+    trace('Variance of the noise', cumsum(samples.sigma2e) ./ time, ...
+      results.sigma2e, c.observations.deviation^2);
     save('sigma2e.pdf');
   end
+end
+
+function trace(name, samples, inferredValue, trueValue)
+  time = 1:length(samples);
+
+  plot(time, samples, 'Color', Color.pick(1));
+  Plot.limit(time);
+
+  if ~isempty(name), Plot.title(name); end
+
+  if nargin < 3, return; end
+
+  line([ time(1) time(end) ], inferredValue * [ 1 1 ], 'Color', 'k');
+
+  if nargin < 4, return; end
+
+  line([ time(1) time(end) ], trueValue * [ 1 1 ], ...
+    'Color', 'k', 'LineStyle', '--');
 end

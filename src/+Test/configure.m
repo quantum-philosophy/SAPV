@@ -169,14 +169,16 @@ function c = configure(processorCount, taskCount)
   % ... observations we concluded that it should be...
   c.inference.tau2e = c.observations.deviation^2;
 
+  % Skip some of the parameters?
+  c.inference.fixMuu     = true;
+  c.inference.fixSigma2u = true;
+  c.inference.fixSigma2e = true;
+
   % The proposal distribution.
   c.inference.optimization = Options;
   c.inference.optimization.method = 'csminwel';
   c.inference.optimization.maximalStepCount = 1e4;
   c.inference.optimization.stallThreshold = 1e-6;
-  c.inference.optimization.fixMuu     = true;
-  c.inference.optimization.fixSigma2u = true;
-  c.inference.optimization.fixSigma2e = true;
 
   c.inference.proposalRate = 0.5; % ... a portion of the standard deviation.
 end

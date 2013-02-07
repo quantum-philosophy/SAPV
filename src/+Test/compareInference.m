@@ -27,15 +27,19 @@ function compareInference(save)
     processorCount = platformDimensions(i);
     [ c, m ] = Utils.prepare(processorCount);
 
+    if save
+      platformPrefix = sprintf('%03d', processorCount);
+      mkdir(File.join(prefix, platformPrefix));
+    end
+
     for j = 1:methodCount
       c.inference.optimization.method = methodNames{j};
       c.inference.proposalRate = proposalRates(j);
       [ results{i, j}, samples ] = Utils.perform(c, m);
       if save
-        casePrefix = sprintf('%03d %s', processorCount, methodNames{j});
-        casePrefix = File.join(prefix, casePrefix);
-        mkdir(casePrefix);
-        Utils.plot(c, m, results{i, j}, samples, casePrefix);
+        overallPrefix = File.join(prefix, platformPrefix, methodNames{j});
+        mkdir(overallPrefix);
+        Utils.plot(c, m, results{i, j}, samples, overallPrefix);
         close all;
       end
     end

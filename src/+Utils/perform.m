@@ -1,4 +1,4 @@
-function [ results, samples ] = perform(c, m)
+function results = perform(c, m)
   filename = c.stamp('inference.mat');
   if File.exist(filename);
     c.printf('Inference: loading cashed data in "%s"...\n', filename);

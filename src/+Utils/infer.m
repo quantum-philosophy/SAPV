@@ -165,14 +165,20 @@ function results = infer(c, m, model)
     %
     % No optimization.
     %
+    theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
     currentSample = [ z; muu; sigma2u; sigma2e ];
+
     variance = [ ...
       ones(1, dimensionCount), ...
       (fixMuu     == false) * sigma20, ...
       (fixSigma2u == false) * tau2u, ...
       (fixSigma2e == false) * tau2e ];
+
     proposalSigma = diag(sqrt(variance));
-    covariance = diag(variance(variance > 0));
+
+    I = find(variance > 0);
+    theta = theta(I);
+    covariance = diag(variance(I));
   case 'csminwel'
     %
     % Using the library suggested by Mattias.
@@ -189,7 +195,9 @@ function results = infer(c, m, model)
       options.maximalFunctionCount = c.inference.optimization.maximalStepCount;
       options.stallThreshold = c.inference.optimization.stallThreshold;
 
-      time = tic; c.printf('Optimization: in progress...\n');
+      c.printf('Optimization: in progress...\n');
+
+      time = tic;
       [ objective, theta, ~, inverseHessian ] = csminwel( ...
         @target, theta, 1e-4 * eye(length(theta)), [], options);
       time = toc(time);
@@ -224,7 +232,9 @@ function results = infer(c, m, model)
       if verbose, options.Display = 'iter';
       else options.Display = 'off'; end
 
-      time = tic; c.printf('Optimization: in progress...\n');
+      c.printf('Optimization: in progress...\n');
+
+      time = tic;
       [ theta, objective ~, ~, ~, hessian ] = fminunc( ...
         @target, theta, options);
       time = toc(time);
@@ -249,6 +259,26 @@ function results = infer(c, m, model)
       sum(L < 0), length(L));
   otherwise
     assert(false);
+  end
+
+  if c.inference.assessProposal
+    filename = c.stamp('assessment.mat', qmeasT);
+    if File.exist(filename)
+      c.printf('Assessment: loading the previously computed results.\n');
+      load(filename);
+    else
+      c.printf('Assessment: in progress...\n');
+
+      time = tic;
+      assessment = Utils.assessProposalDistribution( ...
+        @(theta_) -target(theta_), theta, covariance);
+      time = toc(time);
+
+      save(filename, 'time', 'assessment', '-v7.3');
+    end
+    c.printf('Assessment: done in %.2f seconds.\n', time);
+  else
+    assessment = [];
   end
 
   %
@@ -356,13 +386,19 @@ function results = infer(c, m, model)
   %
   results = Options;
 
+  % Optimization
+  results.theta      = theta;
+  results.covariance = covariance;
+  results.assessment = assessment;
+
+  % Sampling
   results.samples = Options;
   results.samples.z       = samples(:, 1:(end - 3))';
   results.samples.muu     = samples(:,    end - 2)';
   results.samples.sigma2u = samples(:,    end - 1)';
   results.samples.sigma2e = samples(:,    end - 0)';
 
+  % Progress
   results.fitness    = fitness;
   results.acceptance = acceptance;
-  results.covariance = covariance;
 end

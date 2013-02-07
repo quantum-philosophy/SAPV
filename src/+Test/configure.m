@@ -181,4 +181,5 @@ function c = configure(processorCount, taskCount)
   c.inference.optimization.stallThreshold = 1e-6;
 
   c.inference.proposalRate = 0.5; % ... a portion of the standard deviation.
+  c.inference.assessProposal = true;
 end

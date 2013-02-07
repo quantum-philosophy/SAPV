@@ -67,6 +67,12 @@ function plot(c, m, results, savePrefix)
     round(c.inference.burninRate * sampleCount):end)');
   save('z scatter plot.png', 'format', 'png');
 
+  if c.inference.assessProposal
+    figure;
+    Utils.inspectProposalAssessment(results.theta, results.assessment);
+    save('proposal assessment.pdf');
+  end
+
   %
   % The mean of the quantity of interest.
   %

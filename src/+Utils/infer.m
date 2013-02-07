@@ -1,4 +1,4 @@
-function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
+function results = infer(c, m, model)
   verbose = c.verbose;
 
   qmeasT = transpose(m.Tmeas(:));
@@ -69,8 +69,8 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
       - nue * tau2e / sigma2e_ / 2;
   end
 
-  Samples = zeros(sampleCount, dimensionCount + 3);
-  Fitness = zeros(sampleCount, 1);
+  samples = zeros(sampleCount, dimensionCount + 3);
+  fitness = zeros(sampleCount, 1);
 
   %
   % The initial state of the chain.
@@ -165,12 +165,14 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     %
     % No optimization.
     %
-    sample = [ z; muu; sigma2u; sigma2e ];
-    proposalSigma = diag(sqrt([ ...
+    currentSample = [ z; muu; sigma2u; sigma2e ];
+    variance = [ ...
       ones(1, dimensionCount), ...
       (fixMuu     == false) * sigma20, ...
       (fixSigma2u == false) * tau2u, ...
-      (fixSigma2e == false) * tau2e ]));
+      (fixSigma2e == false) * tau2e ];
+    proposalSigma = diag(sqrt(variance));
+    covariance = diag(variance(variance > 0));
   case 'csminwel'
     %
     % Using the library suggested by Mattias.
@@ -197,13 +199,14 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
 
     c.printf('Optimization: done in %.2f minutes.\n', time / 60);
 
-    sample = pack(theta);
+    currentSample = pack(theta);
 
     %
     % Now, we have the inverse Hessian matrix at a posterior mode,
     % and we need to turn into a Cholesky-like multiplier.
     %
     proposalSigma = adjust(chol(inverseHessian, 'lower'));
+    covariance = inverseHessian;
   case 'fminunc'
     %
     % Using MATLAB's facilities.
@@ -231,7 +234,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
 
     c.printf('Optimization: done in %.2f minutes.\n', time / 60);
 
-    sample = pack(theta);
+    currentSample = pack(theta);
 
     %
     % Now, we have the Hessian matrix at a posterior mode, and
@@ -240,6 +243,7 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     [ U, L ] = eig(hessian);
     L = diag(L);
     proposalSigma = adjust(U * diag(1 ./ sqrt(abs(L))));
+    covariance = U * diag(1 ./ abs(L)) * U';
 
     c.printf('Optimization: %d out of %d eigenvalues are negative.\n', ...
       sum(L < 0), length(L));
@@ -252,10 +256,10 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   %
   proposalSigma = c.inference.proposalRate * proposalSigma;
 
-  fitness = -Inf;
-  proposalSample = sample;
+  currentFitness = -Inf;
+  proposalSample = currentSample;
 
-  Acceptance = logical(zeros(1, sampleCount));
+  acceptance = logical(zeros(1, sampleCount));
 
   time = tic;
 
@@ -308,33 +312,33 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
     %
     % Accept or reject?
     %
-    if log(rand) < (proposalFitness - fitness)
+    if log(rand) < (proposalFitness - currentFitness)
       %
       % Accept!
       %
-      sample = proposalSample;
-      fitness = proposalFitness;
-      Acceptance(i) = true;
+      currentSample = proposalSample;
+      currentFitness = proposalFitness;
+      acceptance(i) = true;
     end
 
     %
     % Save the result.
     %
-    Samples(i, :) = sample;
-    Fitness(i) = fitness;
+    samples(i, :) = currentSample;
+    fitness(i) = currentFitness;
 
     if verbose && mod(i, 1e2) == 0
       finished = 100 * i / sampleCount;
-      accepted = 100 * mean(Acceptance(1:i));
-      rate     = 100 * mean(Acceptance((i - 1e2 + 1):i));
+      accepted = 100 * mean(acceptance(1:i));
+      rate     = 100 * mean(acceptance((i - 1e2 + 1):i));
       c.printf('Metropolis: finished %6.2f%% (%6d/%6d), accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
-        finished, i, sampleCount, accepted, rate, fitness);
+        finished, i, sampleCount, accepted, rate, currentFitness);
     end
 
     %
     % Propose a new sample!
     %
-    proposalSample = sample + ...
+    proposalSample = currentSample + ...
       proposalSigma * randn(dimensionCount + 3, 1);
   end
 
@@ -344,13 +348,21 @@ function [ Samples, Fitness, Acceptance ] = infer(c, m, model)
   %
   % Do not forget to denormalize the result!
   %
-  Samples(:, end - 2) = nmu + nsigma   * Samples(:, end - 2);
-  Samples(:, end - 1) =       nsigma^2 * Samples(:, end - 1);
+  samples(:, end - 2) = nmu + nsigma   * samples(:, end - 2);
+  samples(:, end - 1) =       nsigma^2 * samples(:, end - 1);
 
   %
   % Truncate the output.
   %
-  Samples    = Samples   (1:sampleCount, :);
-  Fitness    = Fitness   (1:sampleCount);
-  Acceptance = Acceptance(1:sampleCount);
+  results = Options;
+
+  results.samples = Options;
+  results.samples.z       = samples(:, 1:(end - 3))';
+  results.samples.muu     = samples(:,    end - 2)';
+  results.samples.sigma2u = samples(:,    end - 1)';
+  results.samples.sigma2e = samples(:,    end - 0)';
+
+  results.fitness    = fitness;
+  results.acceptance = acceptance;
+  results.covariance = covariance;
 end

@@ -35,11 +35,11 @@ function compareInference(save)
     for j = 1:methodCount
       c.inference.optimization.method = methodNames{j};
       c.inference.proposalRate = proposalRates(j);
-      [ results{i, j}, samples ] = Utils.perform(c, m);
+      results{i, j} = Utils.perform(c, m);
       if save
         overallPrefix = File.join(prefix, platformPrefix, methodNames{j});
         mkdir(overallPrefix);
-        Utils.plot(c, m, results{i, j}, samples, overallPrefix);
+        Utils.plot(c, m, results{i, j}, overallPrefix);
         close all;
       end
     end

@@ -1,5 +1,5 @@
-function plot(c, m, results, samples, savePrefix)
-  if nargin > 4
+function plot(c, m, results, savePrefix)
+  if nargin > 3
     save = @(name, varargin) ...
       Plot.save(File.join(savePrefix, name), varargin{:});
   else
@@ -7,6 +7,8 @@ function plot(c, m, results, samples, savePrefix)
   end
 
   nRange = [ -3, 3 ];
+  samples = results.samples;
+  sampleCount = c.inference.sampleCount;
 
   %
   % The true quantity of interest.
@@ -24,20 +26,20 @@ function plot(c, m, results, samples, savePrefix)
   Plot.title('Inferred QoI (error %.2f%%)', results.error * 100);
   save('u inferred.pdf');
 
-  time = 1:samples.count;
+  time = 1:sampleCount;
 
   %
   % The log-posterior.
   %
   figure;
-  trace('Log-posterior + constant', samples.fitness);
+  trace('Log-posterior + constant', results.fitness);
   save('log-posterior.pdf');
 
   %
   % The acceptance rate.
   %
   figure;
-  trace('Acceptance rate', cumsum(samples.acceptance) ./ time);
+  trace('Acceptance rate', cumsum(results.acceptance) ./ time);
   save('acceptance.pdf');
 
   %
@@ -62,7 +64,7 @@ function plot(c, m, results, samples, savePrefix)
 
   figure;
   plotmatrix(samples.z(:, ...
-    round(c.inference.burninRate * samples.count):end)');
+    round(c.inference.burninRate * sampleCount):end)');
   save('z scatter plot.png', 'format', 'png');
 
   %

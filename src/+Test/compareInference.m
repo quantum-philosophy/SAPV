@@ -8,10 +8,6 @@ function compareInference(save)
     prefix = sprintf('%04d-%02d-%02d %02d-%02d-%02d', ...
       c(1), c(2), c(3), c(4), c(5), round(c(6)));
     mkdir(prefix);
-    file = fopen(File.join(prefix, 'report.txt'), 'w');
-    printf = @(varargin) fprintf(file, varargin{:});
-  else
-    printf = @fprintf;
   end
 
   platformDimensions = [ 2, 4, 8, 16, 32 ];
@@ -39,6 +35,18 @@ function compareInference(save)
       if save
         overallPrefix = File.join(prefix, platformPrefix, methodNames{j});
         mkdir(overallPrefix);
+
+        %
+        % Results in plain text.
+        %
+        file = fopen(File.join(overallPrefix, 'report.txt'), 'w');
+        printf = @(varargin) fprintf(file, varargin{:});
+        Utils.analyze(c, m, results{i, j}, printf);
+        fclose(file);
+
+        %
+        % Results in graphs.
+        %
         Utils.plot(c, m, results{i, j}, overallPrefix);
         close all;
       end
@@ -51,6 +59,13 @@ function compareInference(save)
   %
   % Summarize everything.
   %
+  if save
+    file = fopen(File.join(prefix, 'report.txt'), 'w');
+    printf = @(varargin) fprintf(file, varargin{:});
+  else
+    printf = @fprintf;
+  end
+
   for i = 1:platformCount
     processorCount = platformDimensions(i);
     printf('Platform with %3d processing elements.\n', processorCount);

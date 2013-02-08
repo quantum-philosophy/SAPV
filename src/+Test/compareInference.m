@@ -1,12 +1,11 @@
 function compareInference(save)
+  close all;
   setup;
 
   if nargin == 0, save = false; end
 
   if save
-    c = clock;
-    prefix = sprintf('%04d-%02d-%02d %02d-%02d-%02d', ...
-      c(1), c(2), c(3), c(4), c(5), round(c(6)));
+    prefix = Utils.makeTimeStamp;
     mkdir(prefix);
   end
 

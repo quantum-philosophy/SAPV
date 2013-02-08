@@ -158,36 +158,40 @@ function results = infer(c, m, model)
   end
 
   %
-  % Optimize?
+  % Construct a proposal distribution.
   %
-  switch lower(c.inference.optimization.method)
-  case 'none'
-    %
-    % No optimization.
-    %
-    theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
-    currentSample = [ z; muu; sigma2u; sigma2e ];
+  filename = c.stamp('proposal.mat', qmeasT);
+  if File.exist(filename)
+    c.printf('Proposal: loading cached data in "%s".\n', filename);
+    load(filename);
+  else
+    method = lower(c.inference.optimization.method);
 
-    variance = [ ...
-      ones(1, dimensionCount), ...
-      (fixMuu     == false) * sigma20, ...
-      (fixSigma2u == false) * tau2u, ...
-      (fixSigma2e == false) * tau2e ];
+    c.printf('Proposal: in progress using "%s"...\n', method);
+    time = tic;
 
-    proposalSigma = diag(sqrt(variance));
+    switch method
+    case 'none'
+      %
+      % No optimization.
+      %
+      theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
+      currentSample = [ z; muu; sigma2u; sigma2e ];
 
-    I = find(variance > 0);
-    theta = theta(I);
-    covariance = diag(variance(I));
-  case 'csminwel'
-    %
-    % Using the library suggested by Mattias.
-    %
-    filename = c.stamp('inverseHessian.mat', qmeasT);
-    if File.exist(filename)
-      c.printf('Optimization: loading the previously computed inverse Hessian.\n');
-      load(filename);
-    else
+      variance = [ ...
+        ones(1, dimensionCount), ...
+        (fixMuu     == false) * sigma20, ...
+        (fixSigma2u == false) * tau2u, ...
+        (fixSigma2e == false) * tau2e ];
+
+      I = find(variance > 0);
+      theta = theta(I);
+      covariance = diag(variance(I));
+      proposalSigma = diag(sqrt(variance));
+    case 'csminwel'
+      %
+      % Using the library suggested by Mattias.
+      %
       theta = encode(z, muu, sigma2u, sigma2e);
 
       options = Options;
@@ -195,35 +199,20 @@ function results = infer(c, m, model)
       options.maximalFunctionCount = c.inference.optimization.maximalStepCount;
       options.stallThreshold = c.inference.optimization.stallThreshold;
 
-      c.printf('Optimization: in progress...\n');
-
-      time = tic;
-      [ objective, theta, ~, inverseHessian ] = csminwel( ...
+      [ ~, theta, ~, covariance ] = csminwel( ...
         @target, theta, 1e-4 * eye(length(theta)), [], options);
-      time = toc(time);
 
-      save(filename, 'time', 'objective', 'theta', 'inverseHessian', '-v7.3');
-    end
+      currentSample = pack(theta);
 
-    c.printf('Optimization: done in %.2f minutes.\n', time / 60);
-
-    currentSample = pack(theta);
-
-    %
-    % Now, we have the inverse Hessian matrix at a posterior mode,
-    % and we need to turn into a Cholesky-like multiplier.
-    %
-    proposalSigma = adjust(chol(inverseHessian, 'lower'));
-    covariance = inverseHessian;
-  case 'fminunc'
-    %
-    % Using MATLAB's facilities.
-    %
-    filename = c.stamp('hessian.mat', qmeasT);
-    if File.exist(filename)
-      c.printf('Optimization: loading the previously computed Hessian.\n');
-      load(filename);
-    else
+      %
+      % Now, we have the inverse Hessian matrix at a posterior mode,
+      % and we need to turn into a Cholesky-like multiplier.
+      %
+      proposalSigma = adjust(chol(covariance, 'lower'));
+    case 'fminunc'
+      %
+      % Using MATLAB's facilities.
+      %
       theta = encode(z, muu, sigma2u, sigma2e);
 
       options.MaxFunEvals = c.inference.optimization.maximalStepCount;
@@ -232,54 +221,47 @@ function results = infer(c, m, model)
       if verbose, options.Display = 'iter';
       else options.Display = 'off'; end
 
-      c.printf('Optimization: in progress...\n');
-
-      time = tic;
-      [ theta, objective ~, ~, ~, hessian ] = fminunc( ...
+      [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
         @target, theta, options);
-      time = toc(time);
 
-      save(filename, 'time', 'theta', 'objective', 'hessian', '-v7.3');
+      currentSample = pack(theta);
+
+      %
+      % Now, we have the Hessian matrix at a posterior mode, and
+      % we need to invert it and turn into a Cholesky-like multiplier.
+      %
+      [ U, L ] = eig(hessian);
+      L = diag(L);
+
+      covariance = U * diag(1 ./ abs(L)) * U';
+      proposalSigma = adjust(U * diag(1 ./ sqrt(abs(L))));
+
+      c.printf('Proposal: %d out of %d eigenvalues are negative.\n', ...
+        sum(L < 0), length(L));
+    otherwise
+      assert(false);
     end
 
-    c.printf('Optimization: done in %.2f minutes.\n', time / 60);
-
-    currentSample = pack(theta);
-
     %
-    % Now, we have the Hessian matrix at a posterior mode, and
-    % we need to invert it and turn into a Cholesky-like multiplier.
+    % Assessment of the quality of the constructed proposal distribution.
     %
-    [ U, L ] = eig(hessian);
-    L = diag(L);
-    proposalSigma = adjust(U * diag(1 ./ sqrt(abs(L))));
-    covariance = U * diag(1 ./ abs(L)) * U';
-
-    c.printf('Optimization: %d out of %d eigenvalues are negative.\n', ...
-      sum(L < 0), length(L));
-  otherwise
-    assert(false);
-  end
-
-  if c.inference.assessProposal
-    filename = c.stamp('assessment.mat', qmeasT);
-    if File.exist(filename)
-      c.printf('Assessment: loading the previously computed results.\n');
-      load(filename);
+    if c.inference.assessProposal
+      c.printf('Proposal: assessment using %d extra points in each direction...\n', ...
+        c.inference.assessmentPointCount);
+      assessment = Utils.performProposalAssessment( ...
+        @(theta_) -target(theta_), theta, covariance, ...
+        'pointCount', c.inference.assessmentPointCount);
     else
-      c.printf('Assessment: in progress...\n');
-
-      time = tic;
-      assessment = Utils.assessProposalDistribution( ...
-        @(theta_) -target(theta_), theta, covariance);
-      time = toc(time);
-
-      save(filename, 'time', 'assessment', '-v7.3');
+      assessment = [];
     end
-    c.printf('Assessment: done in %.2f seconds.\n', time);
-  else
-    assessment = [];
+
+    time = toc(time);
+
+    save(filename, 'time', 'theta', 'covariance', ...
+      'proposalSigma', 'assessment', '-v7.3');
   end
+
+  c.printf('Proposal: done in %.2f minutes.\n', time / 60);
 
   %
   % NOTE: Do not forget about the tuning constant!

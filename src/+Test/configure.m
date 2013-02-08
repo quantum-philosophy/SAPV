@@ -182,4 +182,5 @@ function c = configure(processorCount, taskCount)
 
   c.inference.proposalRate = 0.5; % ... a portion of the standard deviation.
   c.inference.assessProposal = true;
+  c.inference.assessmentPointCount = 30;
 end

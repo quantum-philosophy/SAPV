@@ -1,10 +1,12 @@
 function plot(c, m, results, savePrefix)
-  if nargin > 3
+  if nargin > 3 && ~isempty(savePrefix)
     save = @(name, varargin) ...
       Plot.save(File.join(savePrefix, name), varargin{:});
   else
     save = @(varargin) [];
   end
+
+  newfigure = @() figure('Position', [ 100, 100, 600, 600 ]);
 
   nRange = [ -3, 3 ];
   samples = results.samples;
@@ -15,32 +17,32 @@ function plot(c, m, results, savePrefix)
   %
   plot(c.process, m.n);
   colormap(Color.map(m.n, nRange));
-  Plot.title('True QoI');
-  save('u true.pdf');
+  Plot.title('True quantity of interest');
+  save('QoI true.pdf');
 
   %
   % The inferred quantity of interest.
   %
   plot(c.process, results.n);
   colormap(Color.map(results.n, nRange));
-  Plot.title('Inferred QoI (error %.2f%%)', results.error * 100);
-  save('u inferred.pdf');
+  Plot.title('Inferred quantity of interest (NRMSE %.2f%%)', results.error * 100);
+  save('QoI inferred.pdf');
 
   time = 1:sampleCount;
 
   %
   % The log-posterior.
   %
-  figure;
-  trace('Log-posterior + constant', results.fitness);
-  save('log-posterior.pdf');
+  newfigure();
+  trace('Log-posterior', results.fitness);
+  save('Log-posterior.pdf');
 
   %
   % The acceptance rate.
   %
-  figure;
+  newfigure();
   trace('Acceptance rate', cumsum(results.acceptance) ./ time);
-  save('acceptance.pdf');
+  save('Acceptance rate.pdf');
 
   %
   % The independent random variables, i.e., the z's.
@@ -53,54 +55,57 @@ function plot(c, m, results, savePrefix)
   minZ = min([ samples.z(:); m.z(:) ]);
   maxZ = max([ samples.z(:); m.z(:) ]);
 
-  figure;
+  newfigure();
   for i = 1:dimensionCount
     subplot(rows, cols, i);
     trace([], samples.z(i, :), results.z(i), m.z(i));
     set(gca, 'XTick', [ time(1) time(end) ]);
     ylim([ minZ, maxZ ]);
   end
-  save('z.pdf');
+  Plot.name('The z''s');
+  save('Z.pdf');
 
-  figure;
+  newfigure();
   plotmatrix(samples.z(:, ...
     round(c.inference.burninRate * sampleCount):end)');
-  save('z scatter plot.png', 'format', 'png');
+  Plot.name('Correlations of the z''s');
+  save('Z correlations.png', 'format', 'png', 'orientation', 'portrait');
 
   if c.inference.assessProposal
-    figure;
-    Utils.inspectProposalAssessment(results.theta, results.assessment);
-    save('proposal assessment.pdf');
+    newfigure();
+    Utils.plotProposalAssessment(results.theta, results.assessment);
+    Plot.name('Proposal distribution at the posterior mode');
+    save('Proposal distribution.pdf');
   end
 
   %
   % The mean of the quantity of interest.
   %
   if ~c.inference.fixMuu
-    figure;
-    trace('Mean of the QoI', cumsum(samples.muu) ./ time, ...
+    newfigure();
+    trace('QoI mean', cumsum(samples.muu) ./ time, ...
       results.muu, c.process.nominal);
-    save('muu.pdf');
+    save('QoI mean.pdf');
   end
 
   %
   % The variance of the quantity of interest.
   %
   if ~c.inference.fixSigma2u
-    figure;
-    trace('Variance of the QoI', cumsum(samples.sigma2u) ./ time, ...
+    newfigure();
+    trace('QoI variance', cumsum(samples.sigma2u) ./ time, ...
       results.sigma2u, c.process.deviation^2);
-    save('sigma2u.pdf');
+    save('QoI variance.pdf');
   end
 
   %
   % The variance of the noise.
   %
   if ~c.inference.fixSigma2e
-    figure;
-    trace('Variance of the noise', cumsum(samples.sigma2e) ./ time, ...
+    newfigure();
+    trace('Noise variance', cumsum(samples.sigma2e) ./ time, ...
       results.sigma2e, c.observations.deviation^2);
-    save('sigma2e.pdf');
+    save('Noise variance.pdf');
   end
 end
 

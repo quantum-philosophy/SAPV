@@ -38,10 +38,14 @@ classdef ProcessVariation < handle
       mapping = this.mapping(I, :);
     end
 
-    function [ u, n ] = compute(this, z)
+    function [ u, n ] = compute(this, z, nominal, deviation)
+      if nargin < 3, nominal = this.nominal; end
+      if nargin < 4, deviation = this.deviation; end
+
       n = reshape(this.mapping * z, ...
         [ this.wafer.processorCount, this.wafer.dieCount ]);
-      u = this.nominal + this.deviation * n;
+
+      u = nominal + deviation * n;
     end
 
     function [ u, n, z ] = sample(this)

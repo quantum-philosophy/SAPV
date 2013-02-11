@@ -23,12 +23,12 @@ function results = perform(c, m)
 
   results.time = time;
 
-  results.z       = mean(results.samples.z(:, burnCount:end), 2);
-  results.muu     = mean(results.samples.muu(burnCount:end));
-  results.sigma2u = mean(results.samples.sigma2u(burnCount:end));
-  results.sigma2e = mean(results.samples.sigma2e(burnCount:end));
+  results.z      = mean(results.samples.z(:, burnCount:end), 2);
+  results.muu    = mean(results.samples.muu(burnCount:end));
+  results.sigmau = mean(results.samples.sigmau(burnCount:end));
+  results.sigmae = mean(results.samples.sigmae(burnCount:end));
 
-  [ results.u, results.n ] = c.process.compute(results.z);
+  [ results.u, results.n ] = c.process.compute(results.z, results.muu, results.sigmau);
 
   results.error = Error.computeNRMSE(m.n, results.n);
 end

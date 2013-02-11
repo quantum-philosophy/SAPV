@@ -83,29 +83,29 @@ function plot(c, m, results, savePrefix)
   %
   if ~c.inference.fixMuu
     newfigure();
-    trace('QoI mean', cumsum(samples.muu) ./ time, ...
+    trace('Mean of the QoI', cumsum(samples.muu) ./ time, ...
       results.muu, c.process.nominal);
     save('QoI mean.pdf');
   end
 
   %
-  % The variance of the quantity of interest.
+  % The standard deviation of the quantity of interest.
   %
-  if ~c.inference.fixSigma2u
+  if ~c.inference.fixSigmau
     newfigure();
-    trace('QoI variance', cumsum(samples.sigma2u) ./ time, ...
-      results.sigma2u, c.process.deviation^2);
-    save('QoI variance.pdf');
+    trace('Standard deviation of the QoI', cumsum(samples.sigmau) ./ time, ...
+      results.sigmau, c.process.deviation);
+    save('QoI deviation.pdf');
   end
 
   %
-  % The variance of the noise.
+  % The standard deviation of the noise.
   %
-  if ~c.inference.fixSigma2e
+  if ~c.inference.fixSigmae
     newfigure();
-    trace('Noise variance', cumsum(samples.sigma2e) ./ time, ...
-      results.sigma2e, c.observations.deviation^2);
-    save('Noise variance.pdf');
+    trace('Standard deviation of the noise', cumsum(samples.sigmae) ./ time, ...
+      results.sigmae, c.observations.deviation);
+    save('Noise deviation.pdf');
   end
 end
 

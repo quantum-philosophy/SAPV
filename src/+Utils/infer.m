@@ -24,35 +24,29 @@ function results = infer(c, m, model)
   %
   % The priors.
   %
-  mu0     = c.inference.mu0;
-  sigma20 = c.inference.sigma20;
+  mu0    = c.inference.mu0;
+  sigma0 = c.inference.sigma0;
 
-  nuu     = c.inference.nuu;
-  tau2u   = c.inference.tau2u;
+  nuu  = c.inference.nuu;
+  tauu = c.inference.tauu;
 
-  nue     = c.inference.nue;
-  tau2e   = c.inference.tau2e;
+  nue  = c.inference.nue;
+  taue = c.inference.taue;
 
   %
-  % Normalization (excluding the noise).
+  % NOTE: The inference we do is for the normalized parameters.
   %
-  nmu    = c.inference.mu0;
-  nsigma = sqrt(c.inference.tau2u);
 
-  mu0     = (mu0 - nmu) / nsigma;
-  sigma20 = sigma20     / nmu^2;
-  tau2u   = tau2u       / nsigma^2;
-
-  assert(mu0   == 0);
-  assert(tau2u == 1);
-
-  function result = computeNode(z_, muu_, sigma2u_)
-    result = (nmu + nsigma * muu_) + ...
-      nsigma * sqrt(sigma2u_) * mapping * z_;
+  function result = computeNode(z_, muun_, sigmaun_)
+    result = (mu0 + sigma0 * muun_) + tauu * sigmaun_ * mapping * z_;
   end
 
   function result = computeFitness( ...
-    qT_, sigma2q_, z_, muu_, sigma2u_, sigma2e_)
+    qT_, sigma2q_, z_, muun_, sigmaun_, sigmaen_)
+
+    muu_     = mu0 + sigma0 * muun_;
+    sigma2u_ = (tauu * sigmaun_)^2;
+    sigma2e_ = (taue * sigmaen_)^2;
 
     result = ...
       - (outputCount / 2) * log(sigma2e_ + sigma2q_) ...
@@ -60,58 +54,45 @@ function results = infer(c, m, model)
       ...
       - sum(z_.^2) / 2 ...
       ...
-      - (muu_ - mu0)^2 / sigma20 / 2 ...
+      - (muu_ - mu0)^2 / sigma0^2 / 2 ...
       ...
       - (1 + nuu / 2) * log(sigma2u_) ...
-      - nuu * tau2u / sigma2u_ / 2 ...
+      - nuu * tauu^2 / sigma2u_ / 2 ...
       ...
       - (1 + nue / 2) * log(sigma2e_) ...
-      - nue * tau2e / sigma2e_ / 2;
+      - nue * taue^2 / sigma2e_ / 2;
   end
 
   samples = zeros(sampleCount, dimensionCount + 3);
   fitness = zeros(sampleCount, 1);
 
   %
-  % The initial state of the chain.
-  %
-  z       = zeros(dimensionCount, 1);
-  muu     = mu0;
-  sigma2u = tau2u;
-  sigma2e = tau2e;
-
-  %
   % Initial values and the proposal distribution.
   %
-  fixMuu     = c.inference.fixMuu;
-  fixSigma2u = c.inference.fixSigma2u;
-  fixSigma2e = c.inference.fixSigma2e;
+  fixMuu    = c.inference.fixMuu;
+  fixSigmau = c.inference.fixSigmau;
+  fixSigmae = c.inference.fixSigmae;
 
-  function theta_ = encode(z_, muu_, sigma2u_, sigma2e_)
+  function theta_ = encode(z_, muun_, sigmaun_, sigmaen_)
     theta_ = z_;
-    if ~fixMuu,     theta_ = [ theta_; muu_           ]; end
-    if ~fixSigma2u, theta_ = [ theta_; sqrt(sigma2u_) ]; end
-    if ~fixSigma2e, theta_ = [ theta_; sqrt(sigma2e_) ]; end
+    if ~fixMuu,    theta_ = [ theta_; muun_    ]; end
+    if ~fixSigmau, theta_ = [ theta_; sigmaun_ ]; end
+    if ~fixSigmae, theta_ = [ theta_; sigmaen_ ]; end
   end
 
-  function [ z_, muu_, sigma2u_, sigma2e_ ] = decode(theta_)
+  function [ z_, muun_, sigmaun_, sigmaen_ ] = decode(theta_)
     z_ = theta_(1:dimensionCount);
 
     k = dimensionCount + 1;
 
-    if fixMuu, muu_ = muu;
-    else muu_ = theta_(k); k = k + 1; end
+    if fixMuu, muun_ = 0;
+    else muun_ = theta_(k); k = k + 1; end
 
-    if fixSigma2u, sigma2u_ = sigma2u;
-    else sigma2u_ = theta_(k)^2; k = k + 1; end
+    if fixSigmau, sigmaun_ = 1;
+    else sigmaun_ = theta_(k)^2; k = k + 1; end
 
-    if fixSigma2e, sigma2e_ = sigma2e;
-    else sigma2e_ = theta_(k)^2; end
-  end
-
-  function sample_ = pack(theta_)
-    [ z_, muu_, sigma2u_, sigma2e_ ] = decode(theta_);
-    sample_ = [ z_; muu_; sigma2u_; sigma2e_ ];
+    if fixSigmae, sigmaen_ = 1;
+    else sigmaen_ = theta_(k)^2; end
   end
 
   function proposalSigma__ = adjust(proposalSigma_)
@@ -132,7 +113,7 @@ function results = infer(c, m, model)
     end
     l = l + 1;
 
-    if ~fixSigma2u
+    if ~fixSigmau
       I = [ I l ];
       proposalSigma__(l, I) = proposalSigma_(k, 1:k);
       proposalSigma__(I, l) = proposalSigma_(1:k, k);
@@ -140,7 +121,7 @@ function results = infer(c, m, model)
     end
     l = l + 1;
 
-    if ~fixSigma2e
+    if ~fixSigmae
       I = [ I l ];
       proposalSigma__(l, I) = proposalSigma_(k, 1:k);
       proposalSigma__(I, l) = proposalSigma_(1:k, k);
@@ -148,13 +129,13 @@ function results = infer(c, m, model)
   end
 
   function result = target(theta_)
-    [ z_, muu_, sigma2u_, sigma2e_ ] = decode(theta_);
+    [ z_, muun_, sigmaun_, sigmaen_ ] = decode(theta_);
 
-    node_ = computeNode(z_, muu_, sigma2u_);
+    node_ = computeNode(z_, muun_, sigmaun_);
     qT_ = model.compute(node_);
 
     result = -computeFitness( ...
-      qT_, 0, z_, muu_, sigma2u_, sigma2e_);
+      qT_, 0, z_, muun_, sigmaun_, sigmaen_);
   end
 
   %
@@ -170,30 +151,19 @@ function results = infer(c, m, model)
     c.printf('Proposal: in progress using "%s"...\n', method);
     time = tic;
 
+    theta = encode(zeros(dimensionCount, 1), 0, 1, 1);
+
     switch method
     case 'none'
       %
       % No optimization.
       %
-      theta = [ z; muu; sqrt(sigma2u); sqrt(sigma2e) ];
-      currentSample = [ z; muu; sigma2u; sigma2e ];
-
-      variance = [ ...
-        ones(1, dimensionCount), ...
-        (fixMuu     == false) * sigma20, ...
-        (fixSigma2u == false) * tau2u, ...
-        (fixSigma2e == false) * tau2e ];
-
-      I = find(variance > 0);
-      theta = theta(I);
-      covariance = diag(variance(I));
-      proposalSigma = diag(sqrt(variance));
+      covariance = eye(length(theta));
+      proposalCoefficient = covariance;
     case 'csminwel'
       %
       % Using the library suggested by Mattias.
       %
-      theta = encode(z, muu, sigma2u, sigma2e);
-
       options = Options;
       options.verbose = verbose;
       options.maximalFunctionCount = c.inference.optimization.maximalStepCount;
@@ -202,29 +172,23 @@ function results = infer(c, m, model)
       [ ~, theta, ~, covariance ] = csminwel( ...
         @target, theta, 1e-4 * eye(length(theta)), [], options);
 
-      currentSample = pack(theta);
-
       %
       % Now, we have the inverse Hessian matrix at a posterior mode,
       % and we need to turn into a Cholesky-like multiplier.
       %
-      proposalSigma = adjust(chol(covariance, 'lower'));
+      proposalCoefficient = chol(covariance, 'lower');
     case 'fminunc'
       %
       % Using MATLAB's facilities.
       %
-      theta = encode(z, muu, sigma2u, sigma2e);
-
       options.MaxFunEvals = c.inference.optimization.maximalStepCount;
-      optinos.TolFun = c.inference.optimization.stallThreshold;
+      options.TolFun = c.inference.optimization.stallThreshold;
       options.LargeScale = 'off';
       if verbose, options.Display = 'iter';
       else options.Display = 'off'; end
 
       [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
         @target, theta, options);
-
-      currentSample = pack(theta);
 
       %
       % Now, we have the Hessian matrix at a posterior mode, and
@@ -234,7 +198,7 @@ function results = infer(c, m, model)
       L = diag(L);
 
       covariance = U * diag(1 ./ abs(L)) * U';
-      proposalSigma = adjust(U * diag(1 ./ sqrt(abs(L))));
+      proposalCoefficient = U * diag(1 ./ sqrt(abs(L)));
 
       c.printf('Proposal: %d out of %d eigenvalues are negative.\n', ...
         sum(L < 0), length(L));
@@ -258,7 +222,7 @@ function results = infer(c, m, model)
     time = toc(time);
 
     save(filename, 'time', 'theta', 'covariance', ...
-      'proposalSigma', 'assessment', '-v7.3');
+      'proposalCoefficient', 'assessment', '-v7.3');
   end
 
   c.printf('Proposal: done in %.2f minutes.\n', time / 60);
@@ -266,9 +230,14 @@ function results = infer(c, m, model)
   %
   % NOTE: Do not forget about the tuning constant!
   %
-  proposalSigma = c.inference.proposalRate * proposalSigma;
+  proposalCoefficient = c.inference.proposalRate * adjust(proposalCoefficient);
 
+  %
+  % Initial values.
+  %
   currentFitness = -Inf;
+  [ z, muun, sigmaun, sigmaen ] = decode(theta);
+  currentSample = [ z; muun; sigmaun; sigmaen ];
   proposalSample = currentSample;
 
   acceptance = logical(zeros(1, sampleCount));
@@ -280,11 +249,11 @@ function results = infer(c, m, model)
     % Process the proposed sample.
     %
     z       = proposalSample(1:(end - 3));
-    muu     = proposalSample(   end - 2);
-    sigma2u = proposalSample(   end - 1);
-    sigma2e = proposalSample(   end - 0);
+    muun    = proposalSample(   end - 2);
+    sigmaun = proposalSample(   end - 1);
+    sigmaen = proposalSample(   end - 0);
 
-    node = computeNode(z, muu, sigma2u);
+    node = computeNode(z, muun, sigmaun);
 
     if ~useSurrogate
       %
@@ -319,7 +288,7 @@ function results = infer(c, m, model)
     % Compute the fitness, which is proportional to the log-posterior.
     %
     proposalFitness = computeFitness( ...
-      qT, sigma2q, z, muu, sigma2u, sigma2e);
+      qT, sigma2q, z, muun, sigmaun, sigmaen);
 
     %
     % Accept or reject?
@@ -351,7 +320,7 @@ function results = infer(c, m, model)
     % Propose a new sample!
     %
     proposalSample = currentSample + ...
-      proposalSigma * randn(dimensionCount + 3, 1);
+      proposalCoefficient * randn(dimensionCount + 3, 1);
   end
 
   c.printf('Metropolis: done with %d samples in %.2f seconds.\n', ...
@@ -360,8 +329,9 @@ function results = infer(c, m, model)
   %
   % Do not forget to denormalize the result!
   %
-  samples(:, end - 2) = nmu + nsigma   * samples(:, end - 2);
-  samples(:, end - 1) =       nsigma^2 * samples(:, end - 1);
+  samples(:, end - 2) = mu0 + sigma0 * samples(:, end - 2);
+  samples(:, end - 1) =         tauu * samples(:, end - 1);
+  samples(:, end - 0) =         taue * samples(:, end - 0);
 
   %
   % Truncate the output.
@@ -375,10 +345,10 @@ function results = infer(c, m, model)
 
   % Sampling
   results.samples = Options;
-  results.samples.z       = samples(:, 1:(end - 3))';
-  results.samples.muu     = samples(:,    end - 2)';
-  results.samples.sigma2u = samples(:,    end - 1)';
-  results.samples.sigma2e = samples(:,    end - 0)';
+  results.samples.z      =     samples(:,  1:(end - 3))';
+  results.samples.muu    =     samples(:,     end - 2)';
+  results.samples.sigmau = abs(samples(:,     end - 1))';
+  results.samples.sigmae = abs(samples(:,     end - 0))';
 
   % Progress
   results.fitness    = fitness;

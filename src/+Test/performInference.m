@@ -1,4 +1,4 @@
-function performInference(save)
+function results = performInference(save)
   close all;
   setup;
 

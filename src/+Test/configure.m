@@ -140,7 +140,6 @@ function c = configure(processorCount, taskCount)
   c.surrogate = Options;
   c.surrogate.nodeCount = NaN;
   c.surrogate.optimizationStepCount = 1e2;
-  c.surrogate.noiseVariance = 0.00;
 
   %
   % Inference.
@@ -153,30 +152,30 @@ function c = configure(processorCount, taskCount)
 
   % The prior on the mean of the QoI.
   c.inference.mu0 = c.process.nominal;
-  c.inference.sigma20 = (0.01 * c.process.nominal)^2;
+  c.inference.sigma0 = 0.01 * c.process.nominal;
 
   % The prior on the variance of the QoI.
   %
   % As if from...
   c.inference.nuu = 10;
   % ... observations we concluded that it should be...
-  c.inference.tau2u = c.process.deviation^2;
+  c.inference.tauu = c.process.deviation;
 
   % The prior on the variance of the noise.
   %
   % As if from...
   c.inference.nue = 10;
   % ... observations we concluded that it should be...
-  c.inference.tau2e = c.observations.deviation^2;
+  c.inference.taue = c.observations.deviation;
 
   % Skip some of the parameters?
-  c.inference.fixMuu     = true;
-  c.inference.fixSigma2u = true;
-  c.inference.fixSigma2e = true;
+  c.inference.fixMuu    = true;
+  c.inference.fixSigmau = true;
+  c.inference.fixSigmae = true;
 
   % The proposal distribution.
   c.inference.optimization = Options;
-  c.inference.optimization.method = 'csminwel';
+  c.inference.optimization.method = 'fminunc';
   c.inference.optimization.maximalStepCount = 1e4;
   c.inference.optimization.stallThreshold = 1e-6;
 

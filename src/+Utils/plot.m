@@ -17,16 +17,23 @@ function plot(c, m, results, savePrefix)
   %
   plot(c.process, m.n);
   colormap(Color.map(m.n, nRange));
-  Plot.title('True quantity of interest');
-  save('QoI true.pdf');
+  Plot.title('Quantity of interest (true)');
+  save('QoI.pdf');
 
   %
-  % The inferred quantity of interest.
+  % The mean of the inferred quantity of interest.
   %
-  plot(c.process, results.n);
-  colormap(Color.map(results.n, nRange));
-  Plot.title('Inferred quantity of interest (NRMSE %.2f%%)', results.error * 100);
+  plot(c.process, results.mean.n);
+  colormap(Color.map(results.mean.n, nRange));
+  Plot.title('The mean of the inferred QoI (NRMSE %.2f%%)', results.error * 100);
   save('QoI inferred.pdf');
+
+  %
+  % The deviation of the inferred quantity of interest.
+  %
+  plot(c.process, results.deviation.n);
+  Plot.title('The standard deviation of the inferred QoI');
+  save('QoI deviation.pdf');
 
   time = 1:sampleCount;
 
@@ -58,7 +65,8 @@ function plot(c, m, results, savePrefix)
   newfigure();
   for i = 1:dimensionCount
     subplot(rows, cols, i);
-    trace([], samples.z(i, :), results.z(i), m.z(i));
+    trace([], samples.z(i, :), results.mean.z(i), ...
+      results.deviation.z(i), m.z(i), i == dimensionCount);
     set(gca, 'XTick', [ time(1) time(end) ]);
     ylim([ minZ, maxZ ]);
   end
@@ -84,7 +92,7 @@ function plot(c, m, results, savePrefix)
   if ~c.inference.fixMuu
     newfigure();
     trace('Mean of the QoI', cumsum(samples.muu) ./ time, ...
-      results.muu, c.process.nominal);
+      results.mean.muu, results.deviation.muu, c.process.nominal);
     save('QoI mean.pdf');
   end
 
@@ -94,7 +102,7 @@ function plot(c, m, results, savePrefix)
   if ~c.inference.fixSigmau
     newfigure();
     trace('Standard deviation of the QoI', cumsum(samples.sigmau) ./ time, ...
-      results.sigmau, c.process.deviation);
+      results.mean.sigmau, results.deviation.sigmau, c.process.deviation);
     save('QoI deviation.pdf');
   end
 
@@ -104,25 +112,52 @@ function plot(c, m, results, savePrefix)
   if ~c.inference.fixSigmae
     newfigure();
     trace('Standard deviation of the noise', cumsum(samples.sigmae) ./ time, ...
-      results.sigmae, c.observations.deviation);
+      results.mean.sigmae, results.deviation.sigmae, c.observations.deviation);
     save('Noise deviation.pdf');
   end
 end
 
-function trace(name, samples, inferredValue, trueValue)
+function trace(name, samples, mean, deviation, true, legend)
   time = 1:length(samples);
+  labels = {};
 
-  plot(time, samples, 'Color', Color.pick(1));
+  c1 = Color.pick(1);
+
+  line(time, samples, 'Color', c1);
+  labels{end + 1} = 'Chain';
+
   Plot.limit(time);
 
   if ~isempty(name), Plot.title(name); end
 
-  if nargin < 3, return; end
+  for i = 1
+    if nargin < 3, break; end
 
-  line([ time(1) time(end) ], inferredValue * [ 1 1 ], 'Color', 'k');
+    c2 = Color.pick(4);
 
-  if nargin < 4, return; end
+    line([ time(1) time(end) ], mean * [ 1 1 ], ...
+      'Color', c2, 'LineWidth', 1);
+    labels{end + 1} = 'Inferred';
 
-  line([ time(1) time(end) ], trueValue * [ 1 1 ], ...
-    'Color', 'k', 'LineStyle', '--');
+    if nargin < 4, break; end
+
+    line([ time(1) time(end) ], (mean - deviation) * [ 1 1 ], ...
+      'Color', c2, 'LineStyle', '--', 'LineWidth', 1);
+    labels{end + 1} = 'Inferred - deviation';
+
+    line([ time(1) time(end) ], (mean + deviation) * [ 1 1 ], ...
+      'Color', c2, 'LineStyle', '--', 'LineWidth', 1);
+    labels{end + 1} = 'Inferred + deviation';
+
+    if nargin < 5, break; end
+
+    c3 = Color.pick(5);
+
+    line([ time(1) time(end) ], true * [ 1 1 ], ...
+      'Color', c3, 'LineWidth', 1);
+    labels{end + 1} = 'True';
+  end
+
+  if nargin < 6, legend = nargin > 2; end
+  if legend, Plot.legend(labels{:}); end
 end

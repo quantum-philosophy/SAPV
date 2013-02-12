@@ -1,8 +1,7 @@
-function c = configure(processorCount, taskCount)
-  if nargin < 1, processorCount = 2; end
-  if nargin < 2, taskCount = 20 * processorCount; end
+function c = configure(varargin)
+  options = Options(varargin{:});
 
-  c = Options;
+  c = Options();
 
   c.verbose = true;
   c.stamp = @stamp;
@@ -18,7 +17,8 @@ function c = configure(processorCount, taskCount)
       extension = [];
     end
 
-    string = sprintf('%03d_%s_%s', processorCount, name, hash);
+    string = sprintf('%03d_%s_%s', ...
+      c.system.processorCount, name, hash);
 
     if ~isempty(extension)
       string = [ string, '.', extension ];
@@ -35,10 +35,11 @@ function c = configure(processorCount, taskCount)
   % System
   %
   c.system = Options;
-  c.system.processorCount = processorCount;
+  c.system.processorCount = options.get('processorCount', 2);
 
   tgffConfig = File.join('+Test', 'Assets', ...
-    sprintf('%03d_%03d.tgff', c.system.processorCount, taskCount));
+    sprintf('%03d_%03d.tgff', c.system.processorCount, ...
+      20 * c.system.processorCount));
 
   c.system.floorplan = File.join('+Test', 'Assets', ...
     sprintf('%03d.flp', c.system.processorCount));
@@ -126,8 +127,8 @@ function c = configure(processorCount, taskCount)
   c.observations = Options;
   c.observations.fixedRNG = 0; % NaN to disable.
   c.observations.deviation = 1; % Noise!
-  c.observations.dieCount = 20;
-  c.observations.timeCount = 20;
+  c.observations.dieCount = options.get('dieCount', 20);
+  c.observations.timeCount = options.get('timeCount', 20);
 
   c.observations.dieIndex = Utils.nonrandomBlocks( ...
     c.system.wafer.floorplan(:, 5:6), c.observations.dieCount);
@@ -148,7 +149,7 @@ function c = configure(processorCount, taskCount)
   % NOTE: Ideal scenario for now.
   %
   c.inference = Options;
-  c.inference.sampleCount = 1e4;
+  c.inference.sampleCount = options.get('sampleCount', 1e4);
   c.inference.burninRate = 0.50;
 
   % The prior on the mean of the QoI.

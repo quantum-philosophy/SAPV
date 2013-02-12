@@ -6,8 +6,9 @@ function [ c, m ] = perform(varargin)
   %% Measure temperature profiles.
   %
   if ~isnan(c.observations.fixedRNG)
-    filename = sprintf('measurement_%03d_%03d.mat', ...
-      c.system.processorCount, c.observations.fixedRNG);
+    filename = sprintf('%03d_measurement_%03d_%03d_%03d.mat', ...
+      c.system.processorCount, c.observations.dieCount, ...
+      c.observations.timeCount, c.observations.fixedRNG);
   else
     filename = c.stamp('measurement.mat');
   end

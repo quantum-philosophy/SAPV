@@ -1,16 +1,17 @@
-function compareMethods(varargin)
+function compareMeasures(varargin)
   close all;
   setup;
 
   %
   % Experiments.
   %
-  processorCount = [ 2 ];
+  dieCount  = [ 20, 40, 60 ];
+  timeCount = [ 20, 20, 20 ];
 
   experiments = {};
-  for i = 1:length(processorCount)
+  for i = 1:length(dieCount)
     experiments{end + 1} = ...
-      sprintf('%d processors', processorCount(i));
+      sprintf('%d in space, %d in time', dieCount(i));
   end
 
   %
@@ -22,7 +23,8 @@ function compareMethods(varargin)
   tests = algorithms;
 
   function [ c, m ] = prepare(i)
-    [ c, m ] = Utils.prepare('processorCount', processorCount(i));
+    [ c, m ] = Utils.prepare( ...
+      'dieCount', dieCount(i), 'timeCount', timeCount(i));
   end
 
   function [ c, m ] = adjust(c, m, j)

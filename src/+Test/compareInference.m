@@ -3,11 +3,7 @@ function compareInference(save)
   setup;
 
   if nargin == 0, save = false; end
-
-  if save
-    prefix = Utils.makeTimeStamp;
-    mkdir(prefix);
-  end
+  if save, capture; end
 
   platformDimensions = [ 2, 4, 8, 16, 32 ];
   platformCount = length(platformDimensions);
@@ -22,83 +18,61 @@ function compareInference(save)
     processorCount = platformDimensions(i);
     [ c, m ] = Utils.prepare(processorCount);
 
-    if save
-      platformPrefix = sprintf('%03d', processorCount);
-      mkdir(File.join(prefix, platformPrefix));
-    end
+    if save, capture(sprintf('%03d', processorCount)); end
 
     for j = 1:methodCount
       c.inference.optimization.method = methodNames{j};
       c.inference.proposalRate = proposalRates(j);
       results{i, j} = Utils.perform(c, m);
+
       if save
-        overallPrefix = File.join(prefix, platformPrefix, methodNames{j});
-        mkdir(overallPrefix);
+        capture(methodNames{j});
 
-        %
-        % Results in plain text.
-        %
-        file = fopen(File.join(overallPrefix, 'report.txt'), 'w');
-        printf = @(varargin) fprintf(file, varargin{:});
-        Utils.analyze(c, m, results{i, j}, printf);
-        fclose(file);
-
-        %
-        % Results in graphs.
-        %
-        Utils.plot(c, m, results{i, j}, overallPrefix);
+        Utils.analyze(c, m, results{i, j});
+        Utils.plot(c, m, results{i, j});
         close all;
+
+        release;
       end
     end
 
-    fprintf('Platform with %3d processing elements.\n', processorCount);
-    report(@fprintf, methodNames, results(i, :));
+    if save, release; end
   end
 
   %
   % Summarize everything.
   %
-  if save
-    file = fopen(File.join(prefix, 'report.txt'), 'w');
-    printf = @(varargin) fprintf(file, varargin{:});
-  else
-    printf = @fprintf;
-  end
-
   for i = 1:platformCount
     processorCount = platformDimensions(i);
-    printf('Platform with %3d processing elements.\n', processorCount);
-    report(printf, methodNames, results(i, :));
-    printf('\n');
+    fprintf('Platform with %3d processing elements.\n', processorCount);
+
+    methodCount = length(results);
+
+    %% Header.
+    %
+    fprintf('%15s', 'Optimization');
+    for i = 1:methodCount
+      fprintf(' %15s', methodNames{i});
+    end
+    fprintf('\n');
+
+    %% Timing.
+    %
+    fprintf('%15s', 'Time, m');
+    for i = 1:methodCount
+      fprintf(' %15.2f', results{i}.time / 60);
+    end
+    fprintf('\n');
+
+    %% Accuracy.
+    %
+    fprintf('%15s', 'NRMSE, %');
+    for i = 1:methodCount
+      fprintf(' %15.2f', results{i}.error * 100);
+    end
+
+    fprintf('\n\n');
   end
 
-  if save, fclose(file); end
-end
-
-function report(printf, names, results)
-  methodCount = length(results);
-
-  %% Header.
-  %
-  printf('%15s', 'Optimization');
-  for i = 1:methodCount
-    printf(' %15s', names{i});
-  end
-  printf('\n');
-
-  %% Timing.
-  %
-  printf('%15s', 'Time, m');
-  for i = 1:methodCount
-    printf(' %15.2f', results{i}.time / 60);
-  end
-  printf('\n');
-
-  %% Accuracy.
-  %
-  printf('%15s', 'NRMSE, %');
-  for i = 1:methodCount
-    printf(' %15.2f', results{i}.error * 100);
-  end
-  printf('\n');
+  if save, release; end
 end

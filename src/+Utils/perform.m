@@ -1,7 +1,7 @@
 function results = perform(c, m)
   filename = c.stamp('inference.mat');
   if File.exist(filename);
-    c.printf('Inference: loading cashed data in "%s"...\n', filename);
+    c.printf('Inference: loading cached data in "%s"...\n', filename);
     load(filename);
   else
     %% Initialize the forward model.

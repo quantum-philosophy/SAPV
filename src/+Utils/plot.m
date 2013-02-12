@@ -1,55 +1,33 @@
-function plot(c, m, results, savePrefix)
-  if nargin > 3 && ~isempty(savePrefix)
-    save = @(name, varargin) ...
-      Plot.save(File.join(savePrefix, name), varargin{:});
-  else
-    save = @(varargin) [];
-  end
-
+function plot(c, m, results)
   newfigure = @() figure('Position', [ 100, 100, 600, 600 ]);
 
   nRange = [ -3, 3 ];
   samples = results.samples;
   sampleCount = c.inference.sampleCount;
+  time = 1:sampleCount;
 
   %
   % The true quantity of interest.
   %
   plot(c.process, m.n);
   colormap(Color.map(m.n, nRange));
-  Plot.title('Quantity of interest (true)');
-  save('QoI.pdf');
+  Plot.title('True QoI');
+  commit('QoI - True.pdf');
 
   %
   % The mean of the inferred quantity of interest.
   %
   plot(c.process, results.mean.n);
   colormap(Color.map(results.mean.n, nRange));
-  Plot.title('The mean of the inferred QoI (NRMSE %.2f%%)', results.error * 100);
-  save('QoI inferred.pdf');
+  Plot.title('Mean of the inferred QoI (NRMSE %.2f%%)', results.error * 100);
+  commit('QoI - Inferred - Mean.pdf');
 
   %
   % The deviation of the inferred quantity of interest.
   %
   plot(c.process, results.deviation.n);
-  Plot.title('The standard deviation of the inferred QoI');
-  save('QoI deviation.pdf');
-
-  time = 1:sampleCount;
-
-  %
-  % The log-posterior.
-  %
-  newfigure();
-  trace('Log-posterior', results.fitness);
-  save('Log-posterior.pdf');
-
-  %
-  % The acceptance rate.
-  %
-  newfigure();
-  trace('Acceptance rate', cumsum(results.acceptance) ./ time);
-  save('Acceptance rate.pdf');
+  Plot.title('Standard deviation of the inferred QoI');
+  commit('QoI - Inferred - Deviation.pdf');
 
   %
   % The independent random variables, i.e., the z's.
@@ -71,29 +49,22 @@ function plot(c, m, results, savePrefix)
     ylim([ minZ, maxZ ]);
   end
   Plot.name('The z''s');
-  save('Z.pdf');
+  commit('QoI - Dummy parameters (z).pdf');
 
   newfigure();
   plotmatrix(samples.z(:, ...
     round(c.inference.burninRate * sampleCount):end)');
-  Plot.name('Correlations of the z''s');
-  save('Z correlations.png', 'format', 'png', 'orientation', 'portrait');
-
-  if c.inference.assessProposal
-    newfigure();
-    Utils.plotProposalAssessment(results.theta, results.assessment);
-    Plot.name('Proposal distribution at the posterior mode');
-    save('Proposal distribution.pdf');
-  end
+  Plot.name('Correlations of the dummy parameters');
+  commit('QoI - Dummy parameters (z) - Correlations.png', 'format', 'png', 'orientation', 'portrait');
 
   %
   % The mean of the quantity of interest.
   %
   if ~c.inference.fixMuu
     newfigure();
-    trace('Mean of the QoI', cumsum(samples.muu) ./ time, ...
+    trace('The mean parameter of the QoI', cumsum(samples.muu) ./ time, ...
       results.mean.muu, results.deviation.muu, c.process.nominal);
-    save('QoI mean.pdf');
+    commit('QoI - Mean parameter (mu_u).pdf');
   end
 
   %
@@ -101,9 +72,9 @@ function plot(c, m, results, savePrefix)
   %
   if ~c.inference.fixSigmau
     newfigure();
-    trace('Standard deviation of the QoI', cumsum(samples.sigmau) ./ time, ...
+    trace('The standard deviation parameter of the QoI', cumsum(samples.sigmau) ./ time, ...
       results.mean.sigmau, results.deviation.sigmau, c.process.deviation);
-    save('QoI deviation.pdf');
+    commit('QoI - Deviation parameter (sigma_u).pdf');
   end
 
   %
@@ -113,7 +84,31 @@ function plot(c, m, results, savePrefix)
     newfigure();
     trace('Standard deviation of the noise', cumsum(samples.sigmae) ./ time, ...
       results.mean.sigmae, results.deviation.sigmae, c.observations.deviation);
-    save('Noise deviation.pdf');
+    commit('Noise - Deviation parameter (sigma_e).pdf');
+  end
+
+  %
+  % The log-posterior.
+  %
+  newfigure();
+  trace('Log-posterior', results.fitness);
+  commit('Log-posterior.pdf');
+
+  %
+  % The acceptance rate.
+  %
+  newfigure();
+  trace('Acceptance rate', cumsum(results.acceptance) ./ time);
+  commit('Acceptance rate.pdf');
+
+  %
+  % The assessment of the proposal distribution.
+  %
+  if c.inference.assessProposal
+    newfigure();
+    Utils.plotProposalAssessment(results.theta, results.assessment);
+    Plot.name('Proposal distribution at the posterior mode');
+    commit('Proposal distribution.pdf');
   end
 end
 

@@ -124,6 +124,7 @@ function c = configure(processorCount, taskCount)
   % Observations
   %
   c.observations = Options;
+  c.observations.fixedRNG = 0; % NaN to disable.
   c.observations.deviation = 1; % Noise!
   c.observations.dieCount = 20;
   c.observations.timeCount = 20;

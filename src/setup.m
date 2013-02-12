@@ -1,4 +1,6 @@
 function setup
+  warning('off', 'MATLAB:dispatcher:nameConflict');
+
   use('LinearAlgebra');
   use('DataAnalysis');
   use('TemperatureAnalysis');

@@ -1,49 +1,47 @@
-function analyze(c, m, results, printf)
-  if nargin < 4, printf = @fprintf; end
-
-  printf('Computational time: %.2f minutes.\n', results.time / 60);
-  printf('\n');
+function analyze(c, m, results)
+  fprintf('Computational time: %.2f minutes.\n', results.time / 60);
+  fprintf('\n');
 
   %
   % The u's.
   %
-  printf('The quantity of interest (u):\n');
+  fprintf('The quantity of interest (u):\n');
 
   MSE   = Error.computeMSE  (m.u * 1e9, results.mean.u * 1e9);
   RMSE  = Error.computeRMSE (m.u * 1e9, results.mean.u * 1e9);
   NRMSE = Error.computeNRMSE(m.u, results.mean.u);
 
-  printf('%7s: %10.2e %s\n', 'MSE', MSE, 'nm^2');
-  printf('%7s: %10.2e %s\n', 'RMSE', RMSE, 'nm');
-  printf('%7s: %10.2f %s\n', 'NRMSE', NRMSE * 100, '%');
-  printf('\n');
+  fprintf('%7s: %10.2e %s\n', 'MSE', MSE, 'nm^2');
+  fprintf('%7s: %10.2e %s\n', 'RMSE', RMSE, 'nm');
+  fprintf('%7s: %10.2f %s\n', 'NRMSE', NRMSE * 100, '%');
+  fprintf('\n');
 
   %
   % The z's.
   %
-  printf('The dummy variables (z):\n');
-  compare(printf, m.z, results.mean.z, results.deviation.z);
-  printf('\n');
+  fprintf('The dummy variables (z):\n');
+  compare(m.z, results.mean.z, results.deviation.z);
+  fprintf('\n');
 
   %
   % The rest.
   %
   if ~c.inference.fixMuu
-    printf('The mean of the QoI (mu_u, nm):\n');
-    compare(printf, c.process.nominal, results.mean.muu, results.deviation.muu, 1e9);
-    printf('\n');
+    fprintf('The mean of the QoI (mu_u, nm):\n');
+    compare(c.process.nominal, results.mean.muu, results.deviation.muu, 1e9);
+    fprintf('\n');
   end
 
   if ~c.inference.fixSigmau
-    printf('The deviation of the QoI (sigma_u, nm):\n');
-    compare(printf, c.process.deviation, results.mean.sigmau, results.deviation.sigmau, 1e9);
-    printf('\n');
+    fprintf('The deviation of the QoI (sigma_u, nm):\n');
+    compare(c.process.deviation, results.mean.sigmau, results.deviation.sigmau, 1e9);
+    fprintf('\n');
   end
 
   if ~c.inference.fixSigmae
-    printf('The deviation of the noise (sigma_e):\n');
-    compare(printf, c.observations.deviation, results.mean.sigmae, results.deviation.sigmae);
-    printf('\n');
+    fprintf('The deviation of the noise (sigma_e):\n');
+    compare(c.observations.deviation, results.mean.sigmae, results.deviation.sigmae);
+    fprintf('\n');
   end
 
   %
@@ -55,23 +53,23 @@ function analyze(c, m, results, printf)
   C = tril(C, -1);
   [ I, J ] = find(abs(C) > extremeCorrelationBound);
 
-  if isempty(I), return; end
+  if ~isempty(I)
+    count = size(C, 1);
 
-  count = size(C, 1);
+    fprintf('Highly correlated (> %.2f) pairs of the proposal distribution:\n', ...
+      extremeCorrelationBound);
 
-  printf('Highly correlated (> %.2f) pairs of the proposal distribution:\n', ...
-    extremeCorrelationBound);
+    fprintf('%5s %5s %15s\n', 'No', 'No', 'Correlation');
+    for i = 1:length(I);
+      fprintf('%5d %5d %15.4f\n', J(i), I(i), C(I(i), J(i)));
+    end
+    fprintf('Total: %d out of %d distinct pairs.\n', length(I), count * (count - 1) / 2);
 
-  printf('%5s %5s %15s\n', 'No', 'No', 'Correlation');
-  for i = 1:length(I);
-    printf('%5d %5d %15.4f\n', J(i), I(i), C(I(i), J(i)));
+    fprintf('\n');
   end
-  printf('Total: %d out of %d distinct pairs.\n', length(I), count * (count - 1) / 2);
-
-  printf('\n');
 end
 
-function compare(printf, true, inferred, deviation, scale)
+function compare(true, inferred, deviation, scale)
   if nargin < 5, scale = 1; end
 
   true      = scale * true;
@@ -80,13 +78,13 @@ function compare(printf, true, inferred, deviation, scale)
 
   delta = true - inferred;
   if isscalar(true)
-    printf('%10s %10s %10s %10s\n', 'True', 'Inferred', 'Deviation', 'Error');
-    printf('%10.4f %10.4f %10.4f %10.4f (%7.2f%%)\n', ...
+    fprintf('%10s %10s %10s %10s\n', 'True', 'Inferred', 'Deviation', 'Error');
+    fprintf('%10.4f %10.4f %10.4f %10.4f (%7.2f%%)\n', ...
       true, inferred, deviation, delta, abs(delta / true * 100));
   else
-    printf('%5s %10s %10s %10s %10s\n', 'No', 'True', 'Inferred', 'Deviation', 'Error');
+    fprintf('%5s %10s %10s %10s %10s\n', 'No', 'True', 'Inferred', 'Deviation', 'Error');
     for i = 1:length(true)
-      printf('%5d %10.4f %10.4f %10.4f %10.4f (%7.2f%%)\n', ...
+      fprintf('%5d %10.4f %10.4f %10.4f %10.4f (%7.2f%%)\n', ...
         i, true(i), inferred(i), deviation(i), delta(i), abs(delta(i) / true(i) * 100));
     end
   end

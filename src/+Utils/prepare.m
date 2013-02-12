@@ -5,9 +5,14 @@ function [ c, m ] = perform(varargin)
 
   %% Measure temperature profiles.
   %
-  filename = c.stamp('measurement.mat');
+  if ~isnan(c.observations.fixedRNG)
+    filename = sprintf('measurement_%03d_%03d.mat', ...
+      c.system.processorCount, c.observations.fixedRNG);
+  else
+    filename = c.stamp('measurement.mat');
+  end
   if File.exist(filename)
-    c.printf('Measurement: loading cashed data in "%s"...\n', filename);
+    c.printf('Measurement: loading cached data in "%s"...\n', filename);
     load(filename);
   else
     m = Utils.measure(c);

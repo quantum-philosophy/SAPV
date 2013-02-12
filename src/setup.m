@@ -1,5 +1,6 @@
 function setup
   warning('off', 'MATLAB:dispatcher:nameConflict');
+  addpath('Output');
 
   use('LinearAlgebra');
   use('DataAnalysis');

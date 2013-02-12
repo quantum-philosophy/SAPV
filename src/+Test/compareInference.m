@@ -44,7 +44,7 @@ function compareInference(save)
   %
   for i = 1:platformCount
     processorCount = platformDimensions(i);
-    fprintf('Platform with %3d processing elements.\n', processorCount);
+    fprintf('Platform with %d processing elements.\n', processorCount);
 
     methodCount = length(results);
 

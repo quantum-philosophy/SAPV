@@ -51,11 +51,12 @@ function plot(c, m, results)
   Plot.name('The z''s');
   commit('QoI - Dummy parameters (z).pdf');
 
-  newfigure();
-  plotmatrix(samples.z(:, ...
-    round(c.inference.burninRate * sampleCount):end)');
-  Plot.name('Correlations of the dummy parameters');
-  commit('QoI - Dummy parameters (z) - Correlations.png', 'format', 'png', 'orientation', 'portrait');
+  % newfigure();
+  % plotmatrix(samples.z(:, ...
+  %   round(c.inference.burninRate * sampleCount):end)');
+  % Plot.name('Correlations of the dummy parameters');
+  % commit('QoI - Dummy parameters (z) - Correlations.png', ...
+  %   'format', 'png', 'orientation', 'portrait');
 
   %
   % The mean of the quantity of interest.

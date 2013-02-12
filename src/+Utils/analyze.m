@@ -28,19 +28,22 @@ function analyze(c, m, results)
   %
   if ~c.inference.fixMuu
     fprintf('The mean of the QoI (mu_u, nm):\n');
-    compare(c.process.nominal, results.mean.muu, results.deviation.muu, 1e9);
+    compare(c.process.nominal, results.mean.muu, ...
+      results.deviation.muu, 1e9);
     fprintf('\n');
   end
 
   if ~c.inference.fixSigmau
     fprintf('The deviation of the QoI (sigma_u, nm):\n');
-    compare(c.process.deviation, results.mean.sigmau, results.deviation.sigmau, 1e9);
+    compare(c.process.deviation, results.mean.sigmau, ...
+      results.deviation.sigmau, 1e9);
     fprintf('\n');
   end
 
   if ~c.inference.fixSigmae
     fprintf('The deviation of the noise (sigma_e):\n');
-    compare(c.observations.deviation, results.mean.sigmae, results.deviation.sigmae);
+    compare(c.observations.deviation, results.mean.sigmae, ...
+      results.deviation.sigmae);
     fprintf('\n');
   end
 
@@ -70,7 +73,7 @@ function analyze(c, m, results)
 end
 
 function compare(true, inferred, deviation, scale)
-  if nargin < 5, scale = 1; end
+  if nargin < 4, scale = 1; end
 
   true      = scale * true;
   inferred  = scale * inferred;
@@ -78,14 +81,18 @@ function compare(true, inferred, deviation, scale)
 
   delta = true - inferred;
   if isscalar(true)
-    fprintf('%10s %10s %10s %10s\n', 'True', 'Inferred', 'Deviation', 'Error');
+    fprintf('%10s %10s %10s %10s\n', ...
+      'True', 'Inferred', 'Deviation', 'Error');
     fprintf('%10.4f %10.4f %10.4f %10.4f (%7.2f%%)\n', ...
-      true, inferred, deviation, delta, abs(delta / true * 100));
+      true, inferred, deviation, delta, ...
+      abs(delta / true * 100));
   else
-    fprintf('%5s %10s %10s %10s %10s\n', 'No', 'True', 'Inferred', 'Deviation', 'Error');
+    fprintf('%5s %10s %10s %10s %10s\n', ....
+      'No', 'True', 'Inferred', 'Deviation', 'Error');
     for i = 1:length(true)
       fprintf('%5d %10.4f %10.4f %10.4f %10.4f (%7.2f%%)\n', ...
-        i, true(i), inferred(i), deviation(i), delta(i), abs(delta(i) / true(i) * 100));
+        i, true(i), inferred(i), deviation(i), delta(i), ...
+        abs(delta(i) / true(i) * 100));
     end
   end
 end

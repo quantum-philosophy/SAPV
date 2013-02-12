@@ -1,7 +1,7 @@
 function c = configure(varargin)
   options = Options(varargin{:});
 
-  c = Options();
+  c = Options;
 
   c.verbose = true;
   c.stamp = @stamp;
@@ -130,7 +130,7 @@ function c = configure(varargin)
   c.observations.dieCount = options.get('dieCount', 20);
   c.observations.timeCount = options.get('timeCount', 20);
 
-  c.observations.dieIndex = Utils.nonrandomBlocks( ...
+  c.observations.dieIndex = Utils.optimizedBlocks( ...
     c.system.wafer.floorplan(:, 5:6), c.observations.dieCount);
 
   c.observations.timeIndex = Utils.nonrandomLine( ...

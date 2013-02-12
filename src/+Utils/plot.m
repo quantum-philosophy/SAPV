@@ -1,7 +1,9 @@
 function plot(c, m, results)
   newfigure = @() figure('Position', [ 100, 100, 600, 600 ]);
 
-  nRange = [ -3, 3 ];
+  mRange = [ -3, 3 ] * c.process.deviation + c.process.nominal;
+  dRange = [  0, 1 ] * c.process.deviation;
+
   samples = results.samples;
   sampleCount = c.inference.sampleCount;
   time = 1:sampleCount;
@@ -9,24 +11,35 @@ function plot(c, m, results)
   %
   % The true quantity of interest.
   %
-  plot(c.process, m.n);
-  colormap(Color.map(m.n, nRange));
-  Plot.title('True QoI');
+  plot(c.process, m.u);
+  colormap(Color.map(m.u, mRange));
+  Plot.title('QoI - True');
   commit('QoI - True.pdf');
 
   %
   % The mean of the inferred quantity of interest.
   %
-  plot(c.process, results.mean.n);
-  colormap(Color.map(results.mean.n, nRange));
-  Plot.title('Mean of the inferred QoI (NRMSE %.2f%%)', results.error * 100);
+  plot(c.process, results.mean.u);
+  colormap(Color.map(results.mean.u, mRange));
+  Plot.title('QoI - Inferred - Mean');
   commit('QoI - Inferred - Mean.pdf');
+
+  %
+  % The error of the inferred quantity of interest.
+  %
+  delta = abs(m.u - results.mean.u);
+  plot(c.process, delta);
+  colormap(Color.map(delta, dRange, cool));
+  Plot.title('QoI - Inferred - Absolute error (NRMSE %.2f%%)', ...
+    results.error * 100);
+  commit('QoI - Inferred - Absolute error.pdf');
 
   %
   % The deviation of the inferred quantity of interest.
   %
-  plot(c.process, results.deviation.n);
-  Plot.title('Standard deviation of the inferred QoI');
+  plot(c.process, results.deviation.u);
+  colormap(Color.map(results.deviation.u, dRange, cool));
+  Plot.title('QoI - Inferred - Deviation');
   commit('QoI - Inferred - Deviation.pdf');
 
   %
@@ -48,13 +61,13 @@ function plot(c, m, results)
     set(gca, 'XTick', [ time(1) time(end) ]);
     ylim([ minZ, maxZ ]);
   end
-  Plot.name('The z''s');
+  Plot.name('QoI - Dummy parameters (z)');
   commit('QoI - Dummy parameters (z).pdf');
 
   % newfigure();
   % plotmatrix(samples.z(:, ...
   %   round(c.inference.burninRate * sampleCount):end)');
-  % Plot.name('Correlations of the dummy parameters');
+  % Plot.name('QoI - Dummy parameters (z) - Correlations');
   % commit('QoI - Dummy parameters (z) - Correlations.png', ...
   %   'format', 'png', 'orientation', 'portrait');
 
@@ -63,7 +76,7 @@ function plot(c, m, results)
   %
   if ~c.inference.fixMuu
     newfigure();
-    trace('The mean parameter of the QoI', cumsum(samples.muu) ./ time, ...
+    trace('QoI - Mean parameter (mu_u)', cumsum(samples.muu) ./ time, ...
       results.mean.muu, results.deviation.muu, c.process.nominal);
     commit('QoI - Mean parameter (mu_u).pdf');
   end
@@ -73,8 +86,9 @@ function plot(c, m, results)
   %
   if ~c.inference.fixSigmau
     newfigure();
-    trace('The standard deviation parameter of the QoI', cumsum(samples.sigmau) ./ time, ...
-      results.mean.sigmau, results.deviation.sigmau, c.process.deviation);
+    trace('QoI - Deviation parameter (sigma_u)', ...
+      cumsum(samples.sigmau) ./ time, results.mean.sigmau, ...
+      results.deviation.sigmau, c.process.deviation);
     commit('QoI - Deviation parameter (sigma_u).pdf');
   end
 
@@ -83,8 +97,9 @@ function plot(c, m, results)
   %
   if ~c.inference.fixSigmae
     newfigure();
-    trace('Standard deviation of the noise', cumsum(samples.sigmae) ./ time, ...
-      results.mean.sigmae, results.deviation.sigmae, c.observations.deviation);
+    trace('Noise - Deviation parameter (sigma_e)', ...
+      cumsum(samples.sigmae) ./ time, results.mean.sigmae, ...
+      results.deviation.sigmae, c.observations.deviation);
     commit('Noise - Deviation parameter (sigma_e).pdf');
   end
 
@@ -108,7 +123,7 @@ function plot(c, m, results)
   if c.inference.assessProposal
     newfigure();
     Utils.plotProposalAssessment(results.theta, results.assessment);
-    Plot.name('Proposal distribution at the posterior mode');
+    Plot.name('Proposal distribution');
     commit('Proposal distribution.pdf');
   end
 end
@@ -120,7 +135,7 @@ function trace(name, samples, mean, deviation, true, legend)
   c1 = Color.pick(1);
 
   line(time, samples, 'Color', c1);
-  labels{end + 1} = 'Chain';
+  labels{end + 1} = 'Chain path';
 
   Plot.limit(time);
 
@@ -139,11 +154,11 @@ function trace(name, samples, mean, deviation, true, legend)
 
     line([ time(1) time(end) ], (mean - deviation) * [ 1 1 ], ...
       'Color', c2, 'LineStyle', '--', 'LineWidth', 1);
-    labels{end + 1} = 'Inferred - deviation';
+    labels{end + 1} = 'Inferred minus deviation';
 
     line([ time(1) time(end) ], (mean + deviation) * [ 1 1 ], ...
       'Color', c2, 'LineStyle', '--', 'LineWidth', 1);
-    labels{end + 1} = 'Inferred + deviation';
+    labels{end + 1} = 'Inferred plus deviation';
 
     if nargin < 5, break; end
 

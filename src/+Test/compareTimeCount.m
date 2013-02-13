@@ -1,4 +1,4 @@
-function compareTimeMeasurements(varargin)
+function compareTimeCount(varargin)
   close all;
   setup;
 
@@ -24,11 +24,11 @@ function compareTimeMeasurements(varargin)
     [ c, m ] = Utils.prepare('timeCount', timeCount(i));
   end
 
-  function [ c, m ] = adjust(c, m, j)
+  function [ c, m ] = adjust(i, j, c, m)
     c.inference.optimization.method = algorithms{j};
     c.inference.proposalRate = proposalRates(j);
   end
 
-  Utils.compare('Time measurements', ...
-    experiments, tests, @prepare, @adjust, varargin{:});
+  Utils.compare('Time step count', ...
+    experiments, tests, @prepare, @adjust, [], varargin{:});
 end

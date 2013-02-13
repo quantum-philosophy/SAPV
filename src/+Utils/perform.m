@@ -1,4 +1,4 @@
-function results = perform(c, m)
+function results = perform(c, m, sampleCount)
   filename = c.stamp('inference.mat');
   if File.exist(filename);
     c.printf('Inference: loading cached data in "%s"...\n', filename);
@@ -17,24 +17,43 @@ function results = perform(c, m)
     save(filename, 'time', 'results', '-v7.3');
   end
 
+  %
+  % Here, we introduce a possibility of shrinking the number
+  % samples that we would like to consider.
+  %
+  if nargin < 3, sampleCount = c.inference.sampleCount; end
+
+  assert(sampleCount <= c.inference.sampleCount);
+
+  results.samples.z      = results.samples.z     (:, 1:sampleCount);
+  results.samples.muu    = results.samples.muu   (   1:sampleCount);
+  results.samples.sigmau = results.samples.sigmau(   1:sampleCount);
+  results.samples.sigmae = results.samples.sigmae(   1:sampleCount);
+
+  time = time * sampleCount / c.inference.sampleCount;
+
+  %
+  % Now, we process the results!
+  %
   c.printf('Inference: done in %.2f minutes.\n', time / 60);
 
-  burnCount = round(c.inference.burninRate * c.inference.sampleCount);
+  burnCount = round(c.inference.burninRate * sampleCount);
 
-  z      = results.samples.z     (:, burnCount:end);
-  muu    = results.samples.muu   (   burnCount:end);
-  sigmau = results.samples.sigmau(   burnCount:end);
-  sigmae = results.samples.sigmae(   burnCount:end);
+  z      = results.samples.z     (:, (burnCount + 1):end);
+  muu    = results.samples.muu   (   (burnCount + 1):end);
+  sigmau = results.samples.sigmau(   (burnCount + 1):end);
+  sigmae = results.samples.sigmae(   (burnCount + 1):end);
 
-  sampleCount = c.inference.sampleCount - burnCount;
-  measurementCount = c.observations.dieCount * ...
-    c.system.processorCount * c.observations.timeCount;
+  effectiveSampleCount = sampleCount - burnCount;
 
-  u = zeros(c.system.processorCount, c.system.wafer.dieCount, sampleCount);
-  n = zeros(c.system.processorCount, c.system.wafer.dieCount, sampleCount);
+  u = zeros(c.system.processorCount, ...
+    c.system.wafer.dieCount, effectiveSampleCount);
+  n = zeros(c.system.processorCount, ...
+    c.system.wafer.dieCount, effectiveSampleCount);
 
-  for i = 1:sampleCount
-    [ u(:, :, i), n(:, :, i) ] = c.process.compute(z(:, i), muu(i), sigmau(i));
+  for i = 1:effectiveSampleCount
+    [ u(:, :, i), n(:, :, i) ] = ...
+      c.process.compute(z(:, i), muu(i), sigmau(i));
   end
 
   %
@@ -55,6 +74,9 @@ function results = perform(c, m)
   Deviation.sigmae = std(sigmae);
   Deviation.u      = std(u, [], 3);
   Deviation.n      = std(n, [], 3);
+
+  results.sampleCount = sampleCount;
+  results.effectiveSampleCount = effectiveSampleCount;
 
   results.time = time;
   results.mean = Mean;

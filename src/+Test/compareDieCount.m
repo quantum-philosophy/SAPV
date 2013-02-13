@@ -1,4 +1,4 @@
-function compareDieMeasurements(varargin)
+function compareDieCount(varargin)
   close all;
   setup;
 
@@ -24,11 +24,11 @@ function compareDieMeasurements(varargin)
     [ c, m ] = Utils.prepare('dieCount', dieCount(i));
   end
 
-  function [ c, m ] = adjust(c, m, j)
+  function [ c, m ] = adjust(i, j, c, m)
     c.inference.optimization.method = algorithms{j};
     c.inference.proposalRate = proposalRates(j);
   end
 
-  Utils.compare('Die measurements', ...
-    experiments, tests, @prepare, @adjust, varargin{:});
+  Utils.compare('Die count', ...
+    experiments, tests, @prepare, @adjust, [], varargin{:});
 end

@@ -1,6 +1,18 @@
-function compare(name, experiments, tests, prepare, adjust, save)
+function compare(name, experiments, tests, prepare, adjust, perform, save)
   close all;
   setup;
+
+  if ~exist('prepare', 'var') || isempty(prepare)
+    prepare = @(i) Utils.prepare;
+  end
+
+  if ~exist('adjust', 'var') || isempty(adjust)
+    adjust  = @(i, j, c, m) [];
+  end
+
+  if ~exist('perform', 'var') || isempty(perform)
+    perform = @(i, j, c, m) Utils.perform(c, m);
+  end
 
   if ~exist('save', 'var'), save = false; end
   if save, capture([], name); end
@@ -16,8 +28,8 @@ function compare(name, experiments, tests, prepare, adjust, save)
     if save, capture(experiments{i}); end
 
     for j = 1:testCount
-      adjust(c, m, j);
-      results{i, j} = Utils.perform(c, m);
+      adjust(i, j, c, m);
+      results{i, j} = perform(i, j, c, m);
 
       if save
         capture(tests{j});

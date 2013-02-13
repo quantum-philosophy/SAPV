@@ -3,7 +3,7 @@ function plot(c, m, results)
   dRange = [  0, 1 ] * c.process.deviation;
 
   samples = results.samples;
-  sampleCount = c.inference.sampleCount;
+  sampleCount = results.sampleCount;
   time = 1:sampleCount;
 
   %

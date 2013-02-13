@@ -1,4 +1,4 @@
-function compareMethods(varargin)
+function compareProcessorCount(varargin)
   close all;
   setup;
 
@@ -25,10 +25,11 @@ function compareMethods(varargin)
     [ c, m ] = Utils.prepare('processorCount', processorCount(i));
   end
 
-  function [ c, m ] = adjust(c, m, j)
+  function [ c, m ] = adjust(i, j, c, m)
     c.inference.optimization.method = algorithms{j};
     c.inference.proposalRate = proposalRates(j);
   end
 
-  Utils.compare(experiments, tests, @prepare, @adjust, varargin{:});
+  Utils.compare('Processor count', ...
+    experiments, tests, @prepare, @adjust, [], varargin{:});
 end

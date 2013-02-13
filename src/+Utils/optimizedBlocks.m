@@ -19,10 +19,8 @@ function index = optimizedBlocks(IJ, count)
       end
     end
     [ ~, k ] = sort(score);
-    k = k(k == k(1));
-    k = k(randi(length(k)));
-    P(end + 1) = A(k);
-    A(k) = [];
+    P(end + 1) = A(k(1));
+    A(k(1)) = [];
   end
 
   index = sort(P);

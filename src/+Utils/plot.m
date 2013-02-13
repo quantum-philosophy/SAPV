@@ -1,6 +1,4 @@
 function plot(c, m, results)
-  newfigure = @() figure('Position', [ 100, 100, 600, 600 ]);
-
   mRange = [ -3, 3 ] * c.process.deviation + c.process.nominal;
   dRange = [  0, 1 ] * c.process.deviation;
 
@@ -53,7 +51,7 @@ function plot(c, m, results)
   minZ = min([ samples.z(:); m.z(:) ]);
   maxZ = max([ samples.z(:); m.z(:) ]);
 
-  newfigure();
+  Plot.figure();
   for i = 1:dimensionCount
     subplot(rows, cols, i);
     trace([], samples.z(i, :), results.mean.z(i), ...
@@ -64,7 +62,7 @@ function plot(c, m, results)
   Plot.name('QoI - Dummy parameters (z)');
   commit('QoI - Dummy parameters (z).pdf');
 
-  % newfigure();
+  % Plot.figure;
   % plotmatrix(samples.z(:, ...
   %   round(c.inference.burninRate * sampleCount):end)');
   % Plot.name('QoI - Dummy parameters (z) - Correlations');
@@ -75,7 +73,7 @@ function plot(c, m, results)
   % The mean of the quantity of interest.
   %
   if ~c.inference.fixMuu
-    newfigure();
+    Plot.figure;
     trace('QoI - Mean parameter (mu_u)', cumsum(samples.muu) ./ time, ...
       results.mean.muu, results.deviation.muu, c.process.nominal);
     commit('QoI - Mean parameter (mu_u).pdf');
@@ -85,7 +83,7 @@ function plot(c, m, results)
   % The standard deviation of the quantity of interest.
   %
   if ~c.inference.fixSigmau
-    newfigure();
+    Plot.figure;
     trace('QoI - Deviation parameter (sigma_u)', ...
       cumsum(samples.sigmau) ./ time, results.mean.sigmau, ...
       results.deviation.sigmau, c.process.deviation);
@@ -96,7 +94,7 @@ function plot(c, m, results)
   % The standard deviation of the noise.
   %
   if ~c.inference.fixSigmae
-    newfigure();
+    Plot.figure;
     trace('Noise - Deviation parameter (sigma_e)', ...
       cumsum(samples.sigmae) ./ time, results.mean.sigmae, ...
       results.deviation.sigmae, c.observations.deviation);
@@ -106,14 +104,14 @@ function plot(c, m, results)
   %
   % The log-posterior.
   %
-  newfigure();
+  Plot.figure;
   trace('Log-posterior', results.fitness);
   commit('Log-posterior.pdf');
 
   %
   % The acceptance rate.
   %
-  newfigure();
+  Plot.figure;
   trace('Acceptance rate', cumsum(results.acceptance) ./ time);
   commit('Acceptance rate.pdf');
 
@@ -121,7 +119,7 @@ function plot(c, m, results)
   % The assessment of the proposal distribution.
   %
   if c.inference.assessProposal
-    newfigure();
+    Plot.figure;
     Utils.plotProposalAssessment(results.theta, results.assessment);
     Plot.name('Proposal distribution');
     commit('Proposal distribution.pdf');
@@ -146,26 +144,24 @@ function trace(name, samples, mean, deviation, true, legend)
 
     c2 = Color.pick(4);
 
-    line([ time(1) time(end) ], mean * [ 1 1 ], ...
-      'Color', c2, 'LineWidth', 1);
+    line([ time(1) time(end) ], mean * [ 1 1 ], 'Color', c2);
     labels{end + 1} = 'Inferred';
 
     if nargin < 4, break; end
 
     line([ time(1) time(end) ], (mean - deviation) * [ 1 1 ], ...
-      'Color', c2, 'LineStyle', '--', 'LineWidth', 1);
+      'Color', c2, 'LineStyle', '--');
     labels{end + 1} = 'Inferred minus deviation';
 
     line([ time(1) time(end) ], (mean + deviation) * [ 1 1 ], ...
-      'Color', c2, 'LineStyle', '--', 'LineWidth', 1);
+      'Color', c2, 'LineStyle', '--');
     labels{end + 1} = 'Inferred plus deviation';
 
     if nargin < 5, break; end
 
     c3 = Color.pick(5);
 
-    line([ time(1) time(end) ], true * [ 1 1 ], ...
-      'Color', c3, 'LineWidth', 1);
+    line([ time(1) time(end) ], true * [ 1 1 ], 'Color', c3);
     labels{end + 1} = 'True';
   end
 

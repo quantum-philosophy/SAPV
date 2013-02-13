@@ -1,16 +1,15 @@
-function compareMeasurements(varargin)
+function compareDieMeasurements(varargin)
   close all;
   setup;
 
   %
   % Experiments.
   %
-  dieCount  = [ 20, 40, 60, 80, 100 ];
-  timeCount = [ 20, 20, 20, 80, 100 ];
+  timeCount = [ 20, 40, 60, 80, 100 ];
 
   experiments = {};
-  for i = 1:length(dieCount)
-    experiments{end + 1} = sprintf('%d dies', dieCount(i));
+  for i = 1:length(timeCount)
+    experiments{end + 1} = sprintf('%03d times', timeCount(i));
   end
 
   %
@@ -22,8 +21,7 @@ function compareMeasurements(varargin)
   tests = algorithms;
 
   function [ c, m ] = prepare(i)
-    [ c, m ] = Utils.prepare( ...
-      'dieCount', dieCount(i), 'timeCount', timeCount(i));
+    [ c, m ] = Utils.prepare('timeCount', timeCount(i));
   end
 
   function [ c, m ] = adjust(c, m, j)
@@ -31,5 +29,6 @@ function compareMeasurements(varargin)
     c.inference.proposalRate = proposalRates(j);
   end
 
-  Utils.compare(experiments, tests, @prepare, @adjust, varargin{:});
+  Utils.compare('Time measurements', ...
+    experiments, tests, @prepare, @adjust, varargin{:});
 end

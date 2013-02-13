@@ -1,9 +1,9 @@
-function compare(experiments, tests, prepare, adjust, save)
+function compare(name, experiments, tests, prepare, adjust, save)
   close all;
   setup;
 
   if ~exist('save', 'var'), save = false; end
-  if save, capture; end
+  if save, capture([], name); end
 
   experimentCount = length(experiments);
   testCount = length(tests);
@@ -72,7 +72,7 @@ function compare(experiments, tests, prepare, adjust, save)
 
   %% Timing.
   %
-  figure;
+  Plot.figure;
   for i = 1:testCount
     line(1:experimentCount, time(:, i) / 60, ...
       'Color', Color.pick(i), 'Marker', 'o');
@@ -86,7 +86,7 @@ function compare(experiments, tests, prepare, adjust, save)
 
   %% Accuracy.
   %
-  figure;
+  Plot.figure;
   for i = 1:testCount
     line(1:experimentCount, error(:, i) * 100, ...
       'Color', Color.pick(i), 'Marker', 'o');

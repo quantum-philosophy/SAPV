@@ -1,5 +1,6 @@
-function capture(path)
-  if nargin == 0, path = []; end
+function capture(path, name)
+  if nargin < 1, path = []; end
+  if nargin < 2, name = []; end
 
   global outputFolder;
   global outputFile;
@@ -9,6 +10,10 @@ function capture(path)
     outputFile = {};
   else
     outputFolder{end + 1} = path;
+  end
+
+  if ~isempty(name)
+    outputFolder{end} = [ outputFolder{end}, ' ', name ];
   end
 
   folder = File.join(outputFolder{:});

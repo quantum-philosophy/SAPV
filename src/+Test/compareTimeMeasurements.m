@@ -1,11 +1,11 @@
-function compareDieMeasurements(varargin)
+function compareTimeMeasurements(varargin)
   close all;
   setup;
 
   %
   % Experiments.
   %
-  timeCount = [ 20, 40, 60, 80, 100 ];
+  timeCount = [ 20, 40, 60, 80, 100, 120, 140, 160 ];
 
   experiments = {};
   for i = 1:length(timeCount)

@@ -5,13 +5,12 @@ function compareMeasurements(varargin)
   %
   % Experiments.
   %
-  dieCount  = [ 20, 40, 60 ];
-  timeCount = [ 20, 20, 20 ];
+  dieCount  = [ 20, 40, 60, 80, 100 ];
+  timeCount = [ 20, 20, 20, 80, 100 ];
 
   experiments = {};
   for i = 1:length(dieCount)
-    experiments{end + 1} = ...
-      sprintf('%d in space, %d in time', dieCount(i), timeCount(i));
+    experiments{end + 1} = sprintf('%d dies', dieCount(i));
   end
 
   %

@@ -1,4 +1,17 @@
 function index = optimizedBlocks(IJ, count)
+  %
+  % The algorithm is not optimized and, therefore, a bit time consuming.
+  % Cache it!
+  %
+
+  filename = File.temporal( ...
+    sprintf('optimizedBlocks_%s.mat', DataHash({ IJ, count })));
+
+  if File.exist(filename)
+    load(filename);
+    return
+  end
+
   I = IJ(:, 1);
   J = IJ(:, 2);
 
@@ -24,4 +37,6 @@ function index = optimizedBlocks(IJ, count)
   end
 
   index = sort(P);
+
+  save(filename, 'index', '-v7.3');
 end

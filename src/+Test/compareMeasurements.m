@@ -1,4 +1,4 @@
-function compareMeasures(varargin)
+function compareMeasurements(varargin)
   close all;
   setup;
 
@@ -11,7 +11,7 @@ function compareMeasures(varargin)
   experiments = {};
   for i = 1:length(dieCount)
     experiments{end + 1} = ...
-      sprintf('%d in space, %d in time', dieCount(i));
+      sprintf('%d in space, %d in time', dieCount(i), timeCount(i));
   end
 
   %

@@ -30,6 +30,9 @@ function results = perform(c, m, sampleCount)
   results.samples.sigmau = results.samples.sigmau(   1:sampleCount);
   results.samples.sigmae = results.samples.sigmae(   1:sampleCount);
 
+  results.fitness    = results.fitness   (1:sampleCount);
+  results.acceptance = results.acceptance(1:sampleCount);
+
   time = time * sampleCount / c.inference.sampleCount;
 
   %

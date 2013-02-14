@@ -5,11 +5,11 @@ function compareSampleCount(varargin)
   %
   % Experiments.
   %
-  sampleCount = [ 5e3, 10e3, 15e3, 20e3, 25e3, 30e3 ];
+  sampleCount = [ 1e2, 1e3, 1e4, 1e5 ];
 
   experiments = {};
   for i = 1:length(sampleCount)
-    experiments{end + 1} = sprintf('%04d samples', sampleCount(i));
+    experiments{end + 1} = sprintf('%06d samples', sampleCount(i));
   end
 
   %

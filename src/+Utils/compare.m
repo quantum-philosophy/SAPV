@@ -85,28 +85,22 @@ function compare(name, experiments, tests, prepare, adjust, perform, save)
   %% Timing.
   %
   Plot.figure;
-  for i = 1:testCount
-    line(1:experimentCount, time(:, i) / 60, ...
-      'Color', Color.pick(i), 'Marker', 'o');
-  end
+  h = bar(1:experimentCount, time / 60);
+  Bar.colorize(h);
   Plot.title('Computational time');
   Plot.label('', 'Time, m');
   Plot.tick(1:experimentCount, experiments);
-  Plot.limit([ 0.9, experimentCount + 0.1 ]);
   Plot.legend(tests);
   commit('Computational time.pdf');
 
   %% Accuracy.
   %
   Plot.figure;
-  for i = 1:testCount
-    line(1:experimentCount, error(:, i) * 100, ...
-      'Color', Color.pick(i), 'Marker', 'o');
-  end
+  h = bar(1:experimentCount, error * 100);
+  Bar.colorize(h);
   Plot.title('Normalized RMSE');
   Plot.label('', 'NRMSE, %');
   Plot.tick(1:experimentCount, experiments);
-  Plot.limit([ 0.9, experimentCount + 0.1 ]);
   Plot.legend(tests);
   commit('Normalized RMSE.pdf');
 

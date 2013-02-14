@@ -1,6 +1,5 @@
 function plot(c, m, results)
   mRange = [ -3, 3 ] * c.process.deviation + c.process.nominal;
-  dRange = [  0, 1 ] * c.process.deviation;
 
   samples = results.samples;
   sampleCount = results.sampleCount;
@@ -22,12 +21,14 @@ function plot(c, m, results)
   Plot.title('QoI - Inferred - Mean');
   commit('QoI - Inferred - Mean.pdf');
 
+  error = abs(m.u - results.mean.u);
+  dRange = [ 0, max([ error(:); results.deviation.u(:) ]) ];
+
   %
   % The error of the inferred quantity of interest.
   %
-  delta = abs(m.u - results.mean.u);
-  plot(c.process, delta);
-  colormap(Color.map(delta, dRange, cool));
+  plot(c.process, error);
+  colormap(Color.map(error, dRange, cool));
   Plot.title('QoI - Inferred - Absolute error (NRMSE %.2f%%)', ...
     results.error * 100);
   commit('QoI - Inferred - Absolute error.pdf');

@@ -9,8 +9,7 @@ function compareProcessorCount(varargin)
 
   experiments = {};
   for i = 1:length(processorCount)
-    experiments{end + 1} = ...
-      sprintf('%d processors', processorCount(i));
+    experiments{end + 1} = sprintf('%d processors', processorCount(i));
   end
 
   %

@@ -9,7 +9,7 @@ function compareTimeCount(varargin)
 
   experiments = {};
   for i = 1:length(timeCount)
-    experiments{end + 1} = sprintf('%03d times', timeCount(i));
+    experiments{end + 1} = sprintf('%d times', timeCount(i));
   end
 
   %

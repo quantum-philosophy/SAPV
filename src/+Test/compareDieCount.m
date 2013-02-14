@@ -9,7 +9,7 @@ function compareDieCount(varargin)
 
   experiments = {};
   for i = 1:length(dieCount)
-    experiments{end + 1} = sprintf('%03d dies', dieCount(i));
+    experiments{end + 1} = sprintf('%d dies', dieCount(i));
   end
 
   %

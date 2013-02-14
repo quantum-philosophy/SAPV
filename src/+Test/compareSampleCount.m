@@ -9,7 +9,7 @@ function compareSampleCount(varargin)
 
   experiments = {};
   for i = 1:length(sampleCount)
-    experiments{end + 1} = sprintf('%06d samples', sampleCount(i));
+    experiments{end + 1} = sprintf('%d samples', sampleCount(i));
   end
 
   %

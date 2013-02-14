@@ -126,7 +126,7 @@ function c = configure(varargin)
   %
   c.observations = Options;
   c.observations.fixedRNG = 0; % NaN to disable.
-  c.observations.deviation = 1; % Noise!
+  c.observations.deviation = options.get('noiseDeviation', 1); % Noise!
   c.observations.dieCount = options.get('dieCount', 20);
   c.observations.timeCount = options.get('timeCount', 20);
 
@@ -161,14 +161,14 @@ function c = configure(varargin)
   % As if from...
   c.inference.nuu = 10;
   % ... observations we concluded that it should be...
-  c.inference.tauu = c.process.deviation;
+  c.inference.tauu = 0.05 * c.leakage.Lnom;
 
   % The prior on the variance of the noise.
   %
   % As if from...
   c.inference.nue = 10;
   % ... observations we concluded that it should be...
-  c.inference.taue = c.observations.deviation;
+  c.inference.taue = 1;
 
   % Skip some of the parameters?
   c.inference.fixMuu    = true;

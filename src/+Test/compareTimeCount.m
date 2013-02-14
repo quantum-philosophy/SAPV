@@ -5,7 +5,7 @@ function compareTimeCount(varargin)
   %
   % Experiments.
   %
-  timeCount = [ 20, 40, 60, 80, 100, 120, 140, 160 ];
+  timeCount = [ 1, 10, 20, 40, 80, 160 ];
 
   experiments = {};
   for i = 1:length(timeCount)

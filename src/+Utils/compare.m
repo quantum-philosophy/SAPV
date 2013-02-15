@@ -67,7 +67,8 @@ function compare(name, experiments, tests, configure, adjust, perform, save)
     %
     fprintf('%15s', 'Time, m');
     for j = 1:testCount
-      time(i, j) = results{i, j}.time;
+      time(i, j) = results{i, j}.time.optimization + ...
+        results{i, j}.time.sampling;
       fprintf(' %15.2f', time(i, j) / 60);
     end
     fprintf('\n');
@@ -83,27 +84,29 @@ function compare(name, experiments, tests, configure, adjust, perform, save)
     fprintf('\n\n');
   end
 
-  %% Timing.
-  %
-  Plot.figure;
-  h = bar(1:experimentCount, time / 60);
-  Bar.colorize(h);
-  Plot.title('Computational time');
-  Plot.label('', 'Time, m');
-  Plot.tick(1:experimentCount, experiments);
-  Plot.legend(tests);
-  commit('Computational time.pdf');
+  if experimentCount > 1
+    %% Timing.
+    %
+    Plot.figure;
+    h = bar(1:experimentCount, time / 60);
+    Bar.colorize(h);
+    Plot.title('Computational time');
+    Plot.label('', 'Time, m');
+    Plot.tick(1:experimentCount, experiments);
+    Plot.legend(tests);
+    commit('Computational time.pdf');
 
-  %% Accuracy.
-  %
-  Plot.figure;
-  h = bar(1:experimentCount, error * 100);
-  Bar.colorize(h);
-  Plot.title('Normalized RMSE');
-  Plot.label('', 'NRMSE, %');
-  Plot.tick(1:experimentCount, experiments);
-  Plot.legend(tests);
-  commit('Normalized RMSE.pdf');
+    %% Accuracy.
+    %
+    Plot.figure;
+    h = bar(1:experimentCount, error * 100);
+    Bar.colorize(h);
+    Plot.title('Normalized RMSE');
+    Plot.label('', 'NRMSE, %');
+    Plot.tick(1:experimentCount, experiments);
+    Plot.legend(tests);
+    commit('Normalized RMSE.pdf');
+  end
 
   if save, release; end
 end

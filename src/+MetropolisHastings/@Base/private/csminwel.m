@@ -1,4 +1,6 @@
-function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = csminwel(fcn, x0, H0, grad, varargin)
+function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = ...
+  csminwel(fcn, x0, H0, grad, varargin)
+
   %
   % Minimization using the quasi-Newton method with BFGS updates.
   %
@@ -56,7 +58,8 @@ function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = csminwel(fcn, x
     [ f1 x1 fc retcode1 ] = csminit(fcn, x, f, g, badg, H);
     functionCount = functionCount + fc;
 
-    printf('%10d: evaluations %10d, objective %10.4f.\n', stepCount, functionCount, f);
+    printf('%5d: evaluations %5d, objective %10.2f.\n', ...
+      stepCount, functionCount, f);
 
     if retcode1 ~= 1
       if retcode1 == 2 | retcode1 == 4
@@ -177,18 +180,17 @@ function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = csminwel(fcn, x
     end
 
     if verbose
-      rc = retcodeh;
-      if rc == 1
+      if retcodeh == 1
         printf('Zero gradient.\n');
-      elseif rc == 6
+      elseif retcodeh == 6
         printf('Smallest step still improving too slow, reversed gradient.\n');
-      elseif rc == 5
+      elseif retcodeh == 5
         printf('Largest step still improving too fast.\n');
-      elseif (rc == 4) | (rc == 2)
+      elseif (retcodeh == 4) | (retcodeh == 2)
         printf('Back and forth on step length never finished.\n');
-      elseif rc == 3
+      elseif retcodeh == 3
         printf('Smallest step still improving too slow.\n');
-      elseif rc == 7
+      elseif retcodeh == 7
         printf('Warning: possible inaccuracy in H matrix.\n');
       end
     end

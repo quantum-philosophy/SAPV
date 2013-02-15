@@ -121,8 +121,8 @@ function results = sample(this)
       finished = 100 * i / sampleCount;
       accepted = 100 * mean(acceptance(1:i));
       rate     = 100 * mean(acceptance((i - 1e2 + 1):i));
-      printf('Metropolis: done %6.2f%% (%6d/%6d), accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
-        finished, i, sampleCount, accepted, rate, currentFitness);
+      printf('Metropolis: done %6.2f%% (%6d), accepted %5.2f%%, rate %5.2f%%, fitness %10.2f.\n', ...
+        finished, i, accepted, rate, currentFitness);
     end
 
     %

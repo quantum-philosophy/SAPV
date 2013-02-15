@@ -4,7 +4,8 @@ function performInference(save)
 
   if nargin == 0, save = false; end
 
-  [ c, m ] = Utils.prepare;
+  c = Test.configure;
+  m = Utils.measure(c);
   results = Utils.perform(c, m);
 
   if save, capture; end

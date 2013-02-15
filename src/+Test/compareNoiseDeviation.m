@@ -20,15 +20,15 @@ function compareNoiseDeviation(varargin)
 
   tests = algorithms;
 
-  function [ c, m ] = prepare(i)
-    [ c, m ] = Utils.prepare('noiseDeviation', noiseDeviation(i));
+  function c = configure(i)
+    c = Test.configure('noiseDeviation', noiseDeviation(i));
   end
 
-  function [ c, m ] = adjust(i, j, c, m)
+  function c = adjust(i, j, c)
     c.inference.optimization.method = algorithms{j};
     c.inference.proposalRate = proposalRates(j);
   end
 
   Utils.compare('Noise deviation', ...
-    experiments, tests, @prepare, @adjust, [], varargin{:});
+    experiments, tests, @configure, @adjust, [], varargin{:});
 end

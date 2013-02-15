@@ -1,41 +1,42 @@
 function m = measure(c)
-  model = Utils.forward(c, 'model', 'complete');
+  filename = sprintf('%03d_measurement_%s.mat', c.system.processorCount, ...
+    DataHash({ c.observations.dieCount, c.observations.timeCount, ...
+      c.observations.deviation, c.observations.fixedRNG }));
+
+  if File.exist(filename)
+    c.printf('Measurement: loading cached data in "%s"...\n', filename);
+    load(filename);
+    return
+  end
 
   %
-  % Fix the random number generator?
+  % Generate the z's and noise with a fixed RNG.
   %
   if ~isnan(c.observations.fixedRNG)
     rng(c.observations.fixedRNG, 'twister');
   end
 
-  m = Options;
-
-  %
-  % Generate the main quantities.
-  %
   [ m.u, m.n, m.z ] = c.process.sample;
+
+  noise = c.observations.deviation * randn( ...
+    c.system.processorCount, c.observations.timeCount, ...
+    c.observations.dieCount);
+
+  if ~isnan(c.observations.fixedRNG)
+    rng('shuffle', 'twister');
+  end
 
   %
   % Generate temperature profiles for all the dies.
   %
+  model = Utils.forward(c, 'model', 'complete');
   m.T = reshape(model.compute(m.u(:)), [ c.system.processorCount, ...
     c.power.stepCount, c.system.wafer.dieCount ]);
 
   %
-  % Thin the data.
+  % Thin the data and add the noise.
   %
-  Tmeas = m.T(:, c.observations.timeIndex, c.observations.dieIndex);
+  m.Tmeas = m.T(:, c.observations.timeIndex, c.observations.dieIndex) + noise;
 
-  %
-  % Add some noise.
-  %
-  m.Tmeas = Tmeas + c.observations.deviation * randn( ...
-    c.system.processorCount, c.observations.timeCount, c.observations.dieCount);
-
-  %
-  % NOTE: But the rest of the inference should not be fixed.
-  %
-  if ~isnan(c.observations.fixedRNG)
-    rng('shuffle', 'twister');
-  end
+  save(filename, 'm', '-v7.3');
 end

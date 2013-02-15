@@ -20,11 +20,11 @@ function compareSampleCount(varargin)
 
   tests = algorithms;
 
-  function [ c, m ] = prepare(i)
-    [ c, m ] = Utils.prepare('sampleCount', max(sampleCount));
+  function c = configure(i)
+    c = Test.configure('sampleCount', max(sampleCount));
   end
 
-  function [ c, m ] = adjust(i, j, c, m)
+  function c = adjust(i, j, c)
     c.inference.optimization.method = algorithms{j};
     c.inference.proposalRate = proposalRates(j);
   end
@@ -34,5 +34,5 @@ function compareSampleCount(varargin)
   end
 
   Utils.compare('Sample count', ...
-    experiments, tests, @prepare, @adjust, @perform, varargin{:});
+    experiments, tests, @configure, @adjust, @perform, varargin{:});
 end

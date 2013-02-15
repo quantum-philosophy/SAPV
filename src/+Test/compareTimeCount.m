@@ -20,15 +20,15 @@ function compareTimeCount(varargin)
 
   tests = algorithms;
 
-  function [ c, m ] = prepare(i)
-    [ c, m ] = Utils.prepare('timeCount', timeCount(i));
+  function c = configure(i)
+    c = Test.configure('timeCount', timeCount(i));
   end
 
-  function [ c, m ] = adjust(i, j, c, m)
+  function c = adjust(i, j, c)
     c.inference.optimization.method = algorithms{j};
     c.inference.proposalRate = proposalRates(j);
   end
 
   Utils.compare('Time step count', ...
-    experiments, tests, @prepare, @adjust, [], varargin{:});
+    experiments, tests, @configure, @adjust, [], varargin{:});
 end

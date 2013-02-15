@@ -1,9 +1,9 @@
-function compare(name, experiments, tests, prepare, adjust, perform, save)
+function compare(name, experiments, tests, configure, adjust, perform, save)
   close all;
   setup;
 
-  if ~exist('prepare', 'var') || isempty(prepare)
-    prepare = @(i) Utils.prepare;
+  if ~exist('configure', 'var') || isempty(configure)
+    configure = @(i) Utils.configure;
   end
 
   if ~exist('adjust', 'var') || isempty(adjust)
@@ -23,12 +23,13 @@ function compare(name, experiments, tests, prepare, adjust, perform, save)
   results = cell(experimentCount, testCount);
 
   for i = 1:experimentCount
-    [ c, m ] = prepare(i);
+    c = configure(i);
+    m = Utils.measure(c);
 
     if save, capture(experiments{i}); end
 
     for j = 1:testCount
-      adjust(i, j, c, m);
+      adjust(i, j, c);
       results{i, j} = perform(i, j, c, m);
 
       if save

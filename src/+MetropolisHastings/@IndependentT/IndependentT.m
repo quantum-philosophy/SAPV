@@ -1,6 +1,6 @@
-classdef DependentNormal < MetropolisHastings.Base
+classdef IndependentT < MetropolisHastings.Base
   methods
-    function this = DependentNormal(varargin)
+    function this = IndependentT(varargin)
       this = this@MetropolisHastings.Base(varargin{:});
     end
   end

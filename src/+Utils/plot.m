@@ -119,7 +119,7 @@ function plot(c, m, results)
   %
   % The assessment of the proposal distribution.
   %
-  if c.inference.assessProposal
+  if ~isempty(results.proposal.assessment)
     Plot.figure;
     Utils.plotProposalAssessment( ...
       results.proposal.theta, results.proposal.assessment);

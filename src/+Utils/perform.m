@@ -8,9 +8,11 @@ function results = perform(c, m, sampleCount)
     %
     model = Utils.forward(c, 'model', 'observed');
 
+    c.printf('Inference: in progress using "%s"...\n', c.inference.sampler);
+
     %% Do the inference.
     %
-    metropolis = MetropolisHastings.DependentNormal(c, m, model);
+    metropolis = MetropolisHastings.(c.inference.sampler)(c, m, model);
     results = metropolis.sample;
 
     save(filename, 'results', '-v7.3');

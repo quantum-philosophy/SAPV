@@ -142,6 +142,8 @@ function c = configure(varargin)
   % NOTE: Ideal scenario for now.
   %
   c.inference = Options;
+  c.inference.sampler = ...
+    options.get('samplingAlgorithm', 'DependentNormal');
   c.inference.sampleCount = options.get('sampleCount', 1e4);
   c.inference.burninRate = 0.50;
 
@@ -168,13 +170,15 @@ function c = configure(varargin)
   c.inference.fixSigmau = true;
   c.inference.fixSigmae = true;
 
-  % The proposal distribution.
+  % Optimization.
   c.inference.optimization = Options;
   c.inference.optimization.method = 'fminunc';
   c.inference.optimization.maximalStepCount = 1e4;
   c.inference.optimization.stallThreshold = 1e-6;
 
-  c.inference.proposalRate = 0.5; % ... a portion of the standard deviation.
-  c.inference.assessProposal = true;
-  c.inference.assessmentPointCount = 30;
+  % The proposal distribution.
+  c.inference.proposal = Options;
+  c.inference.proposal.scale = 0.5; % ... a portion of the standard deviation.
+  c.inference.proposal.assessmentCount = 30;
+  c.inference.proposal.degreesOfFreedom = 10;
 end

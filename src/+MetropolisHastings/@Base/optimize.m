@@ -62,18 +62,18 @@ function results = optimize(this, theta, computeFitness)
   %
   % Assessment of the quality of the constructed proposal distribution.
   %
-  if inference.assessProposal
+  if inference.proposal.assessmentCount > 0
     printf('Proposal: assessment using %d extra points in each direction...\n', ...
-      inference.assessmentPointCount);
+      inference.proposal.assessmentCount);
     assessment = Utils.performProposalAssessment( ...
       computeFitness, theta, covariance, ...
-      'pointCount', inference.assessmentPointCount);
+      'pointCount', inference.proposal.assessmentCount);
   else
     assessment = [];
   end
 
   results.theta = theta;
   results.covariance = covariance;
-  results.coefficient = inference.proposalRate * coefficient;
+  results.coefficient = coefficient;
   results.assessment = assessment;
 end

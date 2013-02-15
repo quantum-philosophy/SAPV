@@ -10,21 +10,28 @@ function results = perform(c, m, sampleCount)
 
     %% Do the inference.
     %
-    time = tic;
     metropolis = MetropolisHastings.DependentNormal(c, m, model);
     results = metropolis.sample;
-    time = toc(time);
 
-    save(filename, 'time', 'results', '-v7.3');
+    save(filename, 'results', '-v7.3');
   end
 
   %
-  % Here, we introduce a possibility of shrinking the number
+  % Here, we introduce a possibility of shrinking the number of
   % samples that we would like to consider.
   %
-  if nargin < 3, sampleCount = c.inference.sampleCount; end
+  if nargin < 3, sampleCount = results.samples.count; end
 
-  assert(sampleCount <= c.inference.sampleCount);
+  assert(sampleCount <= results.samples.count);
+
+  burninCount = round(c.inference.burninRate * sampleCount);
+
+  results.time.sampling = results.time.sampling * ...
+    sampleCount / results.samples.count;
+
+  results.samples.count          = sampleCount;
+  results.samples.burninCount    = burninCount;
+  results.samples.effectiveCount = sampleCount - burninCount;
 
   results.samples.z      = results.samples.z     (:, 1:sampleCount);
   results.samples.muu    = results.samples.muu   (   1:sampleCount);
@@ -34,28 +41,24 @@ function results = perform(c, m, sampleCount)
   results.fitness    = results.fitness   (1:sampleCount);
   results.acceptance = results.acceptance(1:sampleCount);
 
-  time = time * sampleCount / c.inference.sampleCount;
+  c.printf('Inference: done in %.2f minutes.\n', ...
+    (results.time.optimization + results.time.sampling) / 60);
 
   %
-  % Now, we process the results!
+  % Now, we really process the results.
   %
-  c.printf('Inference: done in %.2f minutes.\n', time / 60);
 
-  burnCount = round(c.inference.burninRate * sampleCount);
-
-  z      = results.samples.z     (:, (burnCount + 1):end);
-  muu    = results.samples.muu   (   (burnCount + 1):end);
-  sigmau = results.samples.sigmau(   (burnCount + 1):end);
-  sigmae = results.samples.sigmae(   (burnCount + 1):end);
-
-  effectiveSampleCount = sampleCount - burnCount;
+  z      = results.samples.z     (:, (burninCount + 1):end);
+  muu    = results.samples.muu   (   (burninCount + 1):end);
+  sigmau = results.samples.sigmau(   (burninCount + 1):end);
+  sigmae = results.samples.sigmae(   (burninCount + 1):end);
 
   u = zeros(c.system.processorCount, ...
-    c.system.wafer.dieCount, effectiveSampleCount);
+    c.system.wafer.dieCount, results.samples.effectiveCount);
   n = zeros(c.system.processorCount, ...
-    c.system.wafer.dieCount, effectiveSampleCount);
+    c.system.wafer.dieCount, results.samples.effectiveCount);
 
-  for i = 1:effectiveSampleCount
+  for i = 1:results.samples.effectiveCount
     [ u(:, :, i), n(:, :, i) ] = ...
       c.process.compute(z(:, i), muu(i), sigmau(i));
   end
@@ -63,27 +66,27 @@ function results = perform(c, m, sampleCount)
   %
   % The average values.
   %
-  Mean.z      = mean(z, 2);
-  Mean.muu    = mean(muu);
-  Mean.sigmau = mean(sigmau);
-  Mean.sigmae = mean(sigmae);
-  [ Mean.u, Mean.n ] = c.process.compute(Mean.z, Mean.muu, Mean.sigmau);
+  results.mean = struct;
+  results.mean.z      = mean(z, 2);
+  results.mean.muu    = mean(muu);
+  results.mean.sigmau = mean(sigmau);
+  results.mean.sigmae = mean(sigmae);
+  [ results.mean.u, results.mean.n ] = c.process.compute( ...
+    results.mean.z, results.mean.muu, results.mean.sigmau);
 
   %
   % The standard deviations.
   %
-  Deviation.z      = std(z, [], 2);
-  Deviation.muu    = std(muu);
-  Deviation.sigmau = std(sigmau);
-  Deviation.sigmae = std(sigmae);
-  Deviation.u      = std(u, [], 3);
-  Deviation.n      = std(n, [], 3);
+  results.deviation = struct;
+  results.deviation.z      = std(z, [], 2);
+  results.deviation.muu    = std(muu);
+  results.deviation.sigmau = std(sigmau);
+  results.deviation.sigmae = std(sigmae);
+  results.deviation.u      = std(u, [], 3);
+  results.deviation.n      = std(n, [], 3);
 
-  results.sampleCount = sampleCount;
-  results.effectiveSampleCount = effectiveSampleCount;
-
-  results.time = time;
-  results.mean = Mean;
-  results.deviation = Deviation;
+  %
+  % Finally, the error.
+  %
   results.error = Error.computeNRMSE(m.n, results.mean.n);
 end

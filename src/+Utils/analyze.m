@@ -1,5 +1,14 @@
 function analyze(c, m, results)
-  fprintf('Computational time: %.2f minutes.\n', results.time / 60);
+  %
+  % Timing.
+  %
+  fprintf('Computational time:\n');
+  fprintf('%15s: %5.2f %s\n', 'Optimization', ...
+    results.time.optimization / 60, 'm');
+  fprintf('%15s: %5.2f %s\n', 'Sampling', ...
+    results.time.sampling / 60, 'm');
+  fprintf('%15s: %5.2f %s\n', 'Total', ...
+    (results.time.optimization + results.time.sampling) / 60, 'm');
   fprintf('\n');
 
   %

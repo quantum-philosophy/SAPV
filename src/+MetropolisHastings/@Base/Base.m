@@ -18,6 +18,10 @@ classdef Base < handle
   end
 
   methods (Access = 'protected')
-    sample = propose(this, sample, proposal)
+    proposal = optimize(this, theta, computeFitness)
+  end
+
+  methods (Abstract, Access = 'protected')
+    theta = propose(this, theta, proposal)
   end
 end

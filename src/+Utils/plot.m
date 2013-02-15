@@ -2,7 +2,7 @@ function plot(c, m, results)
   mRange = [ -3, 3 ] * c.process.deviation + c.process.mean;
 
   samples = results.samples;
-  sampleCount = results.sampleCount;
+  sampleCount = results.samples.count;
   time = 1:sampleCount;
 
   %

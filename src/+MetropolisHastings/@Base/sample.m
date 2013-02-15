@@ -71,11 +71,11 @@ function results = sample(this)
   printf('Proposal: in progress using "%s"...\n', ...
     inference.optimization.method);
 
-  time = tic;
+  optimizationTime = tic;
   proposal = this.optimize(etalonSample(I), @computeFitness);
-  time = toc(time);
+  optimizationTime = toc(optimizationTime);
 
-  printf('Proposal: done in %.2f minutes.\n', time / 60);
+  printf('Proposal: done in %.2f minutes.\n', optimizationTime / 60);
 
   %
   % Initial values.
@@ -88,7 +88,7 @@ function results = sample(this)
   currentTheta = proposal.theta;
   proposedTheta = currentTheta;
 
-  time = tic;
+  samplingTime = tic;
 
   for i = 1:sampleCount
     %
@@ -131,7 +131,9 @@ function results = sample(this)
     proposedTheta = this.propose(currentTheta, proposal);
   end
 
-  printf('Metropolis: done in %.2f seconds.\n', toc(time));
+  samplingTime = toc(samplingTime);
+
+  printf('Metropolis: done in %.2f minutes.\n', samplingTime / 60);
 
   %
   % Do not forget to denormalize the result!
@@ -143,9 +145,14 @@ function results = sample(this)
   %
   % Save the result.
   %
+  results.time = struct;
+  results.time.optimization = optimizationTime;
+  results.time.sampling     = samplingTime;
+
   results.proposal = proposal;
 
   results.samples = struct;
+  results.samples.count  = sampleCount;
   results.samples.z      =     samples(:,  1:(end - 3))';
   results.samples.muu    =     samples(:,     end - 2)';
   results.samples.sigmau = abs(samples(:,     end - 1))';

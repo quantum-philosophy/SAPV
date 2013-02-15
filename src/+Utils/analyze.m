@@ -28,7 +28,7 @@ function analyze(c, m, results)
   %
   if ~c.inference.fixMuu
     fprintf('The mean of the QoI (mu_u, nm):\n');
-    compare(c.process.nominal, results.mean.muu, ...
+    compare(c.process.mean, results.mean.muu, ...
       results.deviation.muu, 1e9);
     fprintf('\n');
   end
@@ -52,7 +52,7 @@ function analyze(c, m, results)
   %
   extremeCorrelationBound = 0.5;
 
-  [ S, C ] = covarianceToCorrelation(results.covariance);
+  [ S, C ] = covarianceToCorrelation(results.proposal.covariance);
   C = tril(C, -1);
   [ I, J ] = find(abs(C) > extremeCorrelationBound);
 

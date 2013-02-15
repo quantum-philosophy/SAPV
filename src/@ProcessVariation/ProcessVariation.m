@@ -2,7 +2,7 @@ classdef ProcessVariation < handle
   properties (SetAccess = 'protected')
     wafer
 
-    nominal
+    mean
     deviation
     threshold
     mapping
@@ -16,7 +16,7 @@ classdef ProcessVariation < handle
 
       this.wafer = wafer;
 
-      this.nominal = options.nominal;
+      this.mean = options.mean;
       this.deviation = options.deviation;
       this.threshold = options.get('threshold', 0.99);
       this.mapping = this.construct(wafer, options);
@@ -38,34 +38,26 @@ classdef ProcessVariation < handle
       mapping = this.mapping(I, :);
     end
 
-    function [ u, n ] = compute(this, z, nominal, deviation)
-      if nargin < 3, nominal = this.nominal; end
+    function [ u, n ] = compute(this, z, mean, deviation)
+      if nargin < 3, mean = this.mean; end
       if nargin < 4, deviation = this.deviation; end
 
       n = reshape(this.mapping * z, ...
         [ this.wafer.processorCount, this.wafer.dieCount ]);
 
-      u = nominal + deviation * n;
+      u = mean + deviation * n;
     end
 
     function [ u, n, z ] = sample(this)
       z = randn(this.dimensionCount, 1);
       n = reshape(this.mapping * z, ...
         [ this.wafer.processorCount, this.wafer.dieCount ]);
-      u = this.nominal + this.deviation * n;
-    end
-
-    function display(this)
-      display(Options( ...
-        'Threshold', this.threshold, ...
-        'Nominal', this.nominal, ...
-        'Deviation', this.deviation, ...
-        'Dimensions', this.dimensionCount));
+      u = this.mean + this.deviation * n;
     end
 
     function string = toString(this)
       string = Utils.toString([ this.threshold, ...
-        this.nominal, this.deviation, this.dimensionCount ]);
+        this.mean, this.deviation, this.dimensionCount ]);
     end
   end
 

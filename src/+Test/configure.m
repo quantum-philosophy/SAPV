@@ -88,7 +88,7 @@ function c = configure(varargin)
 
   processOptions = Options( ...
     'kernel',    @correlate, ...
-    'nominal',   c.leakage.Lnom, ...
+    'mean',      c.leakage.Lnom, ...
     'deviation', 0.05 * c.leakage.Lnom, ...
     'threshold', 0.99);
 
@@ -153,8 +153,8 @@ function c = configure(varargin)
   c.inference.burninRate = 0.50;
 
   % The prior on the mean of the QoI.
-  c.inference.mu0 = c.process.nominal;
-  c.inference.sigma0 = 0.01 * c.process.nominal;
+  c.inference.mu0 = c.process.mean;
+  c.inference.sigma0 = 0.01 * c.process.mean;
 
   % The prior on the variance of the QoI.
   %

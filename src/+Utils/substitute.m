@@ -25,13 +25,13 @@ function surrogate = substitute(c, nodes, responses)
     %
     model = Utils.forward(c, 'model', 'observed');
 
-    nominal = c.process.nominal;
+    mean = c.process.mean;
     deviation = c.process.deviation;
     mapping = c.process.constrainMapping(c.observations.dieIndex);
 
     options.inputCount = c.process.dimensionCount;
     options.target = @(u) ...
-      model.compute(nominal + deviation * mapping * norminv(u).');
+      model.compute(mean + deviation * mapping * norminv(u).');
 
     surrogate = Regression.GaussianProcess(options);
   end

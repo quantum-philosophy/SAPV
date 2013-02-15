@@ -1,5 +1,5 @@
 function plot(c, m, results)
-  mRange = [ -3, 3 ] * c.process.deviation + c.process.nominal;
+  mRange = [ -3, 3 ] * c.process.deviation + c.process.mean;
 
   samples = results.samples;
   sampleCount = results.sampleCount;
@@ -76,7 +76,7 @@ function plot(c, m, results)
   if ~c.inference.fixMuu
     Plot.figure;
     trace('QoI - Mean parameter (mu_u)', cumsum(samples.muu) ./ time, ...
-      results.mean.muu, results.deviation.muu, c.process.nominal);
+      results.mean.muu, results.deviation.muu, c.process.mean);
     commit('QoI - Mean parameter (mu_u).pdf');
   end
 
@@ -121,7 +121,8 @@ function plot(c, m, results)
   %
   if c.inference.assessProposal
     Plot.figure;
-    Utils.plotProposalAssessment(results.theta, results.assessment);
+    Utils.plotProposalAssessment( ...
+      results.proposal.theta, results.proposal.assessment);
     Plot.name('Proposal distribution');
     commit('Proposal distribution.pdf');
   end

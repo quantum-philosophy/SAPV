@@ -11,7 +11,8 @@ function results = perform(c, m, sampleCount)
     %% Do the inference.
     %
     time = tic;
-    results = Utils.infer(c, m, model);
+    metropolis = MetropolisHastings.DependentNormal(c, m, model);
+    results = metropolis.sample;
     time = toc(time);
 
     save(filename, 'time', 'results', '-v7.3');

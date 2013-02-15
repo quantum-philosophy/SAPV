@@ -137,13 +137,6 @@ function c = configure(varargin)
     c.power.stepCount, c.observations.timeCount);
 
   %
-  % Surrogate
-  %
-  c.surrogate = Options;
-  c.surrogate.nodeCount = NaN;
-  c.surrogate.optimizationStepCount = 1e2;
-
-  %
   % Inference.
   %
   % NOTE: Ideal scenario for now.

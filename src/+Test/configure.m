@@ -170,8 +170,8 @@ function c = configure(varargin)
   %
   % The proposal distribution.
   %
-  proposal = struct; % Keep it struct for now!
-  proposal.scale = 0.5;
+  proposal = Options;
+  proposal.scale = 0.6;
   proposal.assessmentCount = 30;
   proposal.degreesOfFreedom = 8;
 

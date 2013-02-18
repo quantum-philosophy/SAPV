@@ -1,8 +1,6 @@
 function m = measure(c)
-  filename = sprintf('%03d_measurement_%s.mat', c.system.processorCount, ...
-    DataHash({ c.observations.dieCount, c.observations.timeCount, ...
-      c.observations.deviation, c.observations.fixedRNG }));
-  [ m, ~ ] = Utils.cache(filename, @perform, c);
+  stamp = Utils.stamp(c, 'measurement', c.system, c.observations);
+  [ m, ~ ] = Utils.cache(stamp, @perform, c);
 end
 
 function m = perform(c)

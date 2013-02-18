@@ -66,14 +66,17 @@ function results = infer(c, m)
   %
   % Construct a proposal distribution.
   %
+  optimization = Optimization.(c.optimization.method);
+
+  stamp = Utils.stamp(c, 'optimization', ...
+    qmeasT, c.inference, c.prior, c.optimization);
+
   printf('Optimization: in progress using "%s"...\n', ...
     c.optimization.method);
 
-  optimization = Optimization.(c.optimization.method);
-
   [ theta, covariance, coefficient, time.optimization ] = ...
-    Utils.cache(Utils.stamp(c, 'optimization.mat'), ...
-      @optimization.perform, etalonSample(I), @logPosterior, c.optimization);
+    Utils.cache(stamp, @optimization.perform, ...
+      etalonSample(I), @logPosterior, c.optimization);
 
   printf('Optimization: done in %.2f minutes.\n', time.optimization / 60);
 
@@ -81,13 +84,16 @@ function results = infer(c, m)
   % Assess the constructed proposal distribution.
   %
   if c.proposal.assessmentCount > 0
+    stamp = Utils.stamp(c, 'assessment', ...
+      qmeasT, c.inference, c.prior, c.optimization);
+
     printf('Assessment: in progress using %d extra points in each direction...\n', ...
       c.proposal.assessmentCount);
 
     [ assessment, time.assessment ] = ...
-      Utils.cache(Utils.stamp(c, 'assessment.mat'), ...
-        @Utils.performProposalAssessment, @logPosterior, theta, ...
-        covariance, 'pointCount', c.proposal.assessmentCount);
+      Utils.cache(stamp, @Utils.performProposalAssessment, ...
+        @logPosterior, theta, covariance, ...
+        'pointCount', c.proposal.assessmentCount);
 
     printf('Assessment: done in %.2f minutes...\n', time.assessment / 60);
   else
@@ -95,7 +101,7 @@ function results = infer(c, m)
     time.assessment = 0;
   end
 
-  proposal = c.proposal;
+  proposal = Options(c.proposal);
   proposal.theta = theta;
   proposal.covariance = covariance;
   proposal.coefficient = coefficient;
@@ -106,9 +112,12 @@ function results = infer(c, m)
   %
   metropolis = Metropolis.(c.inference.method);
 
+  stamp = Utils.stamp(c, 'sampling', ...
+    qmeasT, c.inference, c.prior, c.optimization, c.proposal);
+
   printf('Sampling: collecting %d samples...\n', c.inference.sampleCount);
 
-  [ results, time.sampling ] = Utils.cache(Utils.stamp(c, 'sampling.mat'), ...
+  [ results, time.sampling ] = Utils.cache(stamp, ...
     @metropolis.perform, @logPosterior, proposal, c.inference);
 
   printf('Sampling: done in %.2f minutes.\n', time.sampling / 60);

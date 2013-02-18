@@ -2,7 +2,7 @@ function plot(c, m, results)
   mRange = [ -3, 3 ] * c.process.deviation + c.process.mean;
 
   samples = results.samples;
-  sampleCount = results.samples.count;
+  sampleCount = length(results.logPosterior);
   time = 1:sampleCount;
 
   %
@@ -106,7 +106,7 @@ function plot(c, m, results)
   % The log-posterior.
   %
   Plot.figure;
-  trace('Log-posterior', results.fitness);
+  trace('Log-posterior', results.logPosterior);
   commit('Log-posterior.pdf');
 
   %

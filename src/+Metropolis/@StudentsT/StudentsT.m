@@ -1,7 +1,7 @@
-classdef IndependentT < MetropolisHastings.Base
+classdef StudentsT < Metropolis.Base
   methods
-    function this = IndependentT(varargin)
-      this = this@MetropolisHastings.Base(varargin{:});
+    function this = StudentsT(varargin)
+      this = this@Metropolis.Base(varargin{:});
     end
   end
 

@@ -15,17 +15,18 @@ function compareSampleCount(varargin)
   %
   % Tests.
   %
-  tests = { 'none', 'fminunc', 'csminwel' };
+  tests = { 'None', 'Matlab', 'Sims' };
   proposalScale = [ 0.05, 0.50, 0.50 ];
 
   function c = configure(i, j)
     c = Test.configure('sampleCount', max(sampleCount));
-    c.inference.optimization.method = tests{j};
-    c.inference.proposal.scale = proposalScale(j);
+    c.optimization.method = tests{j};
+    c.proposal.scale = proposalScale(j);
   end
 
   function results = perform(i, j, c, m)
-    results = Utils.perform(c, m, sampleCount(i));
+    results = Utils.infer(c, m);
+    results = Utils.process(c, m, results, sampleCount(i));
   end
 
   Utils.compare('Sample count', ...

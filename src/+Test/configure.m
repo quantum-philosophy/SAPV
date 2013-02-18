@@ -2,51 +2,26 @@ function c = configure(varargin)
   options = Options(varargin{:});
 
   c = Options;
-
   c.verbose = true;
-  c.stamp = @stamp;
-
-  function string = stamp(name, varargin)
-    hash = DataHash({ c.toString, varargin });
-
-    match = regexp(name, '^(.)+\.([^.])+$', 'tokens');
-    if ~isempty(match)
-      name = match{1}{1};
-      extension = match{1}{2};
-    else
-      extension = [];
-    end
-
-    string = sprintf('%03d_%s_%s', ...
-      c.system.processorCount, name, hash);
-
-    if ~isempty(extension)
-      string = [ string, '.', extension ];
-    end
-  end
-
-  if c.verbose
-    c.printf = @(varargin) fprintf(varargin{:});
-  else
-    c.printf = @(varargin) [];
-  end
 
   %
   % System
   %
-  c.system = Options;
-  c.system.processorCount = options.get('processorCount', 2);
+  system = Options;
+  system.processorCount = options.get('processorCount', 2);
 
   tgffConfig = File.join('+Test', 'Assets', ...
-    sprintf('%03d_%03d.tgff', c.system.processorCount, ...
-      20 * c.system.processorCount));
+    sprintf('%03d_%03d.tgff', system.processorCount, ...
+      20 * system.processorCount));
 
-  c.system.floorplan = File.join('+Test', 'Assets', ...
-    sprintf('%03d.flp', c.system.processorCount));
+  system.floorplan = File.join('+Test', 'Assets', ...
+    sprintf('%03d.flp', system.processorCount));
 
   [ platform, application ] = parseTGFF(tgffConfig);
-  c.system.wafer = Wafer('floorplan', c.system.floorplan, ...
+  system.wafer = Wafer('floorplan', system.floorplan, ...
     'columns', 20, 'rows', 20);
+
+  c.system = system;
 
   schedule = Schedule.Dense(platform, application);
 
@@ -55,42 +30,41 @@ function c = configure(varargin)
   %
   c.samplingInterval = 1e-3; % s
 
-  c.temperature = Options;
-  c.temperature.configuration = ...
+  temperature = Options;
+  temperature.configuration = ...
     File.join('+Test', 'Assets', 'hotspot.config');
-  c.temperature.line = ...
+  temperature.line = ...
     sprintf('sampling_intvl %e', c.samplingInterval);
+
+  c.temperature = temperature;
 
   %
   % Dynamic power
   %
-  power = DynamicPower(c.samplingInterval);
+  dynamicPower = DynamicPower(c.samplingInterval);
 
-  c.power = Options;
-  c.power.Pdyn = power.compute(schedule);
-  c.power.stepCount = size(c.power.Pdyn, 2);
+  power = Options;
+  power.Pdyn = dynamicPower.compute(schedule);
+  power.stepCount = size(power.Pdyn, 2);
+
+  c.power = power;
 
   %
   % Leakage power
   %
-  leakageOptions = Options( ...
+  leakage = LeakagePower( ...
     'filename', File.join('+Test', 'Assets', 'inverter_45nm.leak'), ...
     'order', [ 1, 2 ], 'scale', [ 1, 0.7, 0; 1, 1, 1 ], ...
-    'dynamicPower', c.power.Pdyn);
-  c.leakage = LeakagePower(leakageOptions);
+    'dynamicPower', power.Pdyn);
+
+  c.leakage = leakage;
 
   %
   % Process variation
   %
   eta = 0.70;
-  lse = 0.50 * c.system.wafer.radius;
-  lou = 0.50 * c.system.wafer.radius;
-
-  processOptions = Options( ...
-    'kernel',    @correlate, ...
-    'mean',      c.leakage.Lnom, ...
-    'deviation', 0.05 * c.leakage.Lnom, ...
-    'threshold', 0.99);
+  lse = 0.50 * system.wafer.radius;
+  lou = 0.50 * system.wafer.radius;
 
   function K = correlate(s, t)
     %
@@ -108,14 +82,20 @@ function c = configure(varargin)
     K = eta * Kse + (1 - eta) * Kou;
   end
 
+  processOptions = Options( ...
+    'kernel',    @correlate, ...
+    'mean',      leakage.Lnom, ...
+    'deviation', 0.05 * leakage.Lnom, ...
+    'threshold', 0.99);
+
   filename = File.temporal([ 'ProcessVariation_', ...
-    DataHash({ Utils.toString(c.system.wafer), ...
+    DataHash({ Utils.toString(system.wafer), ...
       eta, lse, lou, Utils.toString(processOptions) }), '.mat' ]);
 
   if File.exist(filename)
     load(filename);
   else
-    process = ProcessVariation(c.system.wafer, processOptions);
+    process = ProcessVariation(system.wafer, processOptions);
     save(filename, 'process', '-v7.3');
   end
 
@@ -124,61 +104,76 @@ function c = configure(varargin)
   %
   % Observations
   %
-  c.observations = Options;
-  c.observations.fixedRNG = 0; % NaN to disable.
-  c.observations.deviation = options.get('noiseDeviation', 1); % Noise!
-  c.observations.dieCount = options.get('dieCount', 20);
-  c.observations.timeCount = options.get('timeCount', 20);
+  observations = Options;
+  observations.fixedRNG = 0; % NaN to disable.
+  observations.deviation = options.get('noiseDeviation', 1); % Noise!
+  observations.dieCount = options.get('dieCount', 20);
+  observations.timeCount = options.get('timeCount', 20);
 
-  c.observations.dieIndex = Utils.optimizedBlocks( ...
-    c.system.wafer.floorplan(:, 5:6), c.observations.dieCount);
+  observations.dieIndex = Utils.optimizedBlocks( ...
+    system.wafer.floorplan(:, 5:6), observations.dieCount);
 
-  c.observations.timeIndex = Utils.nonrandomLine( ...
-    c.power.stepCount, c.observations.timeCount);
+  observations.timeIndex = Utils.nonrandomLine( ...
+    power.stepCount, observations.timeCount);
+
+  c.observations = observations;
 
   %
   % Inference.
   %
-  % NOTE: Ideal scenario for now.
-  %
-  c.inference = Options;
-  c.inference.sampler = ...
-    options.get('samplingAlgorithm', 'DependentNormal');
-  c.inference.sampleCount = options.get('sampleCount', 1e4);
-  c.inference.burninRate = 0.50;
-
-  % The prior on the mean of the QoI.
-  c.inference.mu0 = c.process.mean;
-  c.inference.sigma0 = 0.01 * c.process.mean;
-
-  % The prior on the variance of the QoI.
-  %
-  % As if from...
-  c.inference.nuu = 10;
-  % ... observations we concluded that it should be...
-  c.inference.tauu = 0.05 * c.leakage.Lnom;
-
-  % The prior on the variance of the noise.
-  %
-  % As if from...
-  c.inference.nue = 10;
-  % ... observations we concluded that it should be...
-  c.inference.taue = 1;
+  inference = Options;
+  inference.method = options.get('inferenceMethod', 'StudentsT');
+  inference.sampleCount = options.get('sampleCount', 1e4);
+  inference.burninRate = 0.50;
 
   % Skip some of the parameters?
-  c.inference.fixMuu    = true;
-  c.inference.fixSigmau = true;
-  c.inference.fixSigmae = true;
+  inference.fixMuu    = true;
+  inference.fixSigmau = true;
+  inference.fixSigmae = true;
 
+  inference.verbose = c.verbose;
+
+  c.inference = inference;
+
+  %
+  % The prior distributions.
+  %
+  prior = Options;
+
+  % The mean of the QoI.
+  prior.mu0 = process.mean;
+  prior.sigma0 = 0.01 * process.mean;
+
+  % The variance of the QoI as if from...
+  prior.nuu = 10;
+  % ... observations we concluded that it should be...
+  prior.tauu = 0.05 * leakage.Lnom;
+
+  % The variance of the noise as if from...
+  prior.nue = 10;
+  % ... observations we concluded that it should be...
+  prior.taue = 1;
+
+  c.prior = prior;
+
+  %
   % Optimization.
-  c.inference.optimization = Options;
-  c.inference.optimization.method = 'fminunc';
-  c.inference.optimization.maximalStepCount = 1e4;
-  c.inference.optimization.stallThreshold = 1e-6;
+  %
+  optimization = Options;
+  optimization.method = 'Matlab';
+  optimization.maximalStepCount = 1e4;
+  optimization.stallThreshold = 1e-6;
+  optimization.verbose = c.verbose;
 
+  c.optimization = optimization;
+
+  %
   % The proposal distribution.
-  c.inference.proposal = Options;
-  c.inference.proposal.scale = 0.5; % ... a portion of the standard deviation.
-  c.inference.proposal.assessmentCount = 30;
-  c.inference.proposal.degreesOfFreedom = 10;
+  %
+  proposal = struct; % Keep it struct for now!
+  proposal.scale = 0.5;
+  proposal.assessmentCount = 30;
+  proposal.degreesOfFreedom = 8;
+
+  c.proposal = proposal;
 end

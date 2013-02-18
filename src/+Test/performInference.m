@@ -6,7 +6,8 @@ function performInference(save)
 
   c = Test.configure;
   m = Utils.measure(c);
-  results = Utils.perform(c, m);
+  results = Utils.infer(c, m);
+  results = Utils.process(c, m, results);
 
   if save, capture; end
 

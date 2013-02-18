@@ -2,13 +2,10 @@ function m = measure(c)
   filename = sprintf('%03d_measurement_%s.mat', c.system.processorCount, ...
     DataHash({ c.observations.dieCount, c.observations.timeCount, ...
       c.observations.deviation, c.observations.fixedRNG }));
+  [ m, ~ ] = Utils.cache(filename, @perform, c);
+end
 
-  if File.exist(filename)
-    c.printf('Measurement: loading cached data in "%s"...\n', filename);
-    load(filename);
-    return
-  end
-
+function m = perform(c)
   %
   % Generate the z's and noise with a fixed RNG.
   %
@@ -37,6 +34,4 @@ function m = measure(c)
   % Thin the data and add the noise.
   %
   m.Tmeas = m.T(:, c.observations.timeIndex, c.observations.dieIndex) + noise;
-
-  save(filename, 'm', '-v7.3');
 end

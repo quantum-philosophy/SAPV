@@ -7,6 +7,6 @@ classdef StudentsT < Metropolis.Base
 
   methods (Access = 'protected')
     proposal = optimize(this, theta, computeFitness)
-    sample = propose(this, sample, proposal)
+    sample = propose(this, ~, proposal, count)
   end
 end

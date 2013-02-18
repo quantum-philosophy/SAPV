@@ -5,6 +5,17 @@ function results = perform(this, logPosteriorFunction, proposal, varargin)
   sampleCount = options.sampleCount;
   dimensionCount = length(proposal.theta);
 
+  proposedTheta = this.propose(NaN, proposal, sampleCount);
+  proposedLogPosterior = zeros(1, sampleCount);
+
+  parfor i = 1:sampleCount
+    proposedLogPosterior(i) = feval(logPosteriorFunction, proposedTheta(:, i));
+
+    if verbose && mod(i, 1e2) == 0
+      fprintf('Sampling: done %6.2f%% (out of order).\n', 100 * i / sampleCount);
+    end
+  end
+
   currentTheta = proposal.theta;
   currentLogPosterior = feval(logPosteriorFunction, proposal.theta);
 
@@ -15,26 +26,14 @@ function results = perform(this, logPosteriorFunction, proposal, varargin)
   logRand = log(rand(1, sampleCount));
 
   for i = 1:sampleCount
-    proposedTheta = this.propose(currentTheta, proposal);
-    proposedLogPosterior = feval(logPosteriorFunction, proposedTheta);
-
-    if logRand(i) < (proposedLogPosterior - currentLogPosterior)
-      currentTheta = proposedTheta;
-      currentLogPosterior = proposedLogPosterior;
+    if logRand(i) < (proposedLogPosterior(i) - currentLogPosterior)
+      currentTheta = proposedTheta(:, i);
+      currentLogPosterior = proposedLogPosterior(i);
       acceptance(i) = true;
     end
 
     samples(:, i) = currentTheta;
     logPosterior(i) = currentLogPosterior;
-
-    if verbose && mod(i, 1e2) == 0
-      finished = 100 * i / sampleCount;
-      accepted = 100 * mean(acceptance(1:i));
-      rate     = 100 * mean(acceptance((i - 1e2 + 1):i));
-
-      fprintf('Sampling: done %6.2f%%, accepted %5.2f%%, rate %5.2f%%.\n', ...
-        finished, accepted, rate);
-    end
   end
 
   results.samples = samples;

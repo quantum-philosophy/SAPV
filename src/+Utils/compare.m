@@ -7,7 +7,7 @@ function compare(name, experiments, tests, configure, perform, save)
   end
 
   if ~exist('perform', 'var') || isempty(perform)
-    perform = @(i, j, c, m) perform(c, m);
+    perform = @(i, j, c, m) defaultPerform(c, m);
   end
 
   if ~exist('save', 'var'), save = false; end
@@ -105,7 +105,7 @@ function compare(name, experiments, tests, configure, perform, save)
   if save, release; end
 end
 
-function results = perform(c, m)
+function results = defaultPerform(c, m)
   results = Utils.infer(c, m);
   results = Utils.process(c, m, results);
 end

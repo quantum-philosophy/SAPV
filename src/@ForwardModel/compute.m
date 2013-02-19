@@ -1,50 +1,53 @@
-function Data = compute(this, L)
+function data = compute(this, L)
   leak = this.leakage.evaluate;
 
+  dieCount = this.dieCount;
   timeIndex = this.timeIndex;
+  timeCount = length(timeIndex);
+  processorCount = this.processorCount;
+
+  [ inputCount, pointCount ] = size(L);
+  assert(inputCount == processorCount * dieCount);
+
+  %
+  % The meaning of each dimension of the dynamic power
+  % profile is as follows:
+  %
+  %   * 1 - processors,
+  %   * 2 - dies,
+  %   * 3 - time.
+  %
   Pdyn = this.Pdyn;
 
-  processorCount = this.processorCount;
-  dieCount = this.dieCount;
-  nodeCount = this.nodeCount;
-  pointCount = size(L, 2);
-
-  if isempty(timeIndex)
-    timeCount = size(Pdyn, 3);
-    timeIndex = 1:timeCount;
-  else
-    timeCount = length(timeIndex);
+  %
+  % In case of several samples, the second dimension
+  % should be extended accordingly.
+  %
+  if pointCount > 1
+    Pdyn = repmat(Pdyn, [ 1, pointCount, 1 ]);
   end
 
-  L = reshape(L, [ processorCount, dieCount, pointCount ]);
+  L = reshape(L, processorCount, []);
 
   E = this.E;
   D = this.D;
   BT = this.BT;
   Tamb = this.ambientTemperature;
 
-  Data = zeros(pointCount, processorCount * timeCount * dieCount);
+  data = zeros(processorCount, timeCount, dieCount * pointCount);
 
-  for p = 1:pointCount
-    l = L(:, :, p);
+  X = zeros(this.nodeCount, dieCount * pointCount);
+  T = Tamb * ones(processorCount, dieCount * pointCount);
 
-    data = zeros(processorCount, timeCount, dieCount);
-
-    X = zeros(nodeCount, dieCount);
-    T = Tamb * ones(processorCount, dieCount);
-
-    k = 1;
-    i = 1;
-    while k <= timeCount
-      for j = i:timeIndex(k)
-        X = E * X + D * (Pdyn(:, :, j) + leak(l, T));
-        T = BT * X + Tamb;
-      end
-      data(:, k, :) = T;
-      k = k + 1;
-      i = j + 1;
+  k = 1;
+  i = 1;
+  while k <= timeCount
+    for j = i:timeIndex(k)
+      X = E * X + D * (Pdyn(:, :, j) + leak(L, T));
+      T = BT * X + Tamb;
     end
-
-    Data(p, :) = data(:);
+    data(:, k, :) = T;
+    k = k + 1;
+    i = j + 1;
   end
 end

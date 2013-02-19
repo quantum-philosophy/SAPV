@@ -12,12 +12,13 @@ classdef ForwardModel < HotSpot.Analytic
 
       this = this@HotSpot.Analytic(options);
 
+      Pdyn = options.Pdyn;
+
       this.leakage = options.leakage;
       this.dieCount = options.dieCount;
-      this.timeIndex = options.timeIndex;
-      Pdyn = options.Pdyn;
-      this.Pdyn = reshape(kron(Pdyn, ones(1, this.dieCount)), ...
-        [ this.processorCount, this.dieCount, size(Pdyn, 2) ]);
+      this.timeIndex = options.get('timeIndex', 1:size(Pdyn, 2));
+      this.Pdyn = permute(repmat(Pdyn, ...
+        [ 1, 1, this.dieCount ]), [ 1, 3, 2 ]);
     end
   end
 end

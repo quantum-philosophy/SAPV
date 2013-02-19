@@ -25,8 +25,7 @@ function m = perform(c)
   % Generate temperature profiles for all the dies.
   %
   model = Utils.forward(c, 'model', 'complete');
-  m.T = reshape(model.compute(m.u(:)), [ c.system.processorCount, ...
-    c.power.stepCount, c.system.wafer.dieCount ]);
+  m.T = model.compute(m.u(:));
 
   %
   % Thin the data and add the noise.

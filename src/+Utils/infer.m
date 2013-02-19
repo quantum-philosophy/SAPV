@@ -8,7 +8,7 @@ function results = infer(c, m)
 
   model = Utils.forward(c, 'model', 'observed');
 
-  dimensionCount = size(mapping, 2);
+  [ inputCount, dimensionCount ] = size(mapping);
   outputCount = length(qmeasT);
 
   %
@@ -31,34 +31,52 @@ function results = infer(c, m)
   etalonSample = [ zeros(dimensionCount + 1, 1); 1; 1 ];
 
   function result = logPosterior(theta_)
-    sample_    = etalonSample;
-    sample_(I) = theta_;
+    count_ = size(theta_, 2);
 
-    z_       = sample_(1:(end - 3));
-    muun_    = sample_(   end - 2);
-    sigmaun_ = sample_(   end - 1);
-    sigmaen_ = sample_(   end - 0);
+    if count_ == 1
+      sample_    = etalonSample;
+      sample_(I) = theta_;
 
-    node_ = (mu0 + sigma0 * muun_) + tauu * sigmaun_ * mapping * z_;
-    qT_ = model.compute(node_);
+      z_       = sample_(1:(end - 3));
+      muun_    = sample_(   end - 2 );
+      sigmaun_ = sample_(   end - 1 );
+      sigmaen_ = sample_(   end - 0 );
+
+      node_ = (mu0 + sigma0 * muun_) + tauu  * sigmaun_ * mapping * z_;
+      deltaT_ = qmeasT - reshape(model.compute(node_), 1, []);
+    else
+      sample_       = repmat(etalonSample, [ 1, count_ ]);
+      sample_(I, :) = theta_;
+
+      z_       = sample_(1:(end - 3), :);
+      muun_    = sample_(   end - 2 , :);
+      sigmaun_ = sample_(   end - 1 , :);
+      sigmaen_ = sample_(   end - 0 , :);
+
+      muun__    = repmat(muun_,    [ inputCount, 1 ]);
+      sigmaun__ = repmat(sigmaun_, [ inputCount, 1 ]);
+
+      node_ = (mu0 + sigma0 * muun__) + tauu * sigmaun__ .* (mapping * z_);
+      deltaT_ = repmat(qmeasT, [ count_, 1 ]) - reshape(model.compute(node_), [], count_).';
+    end
 
     muu_     = mu0 + sigma0 * muun_;
-    sigma2u_ = (tauu * sigmaun_)^2;
-    sigma2e_ = (taue * sigmaen_)^2;
+    sigma2u_ = (tauu * sigmaun_).^2;
+    sigma2e_ = (taue * sigmaen_).^2;
 
     result = ...
       - (outputCount / 2) * log(sigma2e_) ...
-      - sum((qmeasT - qT_).^2) / sigma2e_ / 2 ...
+      - sum(deltaT_.^2, 2)' ./ sigma2e_ / 2 ...
       ...
-      - sum(z_.^2) / 2 ...
+      - sum(z_.^2, 1) / 2 ...
       ...
-      - (muu_ - mu0)^2 / sigma0^2 / 2 ...
+      - (muu_ - mu0).^2 / sigma0^2 / 2 ...
       ...
       - (1 + nuu / 2) * log(sigma2u_) ...
-      - nuu * tauu^2 / sigma2u_ / 2 ...
+      - nuu * tauu^2 ./ sigma2u_ / 2 ...
       ...
       - (1 + nue / 2) * log(sigma2e_) ...
-      - nue * taue^2 / sigma2e_ / 2;
+      - nue * taue^2 ./ sigma2e_ / 2;
   end
 
   time = struct;
@@ -83,17 +101,16 @@ function results = infer(c, m)
   %
   % Assess the constructed proposal distribution.
   %
-  if c.proposal.assessmentCount > 0
+  if c.assessment.pointCount > 0
     stamp = Utils.stamp(c, 'assessment', ...
-      qmeasT, c.inference, c.prior, c.optimization);
+      qmeasT, c.inference, c.prior, c.optimization, c.assessment);
 
     printf('Assessment: in progress using %d extra points in each direction...\n', ...
-      c.proposal.assessmentCount);
+      c.assessment.pointCount);
 
     [ assessment, time.assessment ] = ...
       Utils.cache(stamp, @Utils.performProposalAssessment, ...
-        @logPosterior, theta, covariance, ...
-        'pointCount', c.proposal.assessmentCount);
+        @logPosterior, theta, covariance, c.assessment);
 
     printf('Assessment: done in %.2f minutes...\n', time.assessment / 60);
   else

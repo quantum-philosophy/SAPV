@@ -123,6 +123,7 @@ function c = configure(varargin)
   %
   inference = Options;
   inference.method = options.get('inferenceMethod', 'StudentsT');
+  inference.parallelize = false; % Student's T only.
   inference.sampleCount = options.get('sampleCount', 1e4);
   inference.burninRate = 0.50;
 
@@ -172,8 +173,16 @@ function c = configure(varargin)
   %
   proposal = Options;
   proposal.scale = 0.6;
-  proposal.assessmentCount = 30;
   proposal.degreesOfFreedom = 8;
 
   c.proposal = proposal;
+
+  %
+  % Assessment of the proposal distribution.
+  %
+  assessment = Options;
+  assessment.pointCount = 30;
+  assessment.parallelize = false;
+
+  c.assessment = assessment;
 end

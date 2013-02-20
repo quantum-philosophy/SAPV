@@ -25,7 +25,7 @@ Due to the imperfection of the measurement processes, the temperature profiles i
 \[
   \mvT_\meas = \model{\vparam_\u} + \vnoise = \mvT + \vnoise
 \]
-where $\vnoise$ is an $\ndps$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent of $\u$ \cite{mackay2003, rasmussen2006, marzouk2009}. Therefore,
+where $\vnoise$ is an $\ndps$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent of $\u$ \cite{rasmussen2006, marzouk2009}. Therefore,
 \[
   \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
 \]
@@ -52,8 +52,8 @@ The prior for $\vz$ is due to the properties of the KL expansion. The next three
 \subsubsection{The posterior}
 Taking the product of the likelihood in \eref{likelihood} and the priors in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain
 \begin{align}
-  & \ln \f{\vparam | \Data} + c_1 = -\frac{\ndps}{2} \ln \sigma^2_\noise - \frac{\norm{\mvT_\meas - \mvT}^2}{2 \sigma^2_\noise} \nonumber \\
+  & \ln \f{\vparam | \Data} + c = -\frac{\ndps}{2} \ln \sigma^2_\noise - \frac{\norm{\mvT_\meas - \mvT}^2}{2 \sigma^2_\noise} \nonumber \\
   & {} - \frac{\norm{\vz}^2}{2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
   & {} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
 \end{align}
-where $c_1$ is some constant. This expression is sufficient for the Metropolis algorithm \cite{gelman2004}; thus, we can readily draw samples from the posterior. Each sample is then used in \eref{kl-approximation} to compute a sample of the QoI being inferred, $\u$, for all processing elements on the wafer. Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$.
+where $c$ is some constant. This expression is sufficient for the Metropolis algorithm \cite{gelman2004}, which is a variation of MCMC sampling; thus, we can readily draw samples from the posterior. Each sample is then used in \eref{kl-approximation} to compute a sample of the QoI being inferred, $\u$, for all processing elements on the wafer. Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$, which we shall combat against in \sref{computational-aspects}.

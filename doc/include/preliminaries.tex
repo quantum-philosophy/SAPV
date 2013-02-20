@@ -1,9 +1,9 @@
 \subsection{Bayesian Inference} \slabel{bayesian-inference}
 Let $\vparam$ be a set of parameters that are uncertain for us either in nature or due to our limited knowledge. The goal is to characterize the distribution of $\vparam$ given a data set of observations and some prior believes on $\vparam$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
 \begin{equation} \elabel{bayes}
-  \text{Prior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Evidence}}, \;\; \f{\vparam | \Data} = \frac{\f{\Data | \vparam} \f{\vparam}}{\f{\Data}},
+  \f{\vparam | \Data} = \frac{\f{\Data | \vparam} \f{\vparam}}{\f{\Data}}
 \end{equation}
-where $\f{\cdot}$ denotes a probability density function, and the straight bars stand for conditioning. $\f{\vparam}$ is called the prior of $\vparam$, $\f{\vparam | \Data}$ is the corresponding posterior, $\f{\Data | \vparam}$ is the likelihood function, and $\f{\Data}$ is a normalization constant. Closed-form expressions for posteriors often do not exist for challenging problems. For instance, when modeling a physical process, the likelihood function may involve solving a system of differential equations; it is the case for our problem as we shall see in \sref{thermal-model}. Thus, in order to be able to draw samples from the posterior, one usually relies on sampling techniques such as MCMC sampling \cite{gelman2004}.
+where $\f{\cdot}$ denotes a probability density function, and the straight bars stand for conditioning. $\f{\vparam}$ is called the prior of $\vparam$, $\f{\vparam | \Data}$ is the corresponding posterior, $\f{\Data | \vparam}$ is the likelihood function, and $\f{\Data}$ is a normalization constant. Closed-form expressions for posteriors often do not exist for challenging problems. For instance, when modeling a physical process, the likelihood function may involve solving a system of differential equations; it is the case for our problem as we shall see in \sref{thermal-model}. Thus, in order to be able to draw samples from the posterior, one usually relies on Monte Carlo (MC) sampling and, in particular, on Markov Chain Monte Carlo (MCMC) sampling \cite{gelman2004}.
 
 \subsection{Karhunen-Lo\`{e}ve (KL) Expansion} \slabel{kl-expansion}
 Let $\u: \outcomes \times \domain \to \real$ be a square-integrable stochastic process defined over a spatial domain $\domain$. Let $\fMean{\r} := \E{\u(\r)}$ and $\fCov{\r, \r'} := \E{(\u(\r) - \fMean{\r}) (\u(\r') - \fMean{\r'})}$, $\r, \r' \in \domain$, be the mean and covariance functions of $\u$, respectively. Take a vector of spatial locations $\vr = (\r_i) \in \domain^n$, and define the corresponding discretization of $\u$ as an $n$-dimensional \rv\ $\vu = (\u(\r_i)) \in \real^n$ endowed with the expected value $\vmean = (\fMean{\r_i}) \in \real^n$ and the covariance matrix $\mCov = (\fCov{\r_i, \r_j}) \in \real^{n \times n}$. Since any covariance matrix is real and symmetric, it admits the eigenvalue decomposition \cite{press2007} written as
@@ -17,20 +17,3 @@ where $\m{V}$ and $\m{\Lambda} = \diag{\lambda_i}$ are an orthogonal matrix of t
 where $\vz$ is a vector of centered, normalized, and uncorrelated \rvs, which are also independent if $\u$ is Gaussian.
 
 The decomposition above provides means of even further model order reduction. The intuition is that, due to the correlations induced by $\fCov$, $\vu$ can be nearly losslessly recovered from a small subset of $\vz$. One way to reveal these redundancies is to analyze the eigenvalues $\lambda_i$ stored in $\m{\Lambda}$. Assume $\lambda_i$, $\forall i$, are arranged in a non-increasing order and let $\tilde{\lambda}_i = \lambda_i / \sum_j \lambda_j$. Gradually summing up the arranged and normalized eigenvalues $\tilde{\lambda}_i$, we can identify a subset of them, which has the cumulative sum greater than a certain threshold. When this threshold is sufficiently high (close to one), the rest of the eigenvalues and their eigenvectors can be dropped as being insignificant, reducing the number of stochastic dimensions. In what follows, such a reduction will have the same notation as in the full version given in \eref{kl-expansion}, and the dimensionality of $\mKL$ and $\vz$ will be clear from the context.
-
-\subsection{Gaussian Process (GP) Regression} \slabel{gp-approximation}
-Consider an unknown function $f: \real^\nin \to \real$. We would like to compute $f$ at $\nuno$ unobserved locations $\{ \v{x}_i \}_{i = 1}^\nuno$, $\v{x}_i \in \real^\nin$, based on a set of $\nobs$ observations $\DesignData = \{ (\v{x}_{0i}, y_{0i}) \}_{i = 1}^\nobs$, $\v{x}_{0i} \in \real^\nin$ and $y_{0i} \in \real$. The data are modeled as $y_i = f(\v{x}_i) + \noise_i$ where $\noise_i$ is the noise term. Let $\m{X} = (\v{x}_i) \in \real^{\nin \times \nuno}$, $\m{X}_0 = (\v{x}_{0i}) \in \real^{\nin \times \nobs}$, and $\v{y}_0 = (y_{0i}) \in \real^\nobs$. We put a zero-mean Gaussian process prior on $f$:
-\[
-  f | \vparam \sim \gaussianp{0}{\fCov},
-\]
-where $\fCov{\r, \r'} = \E{f(\r) f(\r')}$ is the covariance function of $f$, parametrized by $\vparam$, and a zero-mean Gaussian prior on $\noise_i$:
-\[
-  \noise_i | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise}.
-\]
-It can be shown \cite{mackay2003, rasmussen2006} that the corresponding predictive distribution is Gaussian:
-\begin{align*}
-  & f | \m{X}, \Data \sim \gaussian{\vmean}{\mCov}, \\
-  & \vmean = \fCov{\m{X}, \m{X}_0} (\fCov{\m{X}_0, \m{X}_0} + \sigma^2_\noise \mI)^{-1} \v{y}_0, \\
-  & \mCov = \fCov{\m{X}, \m{X}} - \fCov{\m{X}, \m{X}_0} (\fCov{\m{X}_0, \m{X}_0} + \sigma^2_\noise \mI)^{-1} \fCov{\m{X}_0, \m{X}},
-\end{align*}
-where, conventionally, the covariance function $\fCov$ applied to two matrices of input variables denotes the matrix obtained by evaluating $\fCov$ on those variables.

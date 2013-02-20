@@ -4,7 +4,7 @@ Consider a heterogeneous multiprocessor system that consists of $\nprocs$ proces
 
 A power profile $\profileP$ is a tuple composed of a data matrix $\mP = (\vP_i) \in \real^{\nprocs \times \npsteps}$, $\vP_i \in \real^\nprocs$, that captures the power dissipation of all the $\nprocs$ processing elements at $\npsteps$ moments of time and a (column) vector $\partition{\mP} = (\t_i) \in \real^{\npsteps}$ with positive and strictly increasing components that specifies these moments of time. The definition of a temperature profile $\profileT$ is the same as the one for power except that the data matrix $\mT = (\vT_i) \in \real^{\nprocs \times \nsteps}$, $\vT_i \in \real^\nprocs$, contains temperature.
 
-Suppose the multiprocessor platform under consideration is manufactured on a wafer with $\nchips$ dies (chips) in total. The goal of this work is to develop an UQ framework for characterization of the uncertain parametrization $\u$, referred to as the quantity of interest (QoI), impacting the platform by analyzing the corresponding temperature profiles collected at several locations on the wafer. Denote by
+Suppose the multiprocessor platform under consideration is manufactured on a wafer with $\nchips$ dies (chips) in total. The goal of this work is to develop an UQ framework for characterization of the uncertain parametrization $\u$, referred to as the QoI, impacting the platform by analyzing the corresponding temperature profiles collected at several locations on the wafer. Denote by
 \[
   \Data = \left( \profilePdyn, \; \; \{ (\mT^{(i)}_\meas, \partition{\mT}) \}_{i = 1}^\ndata, \; \; ( \r_i )_{i = 1}^\ndata \right)
 \]

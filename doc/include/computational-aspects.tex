@@ -1,0 +1,14 @@
+In this section, we discuss several aspects of our framework that significantly speed up the inference procedure.
+
+\subsection{Thermal Model}
+First of all, we need to address the complexity of the forward model $\model$. The model is expensive as it involves the system of nonlinear differential equations given in \eref{heat-de}, which, in general, should be solved numerically using, \eg, Runge-Kutta methods \cite{press2007}. In order to mitigate these repetitive computations, we utilize the approach that we discuss in our earlier publication \cite{ukhov2012} in detail. The idea is that, if the power term on the right-hand side of \eref{heat-de} was constant, the system would be linear and would have an analytical solution, which is much more efficient to work with. Therefore, we assume that the total dissipation of power between two successive moments of time of the input time partition $\partition{\mP}$ (see \sref{problem-formulation}) stays constant. Consequently, we can stride in time solving \eref{heat-de} for each step analytically. See \cite{ukhov2012} for further details.
+
+\subsection{Proposal Distribution} \slabel{proposal-distribution}
+We construct a good proposal distribution for the Metropolis algorithm such to the corresponding Markov chains explore the probability space more efficiently. ``Efficiency'' in this case means that one needs to collect much fewer samples, \ie, to perform much fewer forward model evaluations, to draw accurate conclusions from the data. To this end, before the actual sampling process, we optimize the log-posterior function given by \eref{log-posterior} using the Quasi-Newton algorithm \cite{press2007}. The result of this optimization is a posterior mode $\hat{\vparam}$ and the corresponding observed information matrix $\mOI$ \cite{gelman2004}, which form a solid base for the further sampling.
+
+\subsection{Sampling Strategy}
+We make use of the omnipresent parallel computing. Therefore, instead of utilizing the classical Metropolis algorithm, which is sequential, we appeal to the independence sampler Metropolis algorithm \cite{gelman2004}. The proposal distribution is chosen to be a multivariate t-distribution:
+\[
+  \vparam \sim \studentst{\nu}{\hat{\vparam}}{\alpha \mOI}
+\]
+where $\hat{\vparam}$ and $\mOI$ are as in \sref{proposal-distribution}, $\nu$ is the number of degrees of freedom, and $\alpha > 0$ is a tuning constant. It can be seen that the proposal is independent of the current position of the chain and, therefore, allows one for parallel computations of the posterior in \eref{log-posterior}.

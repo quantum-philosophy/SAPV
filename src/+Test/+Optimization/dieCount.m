@@ -15,8 +15,8 @@ function dieCount(varargin)
   %
   % Tests.
   %
-  tests = { 'None', 'Matlab', 'Sims' };
-  proposalScale = [ 0.05, 0.50, 0.50 ];
+  tests = { 'Matlab', 'Sims' };
+  proposalScale = [ 0.60, 0.60 ];
 
   function c = configure(i, j)
     c = Test.configure('dieCount', dieCount(i));

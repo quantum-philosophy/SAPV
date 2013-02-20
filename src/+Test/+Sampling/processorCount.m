@@ -16,7 +16,7 @@ function processorCount(varargin)
   % Tests.
   %
   tests = { 'Gaussian', 'StudentsT' };
-  proposalScale = [ 0.50, 0.50 ];
+  proposalScale = [ 0.50, 0.60 ];
 
   function c = configure(i, j)
     c = Test.configure( ...

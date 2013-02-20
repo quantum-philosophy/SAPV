@@ -22,7 +22,7 @@ function [ theta, covariance, coefficient ] = perform(this, theta, logPosterior,
 
   if ~verbose, return; end
 
-  fprintf('Proposal:\n');
+  fprintf('Optimization:\n');
   fprintf('  Algorithm:              %s\n', output.algorithm);
   fprintf('  # of iterations:        %d\n', output.iterations);
   fprintf('  # of evaluations:       %d\n', output.funcCount);

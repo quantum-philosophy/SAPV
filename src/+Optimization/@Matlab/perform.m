@@ -6,9 +6,8 @@ function [ theta, covariance, coefficient ] = perform(this, theta, logPosterior,
   settings.TolFun = options.stallThreshold;
   settings.LargeScale = 'off';
   settings.Display = 'off';
-  if verbose, settings.Display = 'iter'; end
 
-  [ theta, ~, ~, ~, ~, hessian ] = fminunc( ...
+  [ theta, ~, ~, output, ~, hessian ] = fminunc( ...
     @(theta_) -feval(logPosterior, theta_), theta, settings);
 
   %
@@ -23,6 +22,10 @@ function [ theta, covariance, coefficient ] = perform(this, theta, logPosterior,
 
   if ~verbose, return; end
 
-  fprintf('Proposal: %d out of %d eigenvalues are negative.\n', ...
-    sum(L < 0), length(L));
+  fprintf('Proposal:\n');
+  fprintf('  Algorithm:              %s\n', output.algorithm);
+  fprintf('  # of iterations:        %d\n', output.iterations);
+  fprintf('  # of evaluations:       %d\n', output.funcCount);
+  fprintf('  # negative eigenvalues: %d\n', sum(L < 0));
+  fprintf('  Exit message:\n<<<\n%s\n>>>\n', output.message);
 end

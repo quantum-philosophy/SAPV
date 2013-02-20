@@ -9,19 +9,7 @@ function results = perform(this, logPosteriorFunction, proposal, varargin)
   dimensionCount = length(proposal.theta);
 
   proposedTheta = this.propose(NaN, proposal, sampleCount);
-
-  if options.get('parallelize', false)
-    proposedLogPosterior = zeros(1, sampleCount);
-    parfor i = 1:sampleCount
-      proposedLogPosterior(i) = feval(logPosteriorFunction, proposedTheta(:, i));
-      if mod(i, 1e2) ~= 0, continue; end
-      printf('Sampling: done %6.2f%% in parallel (out of order).\n', ...
-        100 * i / sampleCount);
-    end
-  else
-    printf('Sampling: computing all samples at once...\n');
-    proposedLogPosterior = feval(logPosteriorFunction, proposedTheta);
-  end
+  proposedLogPosterior = feval(logPosteriorFunction, proposedTheta);
 
   currentTheta = proposal.theta;
   currentLogPosterior = feval(logPosteriorFunction, proposal.theta);

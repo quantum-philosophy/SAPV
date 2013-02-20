@@ -102,8 +102,7 @@ function results = infer(c, m)
   % Assess the constructed proposal distribution.
   %
   if c.assessment.pointCount > 0
-    stamp = Utils.stamp(c, 'assessment', c.observations, ...
-      c.inference, c.prior, c.optimization, c.assessment, qmeasT);
+    stamp = Utils.stamp(c, 'assessment', theta, covariance, c.assessment);
 
     printf('Assessment: in progress using %d extra points in each direction...\n', ...
       c.assessment.pointCount);
@@ -131,7 +130,8 @@ function results = infer(c, m)
 
   stamp = Utils.stamp(c, 'sampling', c, qmeasT);
 
-  printf('Sampling: collecting %d samples...\n', c.inference.sampleCount);
+  printf('Sampling: collecting %d samples using "%s"...\n', ...
+    c.inference.sampleCount, c.inference.method);
 
   [ results, time.sampling ] = Utils.cache(stamp, ...
     @metropolis.perform, @logPosterior, proposal, c.inference);

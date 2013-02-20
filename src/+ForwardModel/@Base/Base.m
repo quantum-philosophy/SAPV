@@ -1,4 +1,4 @@
-classdef ForwardModel < HotSpot.Analytic
+classdef Base < HotSpot.Analytic
   properties (SetAccess = 'private')
     leakage
     dieCount
@@ -7,7 +7,7 @@ classdef ForwardModel < HotSpot.Analytic
   end
 
   methods
-    function this = ForwardModel(varargin)
+    function this = Base(varargin)
       options = Options(varargin{:});
 
       this = this@HotSpot.Analytic(options);
@@ -20,5 +20,9 @@ classdef ForwardModel < HotSpot.Analytic
       this.Pdyn = permute(repmat(Pdyn, ...
         [ 1, 1, this.dieCount ]), [ 1, 3, 2 ]);
     end
+  end
+
+  methods (Abstract)
+    data = compute(this, L)
   end
 end

@@ -86,8 +86,8 @@ function results = infer(c, m)
   %
   optimization = Optimization.(c.optimization.method);
 
-  stamp = Utils.stamp(c, 'optimization', ...
-    qmeasT, c.inference, c.prior, c.optimization);
+  stamp = Utils.stamp(c, 'optimization', c.observations, ...
+    c.inference, c.prior, c.optimization, qmeasT);
 
   printf('Optimization: in progress using "%s"...\n', ...
     c.optimization.method);
@@ -102,8 +102,8 @@ function results = infer(c, m)
   % Assess the constructed proposal distribution.
   %
   if c.assessment.pointCount > 0
-    stamp = Utils.stamp(c, 'assessment', ...
-      qmeasT, c.inference, c.prior, c.optimization, c.assessment);
+    stamp = Utils.stamp(c, 'assessment', c.observations, ...
+      c.inference, c.prior, c.optimization, c.assessment, qmeasT);
 
     printf('Assessment: in progress using %d extra points in each direction...\n', ...
       c.assessment.pointCount);
@@ -129,8 +129,7 @@ function results = infer(c, m)
   %
   metropolis = Metropolis.(c.inference.method);
 
-  stamp = Utils.stamp(c, 'sampling', ...
-    qmeasT, c.inference, c.prior, c.optimization, c.proposal);
+  stamp = Utils.stamp(c, 'sampling', c, qmeasT);
 
   printf('Sampling: collecting %d samples...\n', c.inference.sampleCount);
 

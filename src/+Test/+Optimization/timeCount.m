@@ -1,4 +1,4 @@
-function compareTimeCount(varargin)
+function timeCount(varargin)
   close all;
   setup;
 
@@ -24,6 +24,6 @@ function compareTimeCount(varargin)
     c.proposal.scale = proposalScale(j);
   end
 
-  Utils.compare('Time step count', ...
+  Utils.compare('Time count', ...
     experiments, tests, @configure, [], varargin{:});
 end

@@ -1,4 +1,4 @@
-function compareSampleCount(varargin)
+function sampleCount(varargin)
   close all;
   setup;
 

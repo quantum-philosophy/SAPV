@@ -119,11 +119,18 @@ function c = configure(varargin)
   c.observations = observations;
 
   %
+  % The forward model.
+  %
+  forward = Options;
+  forward.method = 'Parallel';
+
+  c.forward = forward;
+
+  %
   % Inference.
   %
   inference = Options;
   inference.method = options.get('inferenceMethod', 'StudentsT');
-  inference.parallelize = false; % Student's T only.
   inference.sampleCount = options.get('sampleCount', 1e4);
   inference.burninRate = 0.50;
 
@@ -182,7 +189,6 @@ function c = configure(varargin)
   %
   assessment = Options;
   assessment.pointCount = 30;
-  assessment.parallelize = false;
 
   c.assessment = assessment;
 end

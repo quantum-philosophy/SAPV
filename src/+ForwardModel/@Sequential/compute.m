@@ -1,12 +1,23 @@
 function data = compute(this, L)
+  [ inputCount, pointCount ] = size(L);
+
+  if pointCount == 1
+    %
+    % NOTE: Trying to eliminate unreasonable repmats as they
+    % introduce some unnecessary overheads.
+    %
+    data = compute@ForwardModel.Base(this, L);
+    return;
+  end
+
   leak = this.leakage.evaluate;
 
+  nodeCount = this.nodeCount;
   dieCount = this.dieCount;
   timeIndex = this.timeIndex;
   timeCount = length(timeIndex);
   processorCount = this.processorCount;
 
-  [ inputCount, pointCount ] = size(L);
   assert(inputCount == processorCount * dieCount);
 
   %
@@ -23,9 +34,7 @@ function data = compute(this, L)
   % In case of several samples, the second dimension
   % should be extended accordingly.
   %
-  if pointCount > 1
-    Pdyn = repmat(Pdyn, [ 1, pointCount, 1 ]);
-  end
+  Pdyn = repmat(Pdyn, [ 1, pointCount, 1 ]);
 
   L = reshape(L, processorCount, []);
 
@@ -36,7 +45,7 @@ function data = compute(this, L)
 
   data = zeros(processorCount, timeCount, dieCount * pointCount);
 
-  X = zeros(this.nodeCount, dieCount * pointCount);
+  X = zeros(nodeCount, dieCount * pointCount);
   T = Tamb * ones(processorCount, dieCount * pointCount);
 
   k = 1;

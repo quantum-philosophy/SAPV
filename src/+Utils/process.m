@@ -31,12 +31,9 @@ function results = process(c, m, results, sampleCount)
 
   u = zeros(c.system.processorCount, ...
     c.system.wafer.dieCount, effectiveCount);
-  n = zeros(c.system.processorCount, ...
-    c.system.wafer.dieCount, effectiveCount);
 
   for i = 1:effectiveCount
-    [ u(:, :, i), n(:, :, i) ] = ...
-      c.process.compute(z(:, i), muu(i), sigmau(i));
+    u(:, :, i) = c.process.compute(z(:, i), muu(i), sigmau(i));
   end
 
   %
@@ -47,7 +44,7 @@ function results = process(c, m, results, sampleCount)
   Mean.muu    = mean(muu);
   Mean.sigmau = mean(sigmau);
   Mean.sigmae = mean(sigmae);
-  [ Mean.u, Mean.n ] = c.process.compute(Mean.z, Mean.muu, Mean.sigmau);
+  Mean.u      = c.process.compute(Mean.z, Mean.muu, Mean.sigmau);
 
   %
   % The standard deviations.
@@ -58,9 +55,8 @@ function results = process(c, m, results, sampleCount)
   Deviation.sigmau = std(sigmau);
   Deviation.sigmae = std(sigmae);
   Deviation.u      = std(u, [], 3);
-  Deviation.n      = std(n, [], 3);
 
   results.mean = Mean;
   results.deviation = Deviation;
-  results.error = Error.computeNRMSE(m.n, Mean.n);
+  results.error = Error.computeNRMSE(m.u, Mean.u);
 end

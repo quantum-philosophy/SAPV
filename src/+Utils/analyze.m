@@ -50,7 +50,7 @@ function analyze(c, m, results)
   end
 
   if ~c.inference.fixSigmae
-    fprintf('The deviation of the noise (sigma_e):\n');
+    fprintf('The deviation of the noise (sigma_e, K):\n');
     compare(c.observations.deviation, results.mean.sigmae, ...
       results.deviation.sigmae);
     fprintf('\n');

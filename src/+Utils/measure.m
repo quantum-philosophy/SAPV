@@ -11,7 +11,7 @@ function m = perform(c)
     rng(c.observations.fixedRNG, 'twister');
   end
 
-  [ m.u, m.n, m.z ] = c.process.sample;
+  [ m.u, ~, m.z ] = c.process.sample;
 
   noise = c.observations.deviation * randn( ...
     c.system.processorCount, c.observations.timeCount, ...

@@ -94,7 +94,7 @@ function [ fh, xh, gh, H, stepCount, functionCount, retcodeh ] = ...
           end
 
           if wall2
-            printf('Cliff again. Try traversing.\n')
+            printf('Cliff again. Try traversing.\n');
 
             if norm(x2-x1) < 1e-13
               f3 = f; x3 = x; badg3 = 1; retcode3 = 101;

@@ -27,5 +27,4 @@ function [ theta, covariance, coefficient ] = perform(this, theta, logPosterior,
   fprintf('  # of iterations:        %d\n', output.iterations);
   fprintf('  # of evaluations:       %d\n', output.funcCount);
   fprintf('  # negative eigenvalues: %d\n', sum(L < 0));
-  fprintf('  Exit message:\n<<<\n%s\n>>>\n', output.message);
 end

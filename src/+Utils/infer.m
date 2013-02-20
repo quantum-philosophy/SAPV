@@ -102,7 +102,8 @@ function results = infer(c, m)
   % Assess the constructed proposal distribution.
   %
   if c.assessment.pointCount > 0
-    stamp = Utils.stamp(c, 'assessment', theta, covariance, c.assessment);
+    stamp = Utils.stamp(c, 'assessment', c.observations, ...
+      c.inference, c.prior, c.optimization, c.assessment, qmeasT);
 
     printf('Assessment: in progress using %d extra points in each direction...\n', ...
       c.assessment.pointCount);

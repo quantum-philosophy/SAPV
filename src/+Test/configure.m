@@ -105,7 +105,7 @@ function c = configure(varargin)
   % Observations
   %
   observations = Options;
-  observations.fixedRNG = 0; % NaN to disable.
+  observations.fixedRNG = 0; % NaN for random, but it will be anyway cached!
   observations.deviation = options.get('noiseDeviation', 1); % Noise!
   observations.dieCount = options.get('dieCount', 20);
   observations.timeCount = options.get('timeCount', 20);

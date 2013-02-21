@@ -135,9 +135,9 @@ function c = configure(varargin)
   inference.burninRate = 0.50;
 
   % Skip some of the parameters?
-  inference.fixMuu    = true;
-  inference.fixSigmau = true;
-  inference.fixSigmae = true;
+  inference.fixMuu    = options.get('fixMuu',    false);
+  inference.fixSigmau = options.get('fixSigmau', false);
+  inference.fixSigmae = options.get('fixSigmae', false);
 
   inference.verbose = c.verbose;
 

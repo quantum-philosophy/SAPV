@@ -112,7 +112,7 @@ function results = infer(c, m)
       Utils.cache(stamp, @Utils.performProposalAssessment, ...
         @logPosterior, theta, covariance, c.assessment);
 
-    printf('Assessment: done in %.2f minutes...\n', time.assessment / 60);
+    printf('Assessment: done in %.2f minutes.\n', time.assessment / 60);
   else
     assessment = [];
     time.assessment = 0;

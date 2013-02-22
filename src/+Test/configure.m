@@ -8,7 +8,7 @@ function c = configure(varargin)
   % System
   %
   system = Options;
-  system.processorCount = options.get('processorCount', 2);
+  system.processorCount = options.get('processorCount', 4);
 
   tgffConfig = File.join('+Test', 'Assets', ...
     sprintf('%03d_%03d.tgff', system.processorCount, ...

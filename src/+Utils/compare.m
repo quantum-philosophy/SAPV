@@ -2,6 +2,8 @@ function compare(name, experiments, tests, configure, perform, save)
   close all;
   setup;
 
+  if isempty(tests), tests = { 'Default' }; end
+
   if ~exist('configure', 'var') || isempty(configure)
     configure = @(i) Utils.configure;
   end

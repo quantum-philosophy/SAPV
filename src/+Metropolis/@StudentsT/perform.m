@@ -6,29 +6,19 @@ function results = perform(this, logPosteriorFunction, proposal, varargin)
   if ~verbose, printf = @(varargin) []; end
 
   sampleCount = options.sampleCount;
-  dimensionCount = length(proposal.theta);
 
-  proposedTheta = this.propose(NaN, proposal, sampleCount);
-  proposedLogPosterior = feval(logPosteriorFunction, proposedTheta);
-
-  currentTheta = proposal.theta;
-  currentLogPosterior = feval(logPosteriorFunction, proposal.theta);
-
-  samples = zeros(dimensionCount, sampleCount);
-  logPosterior = zeros(1, sampleCount);
-  acceptance = false(1, sampleCount);
+  samples = [ proposal.theta, this.propose(NaN, proposal, sampleCount - 1) ];
+  logPosterior = feval(logPosteriorFunction, samples);
+  acceptance = true(1, sampleCount);
 
   logRand = log(rand(1, sampleCount));
 
-  for i = 1:sampleCount
-    if logRand(i) < (proposedLogPosterior(i) - currentLogPosterior)
-      currentTheta = proposedTheta(:, i);
-      currentLogPosterior = proposedLogPosterior(i);
-      acceptance(i) = true;
+  for i = 2:sampleCount % The first one is always accepted.
+    if logRand(i) > (logPosterior(i) - logPosterior(i - 1))
+      acceptance(i) = false;
+      samples(:, i) = samples(:, i - 1);
+      logPosterior(i) = logPosterior(i - 1);
     end
-
-    samples(:, i) = currentTheta;
-    logPosterior(i) = currentLogPosterior;
   end
 
   results.samples = samples;

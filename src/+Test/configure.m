@@ -179,7 +179,7 @@ function c = configure(varargin)
   % The proposal distribution.
   %
   proposal = Options;
-  proposal.scale = 0.6;
+  proposal.scale = 0.5;
   proposal.degreesOfFreedom = 8;
 
   c.proposal = proposal;

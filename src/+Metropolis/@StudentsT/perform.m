@@ -7,7 +7,14 @@ function results = perform(this, logPosteriorFunction, proposal, varargin)
 
   sampleCount = options.sampleCount;
 
-  samples = [ proposal.theta, this.propose(NaN, proposal, sampleCount - 1) ];
+  %
+  % Should we start from the value found by the optimization?
+  % It typically blocks the sampling procedure for about first 1000
+  % samples or so.
+  %
+  % samples = [ proposal.theta, this.propose(NaN, proposal, sampleCount - 1) ];
+  %
+  samples = this.propose(NaN, proposal, sampleCount);
   logPosterior = feval(logPosteriorFunction, samples);
   acceptance = true(1, sampleCount);
 

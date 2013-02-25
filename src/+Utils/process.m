@@ -44,7 +44,7 @@ function results = process(c, m, results, sampleCount)
   Mean.muu    = mean(muu);
   Mean.sigmau = mean(sigmau);
   Mean.sigmae = mean(sigmae);
-  Mean.u      = c.process.compute(Mean.z, Mean.muu, Mean.sigmau);
+  Mean.u      = mean(u, 3);
 
   %
   % The standard deviations.
@@ -56,7 +56,25 @@ function results = process(c, m, results, sampleCount)
   Deviation.sigmae = std(sigmae);
   Deviation.u      = std(u, [], 3);
 
-  results.mean = Mean;
+  %
+  % Decision making.
+  %
+  uLimit = c.process.mean - 2 * c.process.deviation;
+  pLimit = 0.2;
+
+  decision.trueProbability = min(m.u, [], 1) < uLimit; % It is certain: 0 or 1.
+  decision.inferredProbability = sum(min(u, [], 1) < uLimit, 3) / sampleCount;
+
+  decision.trueIndex = find(decision.trueProbability);
+  decision.inferredIndex = find(decision.inferredProbability > pLimit);
+
+  decision.detectedIndex = ...
+    intersect(decision.trueIndex, decision.inferredIndex);
+  decision.misclassifiedIndex = ...
+    setxor(decision.trueIndex, decision.inferredIndex);
+
+  results.mean      = Mean;
   results.deviation = Deviation;
-  results.error = Error.computeNRMSE(m.u, Mean.u);
+  results.decision  = decision;
+  results.error     = Error.computeNRMSE(m.u, Mean.u);
 end

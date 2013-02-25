@@ -21,6 +21,31 @@ function plot(c, m, results)
   Plot.title('QoI - Inferred - Mean');
   commit('QoI - Inferred - Mean.pdf');
 
+  %
+  % Decision making.
+  %
+  decision = results.decision;
+
+  waferize(c.system.wafer, decision.trueProbability', ...
+    0.95 * [ 1, 1, 1 ], [ 1, 0, 0 ]);
+  Plot.title('Defect - True');
+  commit('Defect - True.pdf');
+
+  waferize(c.system.wafer, decision.inferredProbability', ...
+    0.95 * [ 1, 1, 1 ], [ 1, 0, 0 ]);
+  Plot.title('Defect - Inferred - Probability');
+  commit('Defect - Inferred - Probability.pdf');
+
+  I = 0.95 * ones(c.system.wafer.dieCount, 3);
+  I(decision.detectedIndex,      [ 1, 3 ]) = 0;
+  I(decision.misclassifiedIndex, [ 2, 3 ]) = 0;
+
+  waferize(c.system.wafer, I);
+  Plot.title('Defect - Inferred - Classification: %d/%d/%d', ...
+    length(decision.detectedIndex), length(decision.misclassifiedIndex), ...
+    length(decision.trueIndex));
+  commit('Defect - Inferred - Classification.pdf');
+
   error = abs(m.u - results.mean.u);
   dRange = [ 0, max([ error(:); results.deviation.u(:) ]) ];
 
@@ -169,4 +194,33 @@ function trace(name, samples, mean, deviation, true, legend)
 
   if nargin < 6, legend = nargin > 2; end
   if legend, Plot.legend(labels{:}); end
+end
+
+function waferize(wafer, intensity, color1, color2)
+  if nargin < 3, color1 = 0; color2 = 1; end
+
+  F  = wafer.floorplan;
+  DF = wafer.dieFloorplan;
+  DW = wafer.dieWidth;
+  DH = wafer.dieHeight;
+  DS = max(DW, DH);
+
+  W = DF(:, 1);
+  H = DF(:, 2);
+  X = DF(:, 3);
+  Y = DF(:, 4);
+
+  figure('Position', [ 100, 100, 600, 600 ]);
+
+  for i = 1:size(F, 1)
+    h = draw(F(i, 3), F(i, 4), DS, DS);
+    set(h, 'FaceColor', color1 + (color2 - color1) .* intensity(i, :));
+    set(h, 'EdgeColor', 0.15 * [ 1 1 1 ]);
+  end
+
+  axis tight;
+end
+
+function h = draw(x, y, W, H)
+  h = patch([ x, x, x + W, x + W ], [ y, y + H, y + H, y ], zeros(1, 4));
 end

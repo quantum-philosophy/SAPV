@@ -19,7 +19,7 @@ function c = configure(varargin)
 
   [ platform, application ] = parseTGFF(tgffConfig);
   system.wafer = Wafer('floorplan', system.floorplan, ...
-    'columns', 20, 'rows', 20);
+    'rowCount', 20, 'columnCount', 20);
 
   c.system = system;
 

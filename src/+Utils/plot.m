@@ -9,7 +9,7 @@ function plot(c, m, results)
   % The true quantity of interest.
   %
   plot(c.process, m.u);
-  colormap(Color.map(m.u, mRange));
+  Colormap.data(m.u, mRange);
   Plot.title('QoI - True');
   commit('QoI - True.pdf');
 
@@ -17,43 +17,27 @@ function plot(c, m, results)
   % The mean of the inferred quantity of interest.
   %
   plot(c.process, results.mean.u);
-  colormap(Color.map(results.mean.u, mRange));
+  Colormap.data(results.mean.u, mRange);
   Plot.title('QoI - Inferred - Mean');
   commit('QoI - Inferred - Mean.pdf');
 
   %
   % Decision making.
   %
-  decision = results.decision;
+  decide(c.system.wafer, results.decision);
+  Plot.title('Defect - Probability');
+  commit('Defect - Probability.pdf');
 
-  waferize(c.system.wafer, decision.trueProbability', ...
-    0.95 * [ 1, 1, 1 ], [ 1, 0, 0 ]);
-  Plot.title('Defect - True');
-  commit('Defect - True.pdf');
-
-  waferize(c.system.wafer, decision.inferredProbability', ...
-    0.95 * [ 1, 1, 1 ], [ 1, 0, 0 ]);
-  Plot.title('Defect - Inferred - Probability');
-  commit('Defect - Inferred - Probability.pdf');
-
-  I = 0.95 * ones(c.system.wafer.dieCount, 3);
-  I(decision.detectedIndex,      [ 1, 3 ]) = 0;
-  I(decision.misclassifiedIndex, [ 2, 3 ]) = 0;
-
-  waferize(c.system.wafer, I);
-  Plot.title('Defect - Inferred - Classification: %d/%d/%d', ...
-    length(decision.detectedIndex), length(decision.misclassifiedIndex), ...
-    length(decision.trueIndex));
-  commit('Defect - Inferred - Classification.pdf');
-
-  error = abs(m.u - results.mean.u);
-  dRange = [ 0, max([ error(:); results.deviation.u(:) ]) ];
+  return;
 
   %
   % The error of the inferred quantity of interest.
   %
+  error = abs(m.u - results.mean.u);
+  dRange = [ 0, max([ error(:); results.deviation.u(:) ]) ];
+
   plot(c.process, error);
-  colormap(Color.map(error, dRange, cool));
+  Colormap.data(error, dRange, cool);
   Plot.title('QoI - Inferred - Absolute error (NRMSE %.2f%%)', ...
     results.error * 100);
   commit('QoI - Inferred - Absolute error.pdf');
@@ -62,7 +46,7 @@ function plot(c, m, results)
   % The deviation of the inferred quantity of interest.
   %
   plot(c.process, results.deviation.u);
-  colormap(Color.map(results.deviation.u, dRange, cool));
+  Colormap.data(results.deviation.u, dRange, cool);
   Plot.title('QoI - Inferred - Deviation');
   commit('QoI - Inferred - Deviation.pdf');
 
@@ -196,29 +180,64 @@ function trace(name, samples, mean, deviation, true, legend)
   if legend, Plot.legend(labels{:}); end
 end
 
-function waferize(wafer, intensity, color1, color2)
-  if nargin < 3, color1 = 0; color2 = 1; end
+function decide(wafer, decision)
+  c1 = 0.95 * [ 1, 1, 1 ];
+  c2 =        [ 1, 0, 0 ];
 
-  F  = wafer.floorplan;
-  DF = wafer.dieFloorplan;
-  DW = wafer.dieWidth;
-  DH = wafer.dieHeight;
-  DS = max(DW, DH);
+  x = wafer.floorplan(:, 3);
+  y = wafer.floorplan(:, 4);
+  side = max(wafer.dieWidth, wafer.dieHeight);
 
-  W = DF(:, 1);
-  H = DF(:, 2);
-  X = DF(:, 3);
-  Y = DF(:, 4);
+  figure('Position', [ 100, 100, 60 + 600, 600 ]);
 
-  figure('Position', [ 100, 100, 600, 600 ]);
-
-  for i = 1:size(F, 1)
-    h = draw(F(i, 3), F(i, 4), DS, DS);
-    set(h, 'FaceColor', color1 + (color2 - color1) .* intensity(i, :));
+  for i = 1:wafer.dieCount
+    h = draw(x(i), y(i), side, side);
+    set(h, 'FaceColor', c1 + decision.probability(i) * (c2 - c1));
     set(h, 'EdgeColor', 0.15 * [ 1 1 1 ]);
   end
 
+  %
+  % Correctly detected defective dies.
+  %
+  l1 = line( ...
+    x(decision.trueNegativeIndex) + side / 2, ...
+    y(decision.trueNegativeIndex) + side / 2, ...
+    'Color', 'k', 'LineStyle', 'None', 'Marker', 'o', 'MarkerSize', 10);
+
+  %
+  % Misclassified dies.
+  %
+  l2 = line( ...
+    x([ decision.falsePositiveIndex, decision.falseNegativeIndex ]) + side / 2, ...
+    y([ decision.falsePositiveIndex, decision.falseNegativeIndex ]) + side / 2, ...
+    'Color', 'k', 'LineStyle', 'None', 'Marker', 'x', 'MarkerSize', 10);
+
+  legend([ l1, l2 ], { 'True negative', 'False positive and negative' });
+
   axis tight;
+
+  Colormap.gradient(c1, c2);
+  h = colorbar;
+  set(h, 'YTickLabel', 0:0.1:1);
+
+  %
+  % Description.
+  %
+  annotation('textbox', [ 0.55 0.15 0.25 0.20 ], 'String', ...
+    sprintf([ ...
+      'Total dies: %d\n', ...
+      'Defect dies: %d\n', ...
+      'True positive: %d\n', ...
+      'True negative: %d\n', ...
+      'False positive: %d\n', ...
+      'False negative: %d' ], ...
+      wafer.dieCount, ...
+      decision.trueCount, ...
+      decision.truePositiveCount, ...
+      decision.trueNegativeCount, ...
+      decision.falsePositiveCount, ...
+      decision.falseNegativeCount), ...
+    'BackgroundColor', [ 1, 1, 1 ], 'FontSize', 16);
 end
 
 function h = draw(x, y, W, H)

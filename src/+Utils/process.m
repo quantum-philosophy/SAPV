@@ -59,19 +59,28 @@ function results = process(c, m, results, sampleCount)
   %
   % Decision making.
   %
+  % The null hypothesis: the die is defective.
+  %
   uLimit = c.process.mean - 2 * c.process.deviation;
   pLimit = 0.2;
 
-  decision.trueProbability = min(m.u, [], 1) < uLimit; % It is certain: 0 or 1.
-  decision.inferredProbability = sum(min(u, [], 1) < uLimit, 3) / sampleCount;
+  decision.probability = sum(min(u, [], 1) < uLimit, 3) / sampleCount;
 
-  decision.trueIndex = find(decision.trueProbability);
-  decision.inferredIndex = find(decision.inferredProbability > pLimit);
+  I = 1:c.system.wafer.dieCount;
+  T = find(min(m.u, [], 1) < uLimit);
+  D = find(decision.probability > pLimit);
 
-  decision.detectedIndex = ...
-    intersect(decision.trueIndex, decision.inferredIndex);
-  decision.misclassifiedIndex = ...
-    setxor(decision.trueIndex, decision.inferredIndex);
+  decision.trueIndex          = T;
+  decision.falsePositiveIndex = setdiff(T, D); % Type I
+  decision.falseNegativeIndex = setdiff(setdiff(I, T), setdiff(I, D)); % Type II
+  decision.truePositiveIndex  = intersect(setdiff(I, T), setdiff(I, D));
+  decision.trueNegativeIndex  = intersect(D, T);
+
+  decision.trueCount          = length(decision.trueIndex);
+  decision.falsePositiveCount = length(decision.falsePositiveIndex);
+  decision.falseNegativeCount = length(decision.falseNegativeIndex);
+  decision.truePositiveCount  = length(decision.truePositiveIndex);
+  decision.trueNegativeCount  = length(decision.trueNegativeIndex);
 
   results.mean      = Mean;
   results.deviation = Deviation;

@@ -28,8 +28,6 @@ function plot(c, m, results)
   Plot.title('Defect - Probability');
   commit('Defect - Probability.pdf');
 
-  return;
-
   %
   % The error of the inferred quantity of interest.
   %
@@ -196,23 +194,43 @@ function decide(wafer, decision)
     set(h, 'EdgeColor', 0.15 * [ 1 1 1 ]);
   end
 
-  %
-  % Correctly detected defective dies.
-  %
-  l1 = line( ...
-    x(decision.trueNegativeIndex) + side / 2, ...
-    y(decision.trueNegativeIndex) + side / 2, ...
-    'Color', 'k', 'LineStyle', 'None', 'Marker', 'o', 'MarkerSize', 10);
+  lines = [];
+  labels = {};
 
   %
-  % Misclassified dies.
+  % Correctly classified as defective.
   %
-  l2 = line( ...
-    x([ decision.falsePositiveIndex, decision.falseNegativeIndex ]) + side / 2, ...
-    y([ decision.falsePositiveIndex, decision.falseNegativeIndex ]) + side / 2, ...
-    'Color', 'k', 'LineStyle', 'None', 'Marker', 'x', 'MarkerSize', 10);
+  if ~isempty(decision.trueNegativeIndex)
+    lines(end + 1) = line( ...
+      x(decision.trueNegativeIndex) + side / 2, ...
+      y(decision.trueNegativeIndex) + side / 2, ...
+      'Color', 'k', 'LineStyle', 'None', 'Marker', 'o', 'MarkerSize', 10);
+    labels{end + 1} = 'Correctly classified as defective (true negative)';
+  end
 
-  legend([ l1, l2 ], { 'True negative', 'False positive and negative' });
+  %
+  % Misclassified as non-defective.
+  %
+  if ~isempty(decision.falsePositiveIndex)
+    lines(end + 1) = line( ...
+      x([ decision.falsePositiveIndex, decision.falsePositiveIndex ]) + side / 2, ...
+      y([ decision.falsePositiveIndex, decision.falsePositiveIndex ]) + side / 2, ...
+      'Color', 'k', 'LineStyle', 'None', 'Marker', '*', 'MarkerSize', 10);
+    labels{end + 1} = 'Misclassified as non-defective (false positive)';
+  end
+
+  %
+  % Misclassified as defective.
+  %
+  if ~isempty(decision.falseNegativeIndex)
+    lines(end + 1) = line( ...
+      x([ decision.falseNegativeIndex, decision.falseNegativeIndex ]) + side / 2, ...
+      y([ decision.falseNegativeIndex, decision.falseNegativeIndex ]) + side / 2, ...
+      'Color', 'k', 'LineStyle', 'None', 'Marker', 'x', 'MarkerSize', 10);
+    labels{end + 1} = 'Misclassified as defective (false negative)';
+  end
+
+  legend(lines, labels);
 
   axis tight;
 

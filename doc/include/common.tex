@@ -3,6 +3,8 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{cases}
+\usepackage{graphicx}
+\usepackage[config, labelfont={rm,bf,up}, font={rm,bf,up}]{caption,subfig}
 
 \usepackage[maxnames=5, sorting=none]{biblatex}
 
@@ -21,9 +23,11 @@
 % References
 \newcommand{\eref}[1]{Eq.~(\ref{equ:#1})}
 \newcommand{\sref}[1]{Sec.~\ref{sec:#1}}
+\newcommand{\fref}[1]{Fig.~\ref{fig:#1}}
 
 \newcommand{\elabel}[1]{\label{equ:#1}}
 \newcommand{\slabel}[1]{\label{sec:#1}}
+\newcommand{\flabel}[1]{\label{fig:#1}}
 
 % Sets
 \newcommand{\real}{\mathbb{R}}
@@ -46,7 +50,7 @@
 \renewcommand{\o}{\omega}
 \newcommand{\outcomes}{\Omega}
 \newcommand{\sigmaAlgebra}{\mathcal{F}}
-\newcommand{\probabilityMeasure}{\mathcal{P}}
+\newcommand{\probabilityMeasure}{\mathbb{P}}
 \newcommand{\probabilitySpace}{(\outcomes, \sigmaAlgebra, \probabilityMeasure)}
 
 \newcommand{\gaussian}[2]{\mathcal{N}\left( #1, #2 \right)}

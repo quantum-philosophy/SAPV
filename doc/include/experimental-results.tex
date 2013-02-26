@@ -1,2 +1,25 @@
-We focus on the major cause of uncertainty due to the leakage current: the effective channel length. It is relatively straightforward to specify $\mu_0$ and $\sigma^2_0$ of $\mu_\u$ as such information is usually available. The parameters $\nu_\u$ and $\nu_\noise$, representing the degree of beliefs, and $\tau^2_\u$ and $\tau^2_\u$, representing the presumable values of $\sigma^2_\u$ and $\sigma^2_\noise$, should be set according to the prior knowledge. In the absence of such knowledge, a non-informative prior can be chosen for $\sigma^2_\u$ and $\sigma^2_\noise$ \cite{gelman2004}.
+Without loss of generality, in this work, we focus on one of the major sources of uncertainty: the subthreshold leakage current and, more specifically, on the effective channel length. The reason for this choice is that the effective channel length has the strongest influence on leakage \cite{juan2011, juan2012}; in particular, it also affects the threshold voltage. It is relatively straightforward to specify the hyperparameters $\mu_0$ and $\sigma^2_0$ of the prior distribution of $\mu$ given in \eref{mu-u-prior} since such information is usually available. The hyperparameters $\nu_\u$ and $\nu_\noise$, representing the degree of beliefs, and $\tau^2_\u$ and $\tau^2_\u$, representing the presumable values of $\sigma^2_\u$ and $\sigma^2_\noise$, should be set according to the prior knowledge. In the absence of such knowledge, a non-informative prior can be chosen for $\sigma^2_\u$ and $\sigma^2_\noise$ \cite{gelman2004}.
+
+In this paragraph, we describe the default configuration of our experimental setup. In the following subsections, this configuration will be adjusted in a certain way according to the purpose of a particular experiment.
 % In \eref{mu-u-prior}, $\mu_0 = 45~\text{nm}$ and $\sigma_0 = 1~\text{nm}$. In \eref{sigma2-u-prior} and \eref{sigma2-noise-prior}, $\nu_\noise = \nu_\u = 2$ and $\tau^2_\noise = \tau^2_\u = 1$, which results in a heavy-tailed distribution allowing one for having a rather limited prior knowledge.
+
+\subsection{Number of Processing Elements}
+In this subsection, we consider five hypothetical platforms with the number of processing elements $\nprocs$ equal to 2, 4, 8, 16, and 32 cores, respectively.
+
+\subsection{Number of Space Measurements}
+In this subsection, we change the number of dies $\ndata$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\nchips - \ndata$ dies on the wafer are left unobserved). The considered scenarios are 1, 10, 20, 40, 80, and 160 dies.
+
+\subsection{Number of Time Measurements}
+In this subsection, we sweep the number of moments of time $\nsteps$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\npsteps - \nsteps$ steps are discarded after $\model$ is evaluated for the input power profile $\profilePdyn$). The considered scenarios are 1, 10, 20, 40, 80, and 160 moments of time.
+
+\subsection{Measurement Noise}
+In this subsection, we vary the level of the noise in the input data set $\Data$ within the set $\{ 0, 0.5, 1, 2 \}$ (in Kelvins) while keeping the corresponding prior distribution in \eref{sigma2-noise-prior} unchanged.
+
+\subsection{Numerical vs. Analytical Solution}
+In this subsection, we demonstrate the speedup due to the analytical solution of the forward model comparing with a numerical solution (see \sref{analytical-solution}).
+
+\subsection{Na\"{i}ve vs. Optimized Proposal Distribution}
+In this subsection, we show the importance of the optimization procedure preceding the sampling part (see \sref{proposal-distribution}).
+
+\subsection{Sequential vs. Parallel Sampling}
+In this subsection, we illustrate the difference between the two sampling strategies: sequential and parallel (see \sref{sampling-strategy}).

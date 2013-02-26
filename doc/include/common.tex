@@ -25,7 +25,7 @@
 \newcommand{\elabel}[1]{\label{equ:#1}}
 \newcommand{\slabel}[1]{\label{sec:#1}}
 
-% Spaces
+% Sets
 \newcommand{\real}{\mathbb{R}}
 
 % Linear algebra
@@ -38,8 +38,7 @@
 
 \newcommand{\vI}{\v{e}}
 \newcommand{\mI}{\m{I}}
-
-\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\vZero}{\v{0}}
 
 \newcommand{\diag}[1]{\text{diag}(#1)}
 
@@ -50,17 +49,10 @@
 \newcommand{\probabilityMeasure}{\mathcal{P}}
 \newcommand{\probabilitySpace}{(\outcomes, \sigmaAlgebra, \probabilityMeasure)}
 
-\renewcommand{\u}{u}
-\newcommand{\vu}{\v{u}}
-\newcommand{\mU}{\m{U}}
-
 \newcommand{\gaussian}[2]{\mathcal{N}\left( #1, #2 \right)}
 \newcommand{\gaussianp}[2]{\mathcal{GP}\left( #1, #2 \right)}
 \newcommand{\sichisquared}[2]{\text{Scale-inv-}\chi^2\left( #1, #2 \right)}
 \newcommand{\studentst}[3]{t_{#1}\left( #2, #3 \right)}
-
-\newcommand{\z}{z}
-\newcommand{\vz}{\v{z}}
 
 \makeatletter
 \def\f#1{\@ifnextchar\bgroup{\fWithTwoArguments{#1}}{\fWithOneArgument{#1}}}
@@ -84,6 +76,61 @@
 \newcommand{\mean}{\mu}
 \newcommand{\vmean}{{\boldsymbol\mu}}
 
+% Karhunen-Loeve expansion
+\newcommand{\domain}{D}
+\newcommand{\mKL}{\m{L}}
+
+% Temperature
+\newcommand{\T}{q}
+\newcommand{\vT}{\v{q}}
+\newcommand{\mT}{\m{Q}}
+\newcommand{\mvT}{\tilde{\v{q}}}
+\newcommand{\mmT}{\tilde{\m{Q}}}
+\newcommand{\amb}{\text{amb}}
+\newcommand{\meas}{\text{meas}}
+
+% Power
+\renewcommand{\P}{p}
+\newcommand{\vP}{\v{p}}
+\newcommand{\mP}{\m{P}}
+\newcommand{\dyn}{\text{dyn}}
+\newcommand{\leak}{\text{leak}}
+
+% Thermal model
+\renewcommand{\t}{t}
+
+\newcommand{\specification}{\mathcal{S}}
+
+\newcommand{\vX}{\v{x}}
+\newcommand{\mC}{\m{C}}
+\newcommand{\mG}{\m{G}}
+\newcommand{\mM}{\m{B}}
+
+% Forward model
+\renewcommand{\r}{r}
+\newcommand{\vr}{\v{r}}
+
+\makeatletter
+\def\model{\@ifnextchar\bgroup{\modelWithArgument}{\modelWithoutArgument}}
+\def\modelWithArgument#1{\mathcal{M}(#1)}
+\def\modelWithoutArgument{\mathcal{M}}
+\makeatother
+
+% Statistical model
+\newcommand{\Data}{\mathcal{D}}
+\newcommand{\UData}{\mathcal{U}}
+
+\newcommand{\noise}{\epsilon}
+\newcommand{\mnoise}{\boldsymbol\epsilon}
+\newcommand{\vnoise}{\boldsymbol\epsilon}
+
+\renewcommand{\u}{u}
+\newcommand{\vu}{\v{u}}
+\newcommand{\mU}{\m{U}}
+
+\newcommand{\z}{z}
+\newcommand{\vz}{\v{z}}
+
 \newcommand{\param}{\theta}
 \newcommand{\Param}{\Theta}
 
@@ -93,44 +140,6 @@
 \newcommand{\OU}{\text{OU}}
 
 \newcommand{\mOI}{\m{J}}
-
-% System
-\makeatletter
-\def\model{\@ifnextchar\bgroup{\modelWithArgument}{\modelWithoutArgument}}
-\def\modelWithArgument#1{\mathcal{M}(#1)}
-\def\modelWithoutArgument{\mathcal{M}}
-\makeatother
-
-% Temperature
-\newcommand{\specification}{\mathcal{S}}
-
-\newcommand{\T}{q}
-\newcommand{\vT}{\v{q}}
-\newcommand{\mT}{\m{Q}}
-\newcommand{\mvT}{\tilde{\v{q}}}
-\newcommand{\mmT}{\tilde{\m{Q}}}
-\newcommand{\amb}{\text{amb}}
-\newcommand{\meas}{\text{meas}}
-
-\newcommand{\vx}{\v{x}}
-\newcommand{\mC}{\m{C}}
-\newcommand{\mG}{\m{G}}
-\newcommand{\mM}{\m{B}}
-
-% Power
-\renewcommand{\P}{p}
-\newcommand{\vP}{\v{p}}
-\newcommand{\mP}{\m{P}}
-\newcommand{\dyn}{\text{dyn}}
-\newcommand{\leak}{\text{leak}}
-
-% Time
-\renewcommand{\t}{t}
-\newcommand{\dt}{\Delta \t}
-
-% Space
-\renewcommand{\r}{r}
-\newcommand{\vr}{\v{r}}
 
 % Profiles
 \newcommand{\profile}[1]{( #1, \partition{#1} )}
@@ -149,18 +158,6 @@
 \def\profileTWithoutArgument{\profile{\mT}}
 \makeatother
 
-\newcommand{\Data}{\mathcal{D}}
-\newcommand{\DesignData}{\mathcal{O}}
-
-% Uncertainties
-\newcommand{\noise}{\epsilon}
-\newcommand{\mnoise}{\boldsymbol\epsilon}
-\newcommand{\vnoise}{\boldsymbol\epsilon}
-
-% Karhunen-Loeve expansion
-\newcommand{\domain}{D}
-\newcommand{\mKL}{\m{L}}
-
 % Numbers
 \newcommand{\chips}{\text{c}}
 \newcommand{\nchips}{{n_\chips}}
@@ -174,10 +171,6 @@
 \newcommand{\nsteps}{{n_\text{s}}}
 \newcommand{\nnodes}{{n_\text{n}}}
 \newcommand{\nvars}{{n_\text{v}}}
-
-\newcommand{\nobs}{{n_\text{o}}}
-\newcommand{\nuno}{{n_\text{u}}}
-\newcommand{\nin}{{n_\text{v}}}
 
 \newcommand{\ncp}{{n_\text{cp}}}
 \newcommand{\ndp}{{n_\text{dp}}}

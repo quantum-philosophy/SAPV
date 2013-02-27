@@ -1,0 +1,11 @@
+Let $\u: \outcomes \times \domain \to \real$ be a square-integrable stochastic process defined over a spatial domain $\domain$. Let $\fMean{\r} := \E{\u(\r)}$ and $\fCov{\r, \r'} := \E{(\u(\r) - \fMean{\r}) (\u(\r') - \fMean{\r'})}$, $\r, \r' \in \domain$, be the mean and covariance functions of $\u$, respectively. Take a vector of spatial locations $\vr = (\r_i) \in \domain^n$, and define the corresponding discretization of $\u$ as an $n$-dimensional \rv\ $\vu = (\u(\r_i)) \in \real^n$ endowed with the expected value $\vmean = (\fMean{\r_i}) \in \real^n$ and the covariance matrix $\mCov = (\fCov{\r_i, \r_j}) \in \real^{n \times n}$. Since any covariance matrix is real and symmetric, it admits the eigenvalue decomposition \cite{press2007} written as
+\[
+  \mCov = \m{V} \m{\Lambda} \m{V}^T
+\]
+where $\m{V}$ and $\m{\Lambda} = \diag{\lambda_i}$ are an orthogonal matrix of the eigenvectors and a diagonal matrix of the eigenvalues of $\mCov$, respectively. Consequently, denoting $\mKL = \m{V} \m{\Lambda}^\frac{1}{2}$, $\vu$ can be represented as
+\begin{equation} \elabel{kl-expansion}
+  \vu = \vmean + \mKL \vz
+\end{equation}
+where $\vz$ is a vector of centered, normalized, and uncorrelated \rvs, which are also independent if $\u$ is Gaussian.
+
+The decomposition above provides means of even further model order reduction. The intuition is that, due to the correlations induced by $\fCov$, $\vu$ can be nearly losslessly recovered from a small subset of $\vz$. One way to reveal these redundancies is to analyze the eigenvalues $\lambda_i$ stored in $\m{\Lambda}$. Assume $\lambda_i$, $\forall i$, are arranged in a non-increasing order and let $\tilde{\lambda}_i = \lambda_i / \sum_j \lambda_j$. Gradually summing up the arranged and normalized eigenvalues $\tilde{\lambda}_i$, we can identify a subset of them, which has the cumulative sum greater than a certain threshold. When this threshold is sufficiently high (close to one), the rest of the eigenvalues and their eigenvectors can be dropped as being insignificant, reducing the number of stochastic dimensions. In what follows, such a reduction will have the same notation as in the full version given in \eref{kl-expansion}, and the dimensionality of $\mKL$ and $\vz$ will be clear from the context.

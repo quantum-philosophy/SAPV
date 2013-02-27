@@ -70,9 +70,12 @@
 \def\fCov{\@ifnextchar\bgroup{\fCovWithArgument}{\fCovWithoutArgument}}
 \def\fCovWithArgument#1{k(#1)}
 \def\fCovWithoutArgument{k}
+
+\def\E{\@ifnextchar\bgroup{\EWithArgument}{\EWithoutArgument}}
+\def\EWithArgument#1{\mathbb{E}\left( #1 \right)}
+\def\EWithoutArgument{\mathbb{E}}
 \makeatother
 
-\newcommand{\E}[1]{\mathbb{E}\left( #1 \right)}
 \newcommand{\Cov}[1]{\mathbb{C}\text{ov}\left( #1 \right)}
 
 \newcommand{\mCov}{\m{K}}

@@ -8,7 +8,7 @@ The core of the Metropolis algorithm is the proposal distribution. This distribu
 
 \subsubsection{Sampling Strategy} \slabel{sampling-strategy}
 We make use of the omnipresent parallel computing. To this end, instead of utilizing the classical proposal mentioned in \sref{proposal-distribution}, which is purely sequential as the mean of the distribution for the next sample draw depends on the previous sample, we appeal to the independence sampler Metropolis algorithm \cite{gelman2004}. In this case, a typical choice of proposal is a multivariate t-distribution, which is parametrized independently of the current position of the chain:
-\[
+\begin{equation} \elabel{proposal}
   \vparam \sim \studentst{\nu}{\hat{\vparam}}{\alpha^2 \mOI^{-1}}
-\]
+\end{equation}
 where $\hat{\vparam}$ and $\mOI$ are as in \sref{proposal-distribution}, $\nu$ is the number of degrees of freedom, and $\alpha$ is a tuning constant. Now, the posterior in \eref{log-posterior} can be computed for all samples in parallel.

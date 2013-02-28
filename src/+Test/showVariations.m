@@ -8,5 +8,5 @@ plot(c.system.wafer, c.observations.dieIndex);
 [ u, n, z ] = c.process.sample;
 
 plot(c.process, n);
-colormap(Color.map(z, [ -3, 3 ]));
+Colormap.data(z, [ -3.5, 3.5 ]);
 Plot.title('Quantity of interest (normalized)');

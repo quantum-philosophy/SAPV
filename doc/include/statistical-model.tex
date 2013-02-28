@@ -8,7 +8,7 @@ where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, and $\
 \end{equation}
 where
 \begin{align*}
-  & \fCov_\SE(\r, \r') = \exp\left(-\frac{\norm{\r - \r'}^2}{2 \ell_\SE^2}\right) \text{ and} \\
+  & \fCov_\SE(\r, \r') = \exp\left(-\frac{\norm{\r - \r'}^2}{\ell_\SE^2}\right) \text{ and} \\
   & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU} \right)
 \end{align*}
 are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ weights the kernels; $\norm{\cdot}$ stands for the Euclidean distance; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters. The choice of the covariance function is guided by the observations of the correlation structures induced by the manufacturing process \cite{cheng2011}: the first kernel, $\fCov_\SE$, imposes similarities between the points on the wafer that are close to each other while the second kernel, $\fCov_\OU$, imposes similarities between points that are at the same distance from the center of the wafer. In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu, \sigma_\u^2 \}$.

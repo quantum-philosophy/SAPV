@@ -1,5 +1,5 @@
 function plot(c, m, results)
-  mRange = [ -3, 3 ] * c.process.deviation + c.process.mean;
+  mRange = [ -3.5, 3.5 ] * c.process.deviation + c.process.mean;
 
   samples = results.samples;
   sampleCount = length(results.logPosterior);
@@ -204,7 +204,7 @@ function decide(wafer, decision)
     lines(end + 1) = line( ...
       x(decision.trueNegativeIndex) + side / 2, ...
       y(decision.trueNegativeIndex) + side / 2, ...
-      'Color', 'k', 'LineStyle', 'None', 'Marker', 'o', 'MarkerSize', 10);
+      'Color', 'k', 'LineStyle', 'None', 'Marker', 'x', 'MarkerSize', 10);
     labels{end + 1} = 'Correctly classified as defective (true negative)';
   end
 
@@ -226,7 +226,7 @@ function decide(wafer, decision)
     lines(end + 1) = line( ...
       x([ decision.falseNegativeIndex, decision.falseNegativeIndex ]) + side / 2, ...
       y([ decision.falseNegativeIndex, decision.falseNegativeIndex ]) + side / 2, ...
-      'Color', 'k', 'LineStyle', 'None', 'Marker', 'x', 'MarkerSize', 10);
+      'Color', 'k', 'LineStyle', 'None', 'Marker', 'o', 'MarkerSize', 10);
     labels{end + 1} = 'Misclassified as defective (false negative)';
   end
 

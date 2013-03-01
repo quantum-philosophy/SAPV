@@ -15,11 +15,11 @@ function timeCount(varargin)
   %
   % Tests.
   %
-  tests = { 'Matlab', 'Sims' };
+  tests = { 'Sequential', 'Parallel' };
 
   function c = configure(i, j)
-    c = Test.configure('timeCount', timeCount(i));
-    c.optimization.method = tests{j};
+    c = Test.configure('forwardMethod', tests{j}, ...
+      'timeCount', timeCount(i));
   end
 
   Utils.compare('Time count', ...

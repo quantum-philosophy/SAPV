@@ -15,11 +15,11 @@ function dieCount(varargin)
   %
   % Tests.
   %
-  tests = { 'Matlab', 'Sims' };
+  tests = { 'Sequential', 'Parallel' };
 
   function c = configure(i, j)
-    c = Test.configure('dieCount', dieCount(i));
-    c.optimization.method = tests{j};
+    c = Test.configure('forwardMethod', tests{j}, ...
+      'dieCount', dieCount(i));
   end
 
   Utils.compare('Die count', ...

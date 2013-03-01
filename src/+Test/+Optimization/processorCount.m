@@ -16,12 +16,10 @@ function processorCount(varargin)
   % Tests.
   %
   tests = { 'Matlab', 'Sims' };
-  proposalScale = [ 0.60, 0.60 ];
 
   function c = configure(i, j)
     c = Test.configure('processorCount', processorCount(i));
     c.optimization.method = tests{j};
-    c.proposal.scale = proposalScale(j);
   end
 
   Utils.compare('Processor count', ...

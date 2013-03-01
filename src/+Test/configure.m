@@ -122,7 +122,7 @@ function c = configure(varargin)
   % The forward model.
   %
   forward = Options;
-  forward.method = 'Parallel';
+  forward.method = options.get('forwardMethod', 'Parallel');
 
   c.forward = forward;
 

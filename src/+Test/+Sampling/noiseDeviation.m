@@ -15,11 +15,11 @@ function noiseDeviation(varargin)
   %
   % Tests.
   %
-  tests = { 'Matlab', 'Sims' };
+  tests = { 'Sequential', 'Parallel' };
 
   function c = configure(i, j)
-    c = Test.configure('noiseDeviation', noiseDeviation(i));
-    c.optimization.method = tests{j};
+    c = Test.configure('forwardMethod', tests{j}, ...
+      'noiseDeviation', noiseDeviation(i));
   end
 
   Utils.compare('Noise deviation', ...

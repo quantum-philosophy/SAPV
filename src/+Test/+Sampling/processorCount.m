@@ -15,14 +15,11 @@ function processorCount(varargin)
   %
   % Tests.
   %
-  tests = { 'Gaussian', 'StudentsT' };
-  proposalScale = [ 0.50, 0.60 ];
+  tests = { 'Sequential', 'Parallel' };
 
   function c = configure(i, j)
-    c = Test.configure( ...
-      'inferenceMethod', tests{j}, ...
+    c = Test.configure('forwardMethod', tests{j}, ...
       'processorCount', processorCount(i));
-    c.proposal.scale = proposalScale(j);
   end
 
   Utils.compare('Processor count', ...

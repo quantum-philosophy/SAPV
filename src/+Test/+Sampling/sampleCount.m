@@ -15,11 +15,11 @@ function sampleCount(varargin)
   %
   % Tests.
   %
-  tests = { 'Matlab', 'Sims' };
+  tests = { 'Sequential', 'Parallel' };
 
   function c = configure(i, j)
-    c = Test.configure('sampleCount', max(sampleCount));
-    c.optimization.method = tests{j};
+    c = Test.configure('forwardMethod', tests{j}, ...
+      'sampleCount', max(sampleCount));
   end
 
   function results = perform(i, j, c, m)

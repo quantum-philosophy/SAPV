@@ -1,6 +1,6 @@
 classdef Sequential < ForwardModel.Base
   methods
-    function this = Sequentil(varargin)
+    function this = Sequential(varargin)
       this = this@ForwardModel.Base(varargin{:});
     end
   end

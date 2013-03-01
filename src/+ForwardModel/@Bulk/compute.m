@@ -3,7 +3,8 @@ function data = compute(this, L)
 
   if pointCount == 1
     %
-    % NOTE: Trying to reuse the base code.
+    % NOTE: Trying to eliminate unreasonable repmats as they
+    % introduce some unnecessary overheads.
     %
     data = compute@ForwardModel.Base(this, L);
     return;
@@ -29,36 +30,33 @@ function data = compute(this, L)
   %
   Pdyn = this.Pdyn;
 
-  L = reshape(L, [ processorCount, dieCount, pointCount ]);
+  %
+  % In case of several samples, the second dimension
+  % should be extended accordingly.
+  %
+  Pdyn = repmat(Pdyn, [ 1, pointCount, 1 ]);
+
+  L = reshape(L, processorCount, []);
 
   E = this.E;
   D = this.D;
   BT = this.BT;
   Tamb = this.ambientTemperature;
 
-  data = zeros(processorCount, timeCount, dieCount, pointCount);
+  data = zeros(processorCount, timeCount, dieCount * pointCount);
 
-  for p = 1:pointCount
-    l = L(:, :, p);
+  X = zeros(nodeCount, dieCount * pointCount);
+  T = Tamb * ones(processorCount, dieCount * pointCount);
 
-    d = zeros(processorCount, timeCount, dieCount);
-    X = zeros(nodeCount, dieCount);
-    T = Tamb * ones(processorCount, dieCount);
-
-    k = 1;
-    i = 1;
-    while k <= timeCount
-      for j = i:timeIndex(k)
-        X = E * X + D * (Pdyn(:, :, j) + leak(l, T));
-        T = BT * X + Tamb;
-      end
-      d(:, k, :) = T;
-      k = k + 1;
-      i = j + 1;
+  k = 1;
+  i = 1;
+  while k <= timeCount
+    for j = i:timeIndex(k)
+      X = E * X + D * (Pdyn(:, :, j) + leak(L, T));
+      T = BT * X + Tamb;
     end
-
-    data(:, :, :, p) = d;
+    data(:, k, :) = T;
+    k = k + 1;
+    i = j + 1;
   end
-
-  data = reshape(data, processorCount, timeCount, []);
 end

@@ -3,11 +3,18 @@
   \caption{Results for the number of time steps $\nsteps$.}
   \begin{tabular*}{1\linewidth}{lrrrrrr}
     \toprule
-    Temporal measurements & 1 & 10 & 20 & 40 & 80 & 160 \\
+    Temporal measurements  & 1 & 10 & 20 & 40 & 80 & 160 \\
     \midrule
-    Time in sequence, m & 0 & 0 & 0 & 0 & 0 & 0 \\
-    Time in parallel, m & 1.09 & 2.23 & 2.71 & 2.72 & 2.81 & 3.05 \\
-    NRMSE, \%           & 6.69 & 2.79 & 3.62 & 1.49 & 2.82 & 1.22 \\
+    \midrule
+    Optimization time, m   & 1.12 & 3.02 & 3.34 & 3.62 & 3.64 & 4.20 \\
+    \midrule
+    Sequential sampling, m & 2.40 & 4.38 & 4.60 & 4.67 & 4.80 & 4.97 \\
+    Total time, m          & 3.52 & 7.40 & 7.94 & 8.29 & 8.44 & 9.16 \\
+    \midrule
+    Parallel sampling, m   & 0.62 & 1.13 & 1.18 & 1.22 & 1.25 & 1.30 \\
+    Total time, m          & 1.74 & 4.16 & 4.52 & 4.84 & 4.89 & 5.50 \\
+    \midrule
+    NRMSE, \%              & 7.48 & 2.72 & 3.42 & 1.83 & 2.34 & 1.32 \\
     \bottomrule
   \end{tabular*}
   \tlabel{temporal-measurements}

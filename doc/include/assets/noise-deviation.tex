@@ -1,13 +1,20 @@
 \begin{table}[h]
   \centering
   \caption{Results for the measurement noise.}
-  \begin{tabular*}{0.80\linewidth}{lrrrr}
+  \begin{tabular*}{1\linewidth}{l@{\hskip 5.5em}r@{\hskip 2em}r@{\hskip 2em}r@{\hskip 2em}r}
     \toprule
     Deviation of the noise & 0, K & 0.5, K & 1, K & 2, K \\
     \midrule
-    Time in sequence, m & 0 & 0 & 0 & 0 \\
-    Time in parallel, m & 2.88 & 2.65 & 2.71 & 2.53 \\
-    NRMSE, \%           & 0.01 & 2.89 & 3.62 & 4.04 \\
+    \midrule
+    Optimization time, m     & 5.08 & 3.73 & 3.34 & 3.19 \\
+    \midrule
+    Sequential sampling, m   & 4.76 & 4.70 & 4.60 & 4.71 \\
+    Total time, m            & 9.84 & 8.43 & 7.94 & 7.90 \\
+    \midrule
+    Parallel sampling, m     & 1.19 & 1.17 & 1.18 & 1.18 \\
+    Total time, m            & 6.27 & 4.91 & 4.52 & 4.37 \\
+    \midrule
+    NRMSE, \%                & 0.02 & 2.71 & 3.42 & 4.05 \\
     \bottomrule
   \end{tabular*}
   \tlabel{noise-deviation}

@@ -27,18 +27,18 @@
   }%
 }
 
-% \newfont{\titlefont}{phvb8t at 18pt} % Default: phvb8t at 18pt
-% \makeatletter
-% \renewcommand{\@maketitle}{
-%   \newpage
-%   \null
-%   \begin{center}%
-%     {\titlefont \@title \par}%
-%     \vspace{1.5em}%
-%   \end{center}%
-%   \par%
-% }
-% \makeatother
+\newfont{\titlefont}{phvb8t at 18pt} % Default: phvb8t at 18pt
+\makeatletter
+\renewcommand{\@maketitle}{
+  \newpage
+  \null
+  \begin{center}%
+    {\titlefont \@title \par}%
+    \vspace{1.5em}%
+  \end{center}%
+  \par%
+}
+\makeatother
 
 % References
 \newcommand{\eref}[1]{Eq.~(\ref{equ:#1})}

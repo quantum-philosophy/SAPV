@@ -1,13 +1,20 @@
 \begin{table}[h]
   \centering
   \caption{Results for the number of processors $\nprocs$.}
-  \begin{tabular*}{0.90\linewidth}{lrrrrr}
+  \begin{tabular*}{1\linewidth}{l@{\hskip 4em}rrrrr}
     \toprule
-    Processing elements & 2 & 4 & 8 & 16 & 32 \\
+    Processing elements    & 2 & 4 & 8 & 16 & 32 \\
     \midrule
-    Time in sequence, m & 0 & 0 & 0 & 0 & 0 \\
-    Time in parallel, m & 1.87 & 2.71 & 5.36 & 10.09 & 26.32 \\
-    NRMSE, \%           & 4.50 & 3.62 & 3.92 &  2.69 &  1.82 \\
+    \midrule
+    Optimization time, m   & 2.67 & 3.34 &  5.20 &  7.37 & 13.85 \\
+    \midrule
+    Sequential sampling, m & 3.71 & 4.60 &  6.03 &  8.92 & 14.77 \\
+    Total time, m          & 6.38 & 7.94 & 11.23 & 16.29 & 28.62 \\
+    \midrule
+    Parallel sampling, m   & 0.98 & 1.18 &  1.58 &  2.51 & 5.30 \\
+    Total time, m          & 3.65 & 4.52 &  6.78 &  9.88 & 19.15 \\
+    \midrule
+    NRMSE, \%              & 4.71 & 3.42 &  3.68 &  2.73 &  1.94 \\
     \bottomrule
   \end{tabular*}
   \tlabel{processing-elements}

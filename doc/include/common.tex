@@ -40,6 +40,13 @@
 }
 \makeatother
 
+\usepackage{array}
+\newcolumntype{=}{>{\global\let\currentrowstyle\relax}}
+\newcolumntype{-}{>{\currentrowstyle}}
+\newcommand{\rowstyle}[1]{\gdef\currentrowstyle{#1}%
+  #1\ignorespaces
+}
+
 % References
 \newcommand{\eref}[1]{Eq.~(\ref{equ:#1})}
 \newcommand{\sref}[1]{Sec.~\ref{sec:#1}}

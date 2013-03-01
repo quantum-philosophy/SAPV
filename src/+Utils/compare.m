@@ -51,7 +51,8 @@ function compare(name, experiments, tests, configure, perform, save)
   for i = 1:experimentCount
     fprintf('Experimental setup "%s".\n', experiments{i});
 
-    %% Header.
+    %
+    % Header.
     %
     fprintf('%15s', 'Test');
     for j = 1:testCount
@@ -59,9 +60,28 @@ function compare(name, experiments, tests, configure, perform, save)
     end
     fprintf('\n');
 
-    %% Timing.
     %
-    fprintf('%15s', 'Time, m');
+    % Optimization timing.
+    %
+    fprintf('%15s', 'Optimization, m');
+    for j = 1:testCount
+      fprintf(' %15.2f', results{i, j}.time.optimization / 60);
+    end
+    fprintf('\n');
+
+    %
+    % Sampling timing.
+    %
+    fprintf('%15s', 'Sampling, m');
+    for j = 1:testCount
+      fprintf(' %15.2f', results{i, j}.time.sampling / 60);
+    end
+    fprintf('\n');
+
+    %
+    % Total timing.
+    %
+    fprintf('%15s', 'Total time, m');
     for j = 1:testCount
       time(i, j) = results{i, j}.time.optimization + ...
         results{i, j}.time.sampling;
@@ -69,7 +89,8 @@ function compare(name, experiments, tests, configure, perform, save)
     end
     fprintf('\n');
 
-    %% Accuracy.
+    %
+    % Accuracy.
     %
     fprintf('%15s', 'NRMSE, %');
     for j = 1:testCount
@@ -81,7 +102,8 @@ function compare(name, experiments, tests, configure, perform, save)
   end
 
   if experimentCount > 1
-    %% Timing.
+    %
+    % Timing.
     %
     Plot.figure;
     h = bar(1:experimentCount, time / 60);
@@ -92,7 +114,8 @@ function compare(name, experiments, tests, configure, perform, save)
     Plot.legend(tests);
     commit('Computational time.pdf');
 
-    %% Accuracy.
+    %
+    % Accuracy.
     %
     Plot.figure;
     h = bar(1:experimentCount, error * 100);

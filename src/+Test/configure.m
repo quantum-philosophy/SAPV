@@ -44,8 +44,8 @@ function c = configure(varargin)
   dynamicPower = DynamicPower(c.samplingInterval);
 
   power = Options;
-  power.Pdyn = dynamicPower.compute(schedule);
-  power.stepCount = size(power.Pdyn, 2);
+  power.stepCount = 1e3;
+  power.Pdyn = Utils.stretch(dynamicPower.compute(schedule), power.stepCount);
 
   c.power = power;
 

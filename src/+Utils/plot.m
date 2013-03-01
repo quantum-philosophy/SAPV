@@ -230,7 +230,7 @@ function decide(wafer, decision)
     labels{end + 1} = 'Misclassified as defective (false negative)';
   end
 
-  legend(lines, labels);
+  if ~isempty(lines), legend(lines, labels); end
 
   axis tight;
 

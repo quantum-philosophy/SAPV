@@ -13,7 +13,7 @@ In the prior for the variance of $\u$ (see \eref{sigma2-u-prior}), we let $\tau_
 In the prior for the variance of noise (see \eref{sigma2-noise-prior}), we let $\tau_\noise$ be $1~\text{K}$, and $\nu_\noise$ be ten observations (the same meaning as for $\nu_\u$).
 To summarize the reasoning behind the priors, the hyperparameters $\mu_0$, $\tau_\u$, and $\tau_\u$ represent the presumable values of $\mu_u$, $\sigma_\u$, and $\sigma_\noise$, respectively, and the hyperparameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the degree of our beliefs according to our prior knowledge. In the absence of such knowledge, non-informative priors can be chosen (see, \eg, \cite{gelman2004}).
 In \eref{proposal}, the number of degrees of freedom $\nu$ is eight, and the tuning constant $\alpha$ is set to 0.5.
-The optimization procedure (recall \sref{proposal-distribution}) is limited by $10^4$ objective function evaluations (the log-posterior in \eref{log-posterior}).
+The optimization procedure (recall \sref{proposal-distribution}) is undertaken using the Quasi-Newton algorithm \cite{press2007}, which is limited by $10^4$ objective function evaluations (the log-posterior in \eref{log-posterior}).
 The number of samples that we draw from the posterior is $10^4$; the first half of these samples is discarded leaving $5 \cdot 10^3$ effective samples $\nsamples$.
 Finally, in parallel computations, there are four workers employed.\footnote{All the experiments have been conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.}
 

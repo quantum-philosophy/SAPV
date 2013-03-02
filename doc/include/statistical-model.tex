@@ -1,8 +1,11 @@
-Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is infinite-dimensional. We model $\u$ as a square-integrable stochastic process $\u: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$, which corresponds to the wafer. Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\u$ is assumed to be a Gaussian process \cite{rasmussen2006}:
+Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is infinite-dimensional.
+We model $\u$ as a square-integrable stochastic process $\u: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$ (see also \aref{kl-expansion}), which corresponds to the wafer.
+Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\u$ is assumed to be a Gaussian process \cite{rasmussen2006}:
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]
-where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, and $\vparam_\u$ denotes their parametrization. For simplicity, let $\fMean{\r} = \mu$, $\forall \r \in \domain$, meaning that the expected value is constant. The covariance function of $\u$ is chosen to be the following composition:
+where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, and $\vparam_\u$ denotes their parametrization. For simplicity, let $\fMean{\r} = \mu$, $\forall \r \in \domain$, meaning that the expected value is constant.
+$\fCov$ is chosen to be the following composition:
 \begin{equation} \elabel{covariance-function}
   \fCov{\r, \r'} = \sigma_\u^2 \big( \eta \fCov_\SE(\r, \r') + (1 - \eta) \fCov_\OU(\r, \r') \big)
 \end{equation}
@@ -11,17 +14,19 @@ where
   & \fCov_\SE(\r, \r') = \exp\left(-\frac{\norm{\r - \r'}^2}{\ell_\SE^2}\right) \text{ and} \\
   & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU} \right)
 \end{align*}
-are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ weights the kernels; $\norm{\cdot}$ stands for the Euclidean distance; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters. The choice of the covariance function is guided by the observations of the correlation structures induced by the manufacturing process \cite{cheng2011}: the first kernel, $\fCov_\SE$, imposes similarities between the points on the wafer that are close to each other while the second kernel, $\fCov_\OU$, imposes similarities between points that are at the same distance from the center of the wafer. In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu, \sigma_\u^2 \}$.
+are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ weights the kernels; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters; $\norm{\cdot}$ stands for the Euclidean distance.
+The choice of the covariance function is guided by the observations of the correlation structures induced by the manufacturing process \cite{cheng2011}: the first kernel, $\fCov_\SE$, imposes similarities between the points on the wafer that are close to each other while the second kernel, $\fCov_\OU$, imposes similarities between points that are at the same distance from the center of the wafer.
+In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu, \sigma_\u^2 \}$.
 
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
-The infinite-dimensional object $\u$ is reduced to the finite-dimensional one via the KL expansion introduced in \aref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ncp = \nchips \nprocs$ processing elements on the wafer. Consequently, we obtain an $\ncp$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^\ncp$:
+The infinite-dimensional object $\u$ is reduced to a finite-dimensional one via the Karhunen-Lo\`{e}ve (KL) expansion introduced in \aref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ncp = \nchips \nprocs$ processing elements on the wafer. Consequently, we obtain an $\ncp$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^\ncp$:
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu \vI + \sigma_\u \mKL \vz
 \end{equation}
-where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI$ denotes a vector with all elements equal to one. Note that model order reduction is implied in \eref{kl-approximation}; therefore, $\vz \in \real^\nvars$ where $\nvars$ is much smaller than $\ncp$. In addition, we denote by $\vu_\data \in \real^{\ndp}$, $\ndp = \ndata \nprocs$, those elements of $\vu$ that correspond to the observations in $\Data$. Let us redefine $\vparam_\u = \{ \vz, \mu, \sigma^2_\u \}$ and denote the forward model by $\model{\vparam_\u}$.
+where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI = (e_i = 1)$. Note that model order reduction (see \aref{kl-expansion}) is implied in \eref{kl-approximation}; thus, $\vz \in \real^\nvars$ where $\nvars \leq \ncp$. In addition, we denote by $\vu_\data \in \real^{\ndp}$, $\ndp = \ndata \nprocs$, those elements of $\vu$ that correspond to the observations in $\Data$. Let us redefine $\vparam_\u = \{ \vz, \mu, \sigma^2_\u \}$ and denote the forward model by $\model{\vparam_\u}$.
 
 \subsubsection{The likelihood function}
-Due to the imperfection of the measurement processes, the temperature profiles in $\Data$, stacked into $\mvT_\meas$, are assumed to deviate from the model prediction in \eref{model}. To account for this,
+Due to the imperfection of the measurement process, the temperature profiles in $\Data$, stacked into $\mvT_\meas$, are assumed to deviate from the model prediction in \eref{model}. To account for this,
 \[
   \mvT_\meas = \model{\vparam_\u} + \vnoise = \mvT + \vnoise
 \]
@@ -29,7 +34,7 @@ where $\vnoise$ is an $\ndps$-dimensional vector of noise. The noise is typicall
 \[
   \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
 \]
-where $\sigma^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. The noise can be interpreted as
+where $\sigma^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements. The measurement noise can be interpreted as
 \begin{equation} \elabel{likelihood}
   \mvT_\meas | \vparam_\u, \sigma_\noise^2 \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}
 \end{equation}
@@ -56,4 +61,5 @@ Taking the product of the likelihood in \eref{likelihood} and the priors in \ere
   & {} - \frac{\norm{\vz}^2}{2} - \frac{(\mu - \mu_0)^2}{2 \sigma^2_0} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
   & {} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
 \end{align}
-where $c$ is some constant. This expression is sufficient for the Metropolis algorithm \cite{gelman2004}; thus, we can readily draw samples from the posterior. Each sample of $\vparam_\u$ is then used in \eref{kl-approximation} to compute a sample of $\u$, \ie, the QoI that we are concerned with, for all processing elements on the wafer. Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$. We shall address this issue in \sref{computational-aspects}.
+where $c$ is some constant. This expression is sufficient for the Metropolis algorithm (see \aref{bayesian-inference}); thus, we can readily draw samples from the posterior. Each sample of $\vparam_\u$ is then used in \eref{kl-approximation} to compute a sample of $\u$, \ie, the QoI that we are concerned with, for all processing elements on the wafer.
+Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$; we shall address this issue in \sref{computational-aspects}.

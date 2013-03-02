@@ -4,3 +4,9 @@ Given the thermal specification $\specification$ (see \sref{problem-formulation}
   \vT(\t) = \mM^T \vX(\t) + \vT_\amb \elabel{temperature-output}
 \end{subnumcases}
 where $\nnodes$ is the number of thermal nodes in the circuit; $\mC \in \real^{\nnodes \times \nnodes}$ is a diagonal matrix of the thermal capacitance; $\mG \in \real^{\nnodes \times \nnodes}$ is a symmetric, positive-definite matrix of the thermal conductance; $\vX \in \real^\nnodes$ is the internal state vector; $\vP \in \real^\nprocs$ and $\mM \in \real^{\nnodes \times \nprocs}$ are the input power vector and its mapping matrix to the thermal nodes; $\vT \in \real^\nprocs$ is the temperature vector, and $\vT_\amb \in \real^\nprocs$ is the vector of the ambient temperature. In general, \eref{heat-de} does not have a closed-form solution due to the power term defined in \eref{total-power}; hence, the system is typically being solved numerically. Consequently, given a dynamic power profile $\profilePdyn$ and using \eref{total-power} and \eref{thermal-system}, we can compute the corresponding temperature profile $(\mT, \partition{\mP})$ where $\mT = (\vT(\t_i))$, $\t_i \in \partition{\mP}$.
+
+Let $\mvT_\meas := \vectorize{\{\mT^{(i)}_\meas\}_{i = 1}^\ndata}$ be the vectorization of the temperature measurements $\{ \mT^{(i)}_\meas \}_{i = 1}^\ndata$ in $\Data$ into a single vector with $\ndps = \ndata \nprocs \nsteps$ entries. For convenience, denote the models developed so far by
+\begin{equation} \elabel{model}
+  \mvT = \model{\u},
+\end{equation}
+which, for an outcome $\u$, transforms the test dynamic power profile $\profilePdyn$ into the temperature vector $\mvT := \vectorize{\{\mT^{(i)}\}_{i = 1}^\ndata}$ evaluated at the same spatial locations $\vr$ as the vector $\mvT_\meas$ defined earlier. In what follows, we shall refer to this joint model as the forward model.

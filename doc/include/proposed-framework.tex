@@ -1,8 +1,10 @@
-In this section, we present a Bayesian framework developed around the proposed idea of the temperature-based UQ of process variation. Let $\mvT_\meas := \vectorize{\{\mT^{(i)}_\meas\}_{i = 1}^\ndata}$ be the vectorization of the temperature measurements $\{ \mT^{(i)}_\meas \}_{i = 1}^\ndata$ in $\Data$ into a single vector with $\ndps = \ndata \nprocs \nsteps$ entries. For convenience, denote the models introduced in \sref{power-model} and \sref{thermal-model} by
-\begin{equation} \elabel{model}
-  \mvT = \model{\u},
-\end{equation}
-which, for an outcome $\u$, transforms the test dynamic power profile $\profilePdyn$ into the temperature vector $\mvT := \vectorize{\{\mT^{(i)}\}_{i = 1}^\ndata}$ evaluated at the same spatial locations $\vr$ as the vector $\mvT_\meas$ defined earlier. In what follows, we shall refer to this joint model as the forward model.
+In this section, we present a Bayesian framework developed around the proposed idea of the temperature-based UQ of process variation.
+
+\subsection{Power Model} \slabel{power-model}
+\input{include/power-model.tex}
+
+\subsection{Thermal Model} \slabel{thermal-model}
+\input{include/thermal-model.tex}
 
 \subsection{Statistical Model} \slabel{statistical-model}
 \input{include/statistical-model.tex}

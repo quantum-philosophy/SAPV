@@ -7,3 +7,6 @@
 *.dvi
 paper.pdf
 paper-blx.bib
+*.fdb_latexmk
+*.fls
+*.bcf

@@ -1,7 +1,7 @@
 Without loss of generality, let us focus on one particular source of uncertainty: the subthreshold leakage current and, more specifically, on the effective channel length. The reason for this choice is that the effective channel length has the strongest influence on leakage \cite{juan2011, juan2012}; in particular, it also affects the threshold voltage. Consequently, in what follows, $\u$ stands for this major parameter, the channel length.
 
-\input{include/assets/wafer-pick.tex}
-\input{include/assets/wafer-qoi-error.tex}
+\input{include/figures/wafer-pick.tex}
+\input{include/figures/wafer-qoi-error.tex}
 Now, we shall describe the default configuration of our experimental setup, which, in the following subsections, will be adjusted according to the purpose of a particular experiment. We consider a 45-nanometer technological process. The wafer is assumed to be inscribed in a square with $20 \times 20$ even cells. The total number of dies $\nchips$ is 316, and the number of processing elements $\nprocs$ on each of the dies is four.
 The number of spacial measurements $\ndata$ is 20. These locations (dies) are chosen as follows: the first one is place in the middle of the wafer, and the other are selected sequentially such that the total distance from the already picked dies and the new one to the rest of the dies is minimized. In this way, we pursue uniformity of the wafer coverage. An example is depicted in \fref{wafer-pick}.
 The floorplans of the multiprocessor platforms are constructed in such a way that the processing elements form regular grids, as it is the case with, \eg, Alpha 21264 studied in \cite{juan2011}. The capacitance and conductance matrices in \eref{heat-de} are obtain using HotSpot v5.02 \cite{hotspot}. The dynamic power profiles involved in the experiments are based on simulations of randomly generated, via TGFF v3.5 \cite{dick1998}, task graphs.\footnote{The floorplans of the platforms, thermal configuration of HotSpot, task graphs of the applications, etc. are available online at \cite{sources}.} The number of power samples $\npsteps$ is $10^3$.
@@ -18,9 +18,9 @@ The number of samples that we draw from the posterior is $10^4$; the first half 
 Finally, in parallel computations, there are four workers employed.\footnote{All the experiments have been conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.}
 
 \subsection{Analysis of the Experimental Setup}
-\input{include/assets/acceptance.tex}
-\input{include/assets/log-posterior.tex}
-\input{include/assets/proposal.tex}
+\input{include/figures/acceptance.tex}
+\input{include/figures/log-posterior.tex}
+\input{include/figures/proposal.tex}
 In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration described earlier. The true and inferred distributions of the QoI are shown in \fref{wafer-qoi}. In this case, the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the QoI.
 \fref{acceptance} displays the acceptance rate of the Metropolis algorithm; this graph allows us to conclude that the algorithm, accepting $20$--$30\%$ of samples on average, agrees with the recommendations from the literature \cite{gelman2004}.
 An inspection of the log-posterior depicted in \fref{log-posterior} (up to a constant summand) indicates that the constructed Markov chain vividly explores the probability space.
@@ -28,15 +28,15 @@ Another test, commonly used in statistics, to assess the quality of the proposal
 
 \subsection{Number of Processing Elements}
 In this subsection, we consider five platforms with the number of processing elements $\nprocs$ equal to 2, 4, 8, 16, and 32 cores, respectively. The results are summarized in \tref{processing-elements}. In this and the following tables, we report the optimization and sampling times separately; also, the sampling time is given for two cases: sequential and parallel computing (with four workers), which is followed by the total time and error. The sequential sampling time is the most representative indicator of the computational complexity changes as the number of samples is always fixed, and there is no parallelization; thus, we shall refer to it (highlighted in bold in the tables) in most of the discussions below. The difference between the sequential and parallel computational times will be discussed later on.
-\input{include/assets/processing-elements.tex}
+\input{include/tables/processing-elements.tex}
 
 It can be seen that all computational times grow. This behavior is expected as each processing element introduces additional complexity in the thermal system given by \eref{thermal-system}; more precisely, it leads to a larger number of thermal nodes $\nnodes$. Nevertheless, even for large examples, the timing is readily acceptable, taking into account the complexity of the inference procedure behind and the yielded accuracy.
 An interesting observation can be made from the error metric (NRMSE): the error tends to decrease as the number of processing elements grows. The explanation is that, with each core, the data set $\Data$ delivers more information to the inference to work with since the temperature profiles in $\Data$ are being collected for all the cores simultaneously.
 
 \subsection{Number of Spatial Measurements}
-\input{include/assets/chains.tex}
+\input{include/figures/chains.tex}
 In this subsection, we change the number of dies $\ndata$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\nchips - \ndata$ dies on the wafer are left unobserved). The considered scenarios are 1, 10, 20, 40, 80, and 160 dies. The results are reported in \tref{spatial-measurements}.
-\input{include/assets/spatial-measurements.tex}
+\input{include/tables/spatial-measurements.tex}
 
 We see that the more data the proposed framework needs to process, the longer the execution time, which is reasonable. The trend, however, is not as steep as the one in \tref{processing-elements} since the thermal system stays unchanged.
 The NRMSE firmly decreases and drops below $4\%$ with around 20 die measurements, which is only $6.3\%$ of the total number of dies on the wafer.
@@ -45,7 +45,7 @@ This example is a great opportunity to draw attention to an important advantage 
 
 \subsection{Number of Temporal Measurements}
 In this subsection, we sweep the number of moments of time $\nsteps$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\npsteps - \nsteps$ steps are discarded after $\model$ is evaluated for the input power profile $\profilePdyn$). The considered scenarios are 1, 10, 20, 40, 80, and 160 moments of time. The results are aggregated in \tref{temporal-measurements}.
-\input{include/assets/temporal-measurements.tex}
+\input{include/tables/temporal-measurements.tex}
 
 As we see, the growth of the computational time is relatively low. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\Data$ is identical (recall $\ndps \propto \ndata \nsteps$). However, the meaning of the two numbers, $\ndata$ and $\nsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.
 The NRMSE in \tref{temporal-measurements} is decreasing on average; however, the observed trend is less steady than the ones discovered before. The finding can be explained as follows. The distribution of the time moments in $\Data$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles. Some time moments can be more informative than the other. Consequently, more representative or less representative samples can end up in $\Data$ helping or misleading the inference procedure.
@@ -53,10 +53,10 @@ Based on \tref{spatial-measurements} and \tref{temporal-measurements}, we can al
 
 \subsection{Measurement Noise}
 In this subsection, we vary the level of the noise in the input data set $\Data$ within the set $\{ 0, 0.5, 1, 2 \}$ (in Kelvins). Note that the corresponding prior distribution in \eref{sigma2-noise-prior} is kept unchanged. The results are given in \tref{noise-deviation}.
-\input{include/assets/noise-deviation.tex}
+\input{include/tables/noise-deviation.tex}
 
 Reasonable enough, the sampling time is approximately constant; however, there is a slight decrease of the optimization time with the decrease of the noise level, which can be ascribed to wider possibilities of perfection for the optimization procedure.
 A more important observation, revealed by the experiment, is that, in spite of the fact that the inference operates on indirect and drastically incomplete data, a thoroughly calibrated equipment can considerably improve the quality of prediction. However, even with a high noise level of two degrees---meaning that all measurements fall on the band of $8~\text{K}$ wide around the true values with probability more than $0.95$---the NRMSE is still only $4\%$.
 
 \subsection{Sequential vs. Parallel Sampling}
-In this subsection, we summarize the results of the two sampling strategies: sequential and parallel (see \sref{sampling-strategy}). Since the limit on the number of objective function evaluations of the optimization procedure and the number of sample draws (including the burn-in prior) is the same, \ie, equal to $10^4$, the two would take the same time to finish if the optimization reached the limit. In our experiments, however, this limit was never observed to be reached except the pathological scenario without noise. Therefore, using the default setup without parallelization, the optimization part never takes over the sampling stage. The situation changes when parallel computing (with four workers, in our case) is turned on. The sampling time decreases by 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy. The overall speedup, \ie, included the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times.
+In this subsection, we summarize the results of the two sampling strategies: sequential and parallel (see \sref{sampling-strategy}). Since the limit on the number of objective function evaluations of the optimization procedure and the number of sample draws (including the burn-in prior) is the same, \ie, equal to $10^4$, the two would take the approximately same time to finish if the optimization reached the limit. In our experiments, however, this limit was never observed to be reached except the pathological scenario without noise. Therefore, using the default setup without parallelization, the optimization part never takes over the sampling stage. The situation changes when parallel computing (with four workers, in our case) is turned on. The sampling time decreases by 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy. The overall speedup, \ie, included the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times.

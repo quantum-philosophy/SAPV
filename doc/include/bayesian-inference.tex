@@ -2,7 +2,7 @@ Let $\vparam$ be a set of parameters that are uncertain for us either by nature 
 \[
   \text{\small Posterior} = \frac{\text{\small Likelihood} \times \text{\small Prior}}{\text{\small Evidence}}, \; \f{\vparam | \Data} = \frac{\f{\Data | \vparam} \f{\vparam}}{\f{\Data}},
 \]
-where $\f{\cdot}$ denotes a probability density function, and the vertical bars stand for conditioning. $\f{\vparam}$ is called the prior of $\vparam$, $\f{\vparam | \Data}$ is the corresponding posterior, $\f{\Data | \vparam}$ is the likelihood function, and $\f{\Data}$ is a normalization constant.
+where $\f{\cdot}$ denotes a probability density function, and the vertical bars stand for conditioning \cite{durrett2010}. $\f{\vparam}$ is called the prior of $\vparam$, $\f{\vparam | \Data}$ is the corresponding posterior, $\f{\Data | \vparam}$ is the likelihood function, and $\f{\Data}$ is a normalization constant.
 Due to the forward model involved in the likelihood function, the posterior often makes sampling difficult, if ever possible, to undertake.
 For instance, a physical phenomenon, such as heat transfer, may introduce a system of differential equations in $\f{\Data | \vparam}$, which is the case in our problem (see \sref{thermal-model}).
 To tackle the difficulty, one usually has to rely on such techniques as Markov Chain Monte Carlo (MCMC) sampling \cite{gelman2004}.

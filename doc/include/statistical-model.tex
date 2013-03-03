@@ -1,5 +1,5 @@
 Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is infinite-dimensional.
-We model $\u$ as a square-integrable stochastic process $\u: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$ (see also \aref{kl-expansion}), which corresponds to the wafer.
+We model $\u$ as a square-integrable stochastic process $\u: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$ (see also \aref{kl-expansion} and \cite{durrett2010}), which corresponds to the wafer.
 Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\u$ is assumed to be a Gaussian process \cite{rasmussen2006}:
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
@@ -23,7 +23,7 @@ The infinite-dimensional object $\u$ is reduced to a finite-dimensional one via 
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu \vI + \sigma_\u \mKL \vz
 \end{equation}
-where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI = (e_i = 1)$. Note that model order reduction (see \aref{kl-expansion}) is implied in \eref{kl-approximation}; thus, $\vz \in \real^\nvars$ where $\nvars \leq \ncp$. In addition, we denote by $\vu_\data \in \real^{\ndp}$, $\ndp = \ndata \nprocs$, those elements of $\vu$ that correspond to the observations in $\Data$. Let us redefine $\vparam_\u = \{ \vz, \mu, \sigma^2_\u \}$ and denote the forward model by $\model{\vparam_\u}$.
+where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI = (e_i = 1)$. Note that model order reduction (see \aref{kl-expansion}) is implied in \eref{kl-approximation}; thus, $\vz \in \real^\nvars$ where $\nvars$ is typically much smaller than $\ncp$. Let us redefine $\vparam_\u = \{ \vz, \mu, \sigma^2_\u \}$ and denote the forward model by $\model{\vparam_\u}$.
 
 \subsubsection{The likelihood function}
 Due to the imperfection of the measurement process, the temperature profiles in $\Data$, stacked into $\mvT_\meas$, are assumed to deviate from the model prediction in \eref{model}. To account for this,
@@ -41,7 +41,7 @@ where $\sigma^2_\noise$ is a parameter defining the variance of the noise; impos
 yielding the likelihood function of the data $\Data$.
 
 \subsubsection{The prior}
-Denote the parameters to be inferred as
+Denote the parameters to be inferred by
 \[
   \vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu, \sigma_\u^2, \sigma_\noise^2 \}.
 \]
@@ -52,7 +52,7 @@ We put the following priors on $\vparam$:
   & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and} \elabel{sigma2-u-prior} \\
   & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \elabel{sigma2-noise-prior}
 \end{align}
-The prior for $\vz$ is due to the properties of the KL expansion. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown \cite{gelman2004}. The hyperparameters $\mu_0$, $\tau_\u$, and $\tau_\u$ represent the presumable values of $\mu_u$, $\sigma_\u$, and $\sigma_\noise$, respectively, and the hyperparameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the degree of our beliefs according to our prior knowledge. In the absence of such knowledge, non-informative priors can be chosen (see, \eg, \cite{gelman2004}).
+The prior for $\vz$ is due to the properties of the KL expansion. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown \cite{gelman2004}. The hyperparameters $\mu_0$, $\tau^2_\u$, and $\tau^2_\noise$ represent the presumable values of $\mu_u$, $\sigma^2_\u$, and $\sigma^2_\noise$, respectively, and the hyperparameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the degree of our beliefs according to our prior knowledge. In the absence of such knowledge, non-informative priors can be chosen (see, \eg, \cite{gelman2004}).
 
 \subsubsection{The posterior}
 Taking the product of the likelihood in \eref{likelihood} and the priors in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain

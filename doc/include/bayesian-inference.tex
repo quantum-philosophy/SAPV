@@ -1,7 +1,10 @@
-Let $\vparam$ be a set of parameters that are uncertain for us either by nature or due to our limited knowledge. The goal is to characterize $\vparam$ given (a) a data set of observations $\Data$, (b) a model for $\Data$ parametrized by $\vparam$, and (c) prior believes on $\vparam$. The last can originate from our previous experience, experts, \etc\ A natural solution is to rely on Bayes' rule \cite{gelman2004}:
-\begin{equation} \elabel{bayes}
+Let $\vparam$ be a set of parameters that are uncertain for us either by nature or due to our limited knowledge. The goal is to characterize $\vparam$ given (a) a data set of observations $\Data$, (b) a forward model for $\Data$ parametrized by $\vparam$, and (c) prior beliefs on $\vparam$. The last can originate from our previous experience, experts, \etc\ A natural solution is to rely on Bayes' rule \cite{gelman2004}:
+\[
   \text{\small Posterior} = \frac{\text{\small Likelihood} \times \text{\small Prior}}{\text{\small Evidence}}, \; \f{\vparam | \Data} = \frac{\f{\Data | \vparam} \f{\vparam}}{\f{\Data}},
-\end{equation}
+\]
 where $\f{\cdot}$ denotes a probability density function, and the vertical bars stand for conditioning. $\f{\vparam}$ is called the prior of $\vparam$, $\f{\vparam | \Data}$ is the corresponding posterior, $\f{\Data | \vparam}$ is the likelihood function, and $\f{\Data}$ is a normalization constant.
-Out-of-sandbox problems rarely have closed-form expressions for posterior distributions. This is mainly due to the forward model involved in the likelihood function. For instance, a physical phenomenon, such as heat transfer, may introduce a system of differential equations in $\f{\Data | \vparam}$, which is the case for our problem (see \sref{thermal-model}).
-Thus, in order to be able to draw samples from the posterior, one usually relies on Markov Chain Monte Carlo (MCMC) sampling and, in particular, on the Metropolis algorithm \cite{gelman2004}. In this context, a sequence of samples is referred to as a Markov chain, and this chain is said to be exploring the underlying probability space.
+Due to the forward model involved in the likelihood function, the posterior often makes sampling difficult, if ever possible, to undertake.
+For instance, a physical phenomenon, such as heat transfer, may introduce a system of differential equations in $\f{\Data | \vparam}$, which is the case in our problem (see \sref{thermal-model}).
+To tackle the difficulty, one usually has to rely on such techniques as Markov Chain Monte Carlo (MCMC) sampling \cite{gelman2004}.
+In this context, a sequence of samples is referred to as a Markov chain, and this chain is said to be exploring the underlying probability space.
+A popular instantiation of MCMC sampling is the Metropolis algorithm, which proceeds as follows. Instead of sampling from the posterior directly, the algorithm samples from a so-called proposal distribution, which is chosen to be computationally convenient. In order to respect the posterior distribution, the drawn sample is then either accepted or rejected according to a certain strategy.

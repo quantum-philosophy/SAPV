@@ -1,6 +1,6 @@
 Given the thermal specification $\specification$ (see \sref{problem-formulation}) of the multiprocessor system at hand, an equivalent representation, capturing the thermal behavior of the system, is constructed \cite{kreith2000}. This representation is known as a thermal RC circuit, which is composed of a number of thermal nodes.
 The structure of the circuit depends on the intended level of granularity and, therefore, impacts the resulting accuracy. For clarity of presentation, we assume that each processing element is mapped onto one corresponding node, and the thermal package is represented as a set of additional nodes.
-Temperature of the multiprocessor platform is then modeled with the following system of differential-algebraic equations:
+The temperature of the multiprocessor platform is then modeled with the following system of differential-algebraic equations:
 \begin{subnumcases}{\elabel{thermal-system}}
   \mC \: \frac{d\vX(\t)}{d\t} + \mG \: \vX(\t) = \mM \: \vP(\t, \vT(\t), \u) \elabel{heat-de} \\
   \vT(\t) = \mM^T \vX(\t) + \vT_\amb \elabel{temperature-output}

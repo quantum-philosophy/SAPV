@@ -1,6 +1,6 @@
-Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is infinite-dimensional.
-We model $\u$ as a square-integrable stochastic process $\u: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$ (see also \aref{kl-expansion} and \cite{durrett2010}), which corresponds to the wafer.
-Uncertainties due to process variation are known to be well approximated using Gaussian distributions \cite{srivastava2010}; therefore, $\u$ is assumed to be a Gaussian process \cite{rasmussen2006}:
+Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is an infinite-dimensional quantity.
+Hence, $\u$ can be seen as a square-integrable stochastic process (field) $\u: \outcomes \times \domain \to \real$ defined over a spatial domain $\domain$ corresponding to the wafer (see also \aref{kl-expansion} and \cite{durrett2010}).
+In this work, we put a Gaussian process prior on $\u$ \cite{rasmussen2006}, which we aim to update using temperature measurements:
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]
@@ -16,10 +16,10 @@ where
 \end{align*}
 are the squared exponential and Ornstein-Uhlenbeck kernels, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ weights the kernels; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters; $\norm{\cdot}$ stands for the Euclidean distance.
 The choice of the covariance function is guided by the observations of the correlation structures induced by the manufacturing process \cite{cheng2011}: the first kernel, $\fCov_\SE$, imposes similarities between the points on the wafer that are close to each other while the second kernel, $\fCov_\OU$, imposes similarities between points that are at the same distance from the center of the wafer.
-In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu$ and $\sigma^2_\u$ are a part of our inference. Thus, we let $\vparam_\u = \{ \mu, \sigma_\u^2 \}$.
+In this work, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given while $\mu$ and $\sigma^2_\u$ are a part of our inference; thus, we let $\vparam_\u = \{ \mu, \sigma_\u^2 \}$. Note that it is straightforward to treat $\eta$, $\ell_\SE$, and $\ell_\OU$ as unknown as well and estimate them along with the other parameters.
 
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
-The infinite-dimensional object $\u$ is reduced to a finite-dimensional one via the Karhunen-Lo\`{e}ve (KL) expansion introduced in \aref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ncp = \nchips \nprocs$ processing elements on the wafer. Consequently, we obtain an $\ncp$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^\ncp$:
+The infinite-dimensional object $\u$ is reduced to a finite-dimensional one via the Karhunen-Lo\`{e}ve (KL) expansion; see \aref{kl-expansion}. The discretization is performed with respect to the spatial locations of all $\ncp = \nchips \nprocs$ processing elements on the wafer. Consequently, we obtain an $\ncp$-dimensional \rv\ denoted by $\vu: \outcomes \to \real^\ncp$:
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu \vI + \sigma_\u \mKL \vz
 \end{equation}
@@ -52,7 +52,7 @@ We put the following priors on $\vparam$:
   & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and} \elabel{sigma2-u-prior} \\
   & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \elabel{sigma2-noise-prior}
 \end{align}
-The prior for $\vz$ is due to the properties of the KL expansion. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown \cite{gelman2004}. The hyperparameters $\mu_0$, $\tau^2_\u$, and $\tau^2_\noise$ represent the presumable values of $\mu_u$, $\sigma^2_\u$, and $\sigma^2_\noise$, respectively, and the hyperparameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the degree of our beliefs according to our prior knowledge. In the absence of such knowledge, non-informative priors can be chosen (see, \eg, \cite{gelman2004}).
+The prior for $\vz$ is due to the properties of the KL expansion. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown \cite{gelman2004}. The hyperparameters $\mu_0$, $\tau^2_\u$, and $\tau^2_\noise$ represent (approximately) the posterior mean of $\mu_u$, $\sigma^2_\u$, and $\sigma^2_\noise$, respectively, and the hyperparameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the precision of our information. In the absence of such knowledge, non-informative priors can be chosen (see, \eg, \cite{gelman2004}).
 
 \subsubsection{The posterior}
 Taking the product of the likelihood in \eref{likelihood} and the priors in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain

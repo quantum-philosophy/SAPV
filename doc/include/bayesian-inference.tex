@@ -1,4 +1,4 @@
-Let $\vparam$ be a set of parameters that are uncertain for us either by nature or due to our limited knowledge. The goal is to characterize $\vparam$ given (a) a data set of observations $\Data$, (b) a forward model for $\Data$ parametrized by $\vparam$, and (c) prior beliefs on $\vparam$. The last can originate from our previous experience, experts, \etc\ A natural solution is to rely on Bayes' rule \cite{gelman2004}:
+Let $\vparam$ be a set of parameters that are uncertain for us. The goal is to characterize $\vparam$ given (a) a data set of observations $\Data$, (b) a forward model for $\Data$ parametrized by $\vparam$, and (c) prior beliefs on $\vparam$. A natural solution is to rely on Bayes' rule \cite{gelman2004}:
 \[
   \text{\small Posterior} = \frac{\text{\small Likelihood} \times \text{\small Prior}}{\text{\small Evidence}}, \; \f{\vparam | \Data} = \frac{\f{\Data | \vparam} \f{\vparam}}{\f{\Data}},
 \]

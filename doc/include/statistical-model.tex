@@ -1,7 +1,7 @@
 Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is an infinite-dimensional quantity.
-Hence, $\u$ can be seen as a stochastic process $\u(\o, \r)$, $\o \in \outcomes$, $\r \in \domain$, defined over the set of outcomes $\outcomes$ of the underlying probability space \cite{durrett2010} and the spatial domain $\domain$ corresponding to the wafer.
-Once the wafer has been fabricated, the probability space yields a particular outcome $\o$, and $\u$ becomes deterministic in the sense that it remains fixed, \ie, $\u(\o, \r) := \u(\r)$, $\r \in \domain$; however, the values $\u(\r)$ are still unknown for us.
-In the Bayesian context, $\u$ should then attain a prior distribution, which will be further updated using the observed data. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since it is flexible in capturing the correlation structures originating from the manufacturing process (described later on):
+Hence, $\u$ can be seen as a stochastic process $\u(\o, \r)$, $\o \in \outcomes$, $\r \in \domain$, defined over a probability space with the set of outcomes $\outcomes$ \cite{durrett2010} and a spatial domain $\domain$ corresponding to the wafer.
+Once the wafer has been fabricated, the probability space yields a particular outcome $\o$, and $\u$ becomes deterministic in the sense that it remains constant at each location, \ie, $\u(\o, \r) := \u(\r)$, $\r \in \domain$. The values $\u(\r)$, $\r \in \domain$, however, are still unknown for us.
+In the Bayesian context, $\u$ should then attain a prior distribution, which will be further updated using the observed data $\Data$. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since it is flexible in capturing the correlation structures originating from the manufacturing process (described later on):
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]
@@ -16,7 +16,7 @@ where
   & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU} \right)
 \end{align*}
 are the squared exponential and Ornstein-Uhlenbeck correlation functions, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters; $\norm{\cdot}$ stands for the Euclidean distance.
-The choice of the covariance function is guided by the observations of the correlation structures induced by the fabrication process \cite{cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between points that are at the same distance from the center of the wafer.
+The choice of the covariance function is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between points that are at the same distance from the center of the wafer.
 The length-scale parameters $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant. All the above parameters of the prior of $\u$ can be included in the inference; however, for simplicity, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given in this work (see \cite{marzouk2009} and references therein). Therefore, at this stage, the parametrization of the prior distribution of $\u$ reads as $\vparam_\u = \{ \mu, \sigma_\u^2 \}$.
 
 \subsubsection{The Forward Model} \slabel{model-order-reduction}
@@ -69,5 +69,5 @@ Taking the product of the likelihood in \eref{likelihood} and the priors in \ere
   & {} - \frac{\norm{\vz}^2}{2} - \frac{(\mu - \mu_0)^2}{2 \sigma^2_0} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
   & {} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
 \end{align}
-where $c$ is some constant. This expression is sufficient for the Metropolis algorithm (see \sref{bayesian-inference}); thus, we can readily draw samples from the posterior. Each sample of $\vparam_\u$ is then used in \eref{kl-approximation} to compute a sample of $\u$, \ie, the QoI that we are concerned with, for all processing elements on the wafer.
+where $c$ is some constant. This expression is sufficient for the Metropolis algorithm (see \sref{bayesian-inference}); thus, we can readily draw samples from the posterior. Each sample of $\vparam_\u$ is then used in \eref{kl-approximation} to compute a sample of $\u$, \ie, the \qoi\ that we are concerned with, for all processing elements on the wafer.
 Note, however, the likelihood function poses a significant computational challenge as each sample requires an evaluation of $\model$; we shall address this issue in \sref{computational-aspects}.

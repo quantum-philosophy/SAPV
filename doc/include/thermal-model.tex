@@ -6,6 +6,6 @@ The temperature of a die on the wafer is then modeled using the following system
   \vT(\t) = \mM^T \vX(\t) + \vT_\amb \elabel{temperature-output}
 \end{subnumcases}
 where $\nnodes$ is the number of thermal nodes in the circuit; $\mC \in \real^{\nnodes \times \nnodes}$ is a diagonal matrix of the thermal capacitance; $\mG \in \real^{\nnodes \times \nnodes}$ is a symmetric, positive-definite matrix of the thermal conductance; $\vX \in \real^\nnodes$ is the internal state vector; $\vP \in \real^\nprocs$ and $\mM \in \real^{\nnodes \times \nprocs}$ are the input power vector and its mapping matrix to the thermal nodes; $\vT \in \real^\nprocs$ is the temperature vector, and $\vT_\amb \in \real^\nprocs$ is the vector of the ambient temperature.
-In general, \eref{heat-de} does not have a closed-form solution due to the power term defined in \eref{total-power}; hence, the system is typically being solved numerically.
+In general, \eref{heat-de} does not have a closed-form solution due to the power term defined in \eref{total-power}; hence, the system is typically solved numerically.
 To conclude, given a dynamic power profile $\profilePdyn$ and using \eref{total-power} and \eref{thermal-system}, we can now compute the corresponding temperature profile $(\mT, \partition{\mP})$ of one die.
 It is worth being noted that the obtained temperature profile is complete, meaning that it contains data for all $\nprocs$ processing elements and for all $\nsteps$ moments of time.

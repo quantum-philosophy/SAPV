@@ -4,8 +4,8 @@ The reason for this choice is that the effective channel length has the stronges
 \input{include/figures/wafer-pick.tex}
 \input{include/figures/wafer-qoi-error.tex}
 Now we shall describe the default configuration of our experimental setup, which, in the following subsections, will be adjusted according to the purpose of each particular experiment.
-We consider a 45-nanometer technological process. The wafer is assumed to be inscribed in a square with $20 \times 20$ even cells. The total number of dies $\ndies$ is 316, and the number of processing elements $\nprocs$ in each of the dies is four.
-The number of measured dies $\nrdies$ is 20. These dies are chosen as follows: the first one is placed in the middle of the wafer, and the other are selected sequentially such that the total distance from the already picked dies and the new one to the rest of the dies is minimized. In this way, we pursue uniformity of the wafer coverage. An example is depicted in \fref{wafer-pick}.
+We consider a 45-nanometer technological process. The diameter of the wafer is 40 dies, the total number of dies $\ndies$ is 316, and the number of processing elements $\nprocs$ in each of the dies is four.
+The number of measured dies $\nrdies$ is 20. These dies are chosen as follows: the first one is placed in the middle of the wafer, and the other are selected sequentially such that the total distance from the already picked dies and the new one to the rest of the dies is minimized. An example is depicted in \fref{wafer-pick}.
 The floorplans of the multiprocessor platforms are constructed in such a way that the processing elements form regular grids, as it is the case with, \eg, Alpha 21264 studied in \cite{juan2011}. The capacitance and conductance matrices in \eref{heat-de} are obtain using HotSpot v5.02 \cite{hotspot}.
 The dynamic power profiles involved in the experiments are based on simulations of randomly generated (via TGFF v3.5 \cite{dick1998}) task graphs.\footnote{The floorplans of the platforms, thermal configuration of HotSpot, task graphs of the applications, \etc\ are available online at \cite{sources}.} The sampling interval of power profiles is $1~\text{ms}$.
 The corresponding temperature profiles that form the input data set $\Data$ are obtained as follows: (a) draw a sample of $\u$ from a Gaussian distribution with mean $45~\text{nm}$ and the covariance function given by \eref{covariance-function} wherein the standard deviation is $5\%$ \cite{juan2011, juan2012}; (b) simulate the thermal system in \eref{thermal-system} once for each of the $\nrdies$ selected dies using the input dynamic power profile $\profilePdyn$; (c) shrink the full temperature profiles to keep only $\nrsteps$, which is equal to 20 by default, evenly spaced moments of time; (d) perturb the obtained data using a white Gaussian noise with the standard deviation of $1~\text{K}$ (Kelvin).
@@ -30,7 +30,7 @@ Since, in this example, the dimension of $\vparam$ is 30, the number of such plo
 
 \subsection{Number of Processing Elements}
 In this subsection, we consider five platforms with the number of processing elements in each die $\nprocs$ equal to 2, 4, 8, 16, and 32 cores, respectively. The results are summarized in \tref{processing-elements}.
-In this and the following tables, we report the optimization and sampling times separately; also, the sampling time is given for two cases: sequential and parallel computing, which is followed by the total time and error.
+In this and the following tables, we report the optimization and sampling times (given in minutes) separately; also, the sampling time is given for two cases: sequential and parallel computing, which is followed by the total time and error.
 The sequential sampling time is the most representative indicator of the computational complexity scaling as the number of samples is always fixed, and there is no parallelization; thus, we shall watch this value in most of the discussions below (highlighted in bold in the tables). The difference between the sequential and parallel computational times will be discussed later on.
 \input{include/tables/processing-elements.tex}
 
@@ -68,5 +68,5 @@ However, even with a high level of noise of two degrees---meaning that all measu
 \subsection{Sequential vs. Parallel Sampling}
 In this subsection, we summarize the results of the sequential and parallel  sampling strategies (see \sref{sampling-strategy}).
 In the non-parallel Metropolis algorithm, the optimization time is typically smaller than the time needed to draw posterior samples.
-The situation changes when parallel computing (with four workers, in our case) is utilized. The sampling time decreases by 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy.
+The situation changes when parallel computing (with four processors, in our case) is utilized. The sampling time decreases by 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy.
 The overall speedup, \ie, including the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times, which can be pushed even further using more parallel processes.

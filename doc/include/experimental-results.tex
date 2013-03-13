@@ -19,7 +19,7 @@ The optimization procedure (recall \sref{proposal-distribution}) is undertaken u
 The number of samples that we draw from the posterior is $10^4$; the first half of these samples is ascribed to the burn-in period leaving $5 \cdot 10^3$ effective samples $\nsamples$.
 In parallel computations, there are four processors employed.\footnote{All the experiments have been conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.}
 
-\subsection{Analysis of the Experimental Setup and MCMC Efficiency}
+\subsection{Analysis of the Experimental Setup}
 \input{include/figures/log-posterior.tex}
 In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration described earlier.
 The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi}. In this case, the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the \qoi.
@@ -28,22 +28,22 @@ The acceptance rate of the Metropolis algorithm, in this experiment, is $20$--$3
 Another test, commonly used in statistics, to assess the quality of the proposal distribution is given in \fref{proposal}. The figure depicts both the posterior density and the tailored proposal density in \eref{proposal} for each parameter, conditional on the other parameters being at their posterior modes.
 Since, in this example, the dimension of $\vparam$ is 30, the number of such plots is also 30. The curves are nearly indistinguishable implying a high quality of the proposal. To sum up, the above observations suggest that the optimization and sampling procedures are fine-tuned.
 
-\subsection{Number of Processing Elements}
+\subsection{Number of Processing Elements on a Die}
 In this subsection, we consider five platforms with the number of processing elements in each die $\nprocs$ equal to 2, 4, 8, 16, and 32 cores, respectively. The results are summarized in \tref{processing-elements}.
 In this and the following tables, we report the optimization and sampling times (given in minutes) separately; also, the sampling time is given for two cases: sequential and parallel computing, which is followed by the total time and error.
-The sequential sampling time is the most representative indicator of the computational complexity scaling as the number of samples is always fixed, and there is no parallelization; thus, we shall watch this value in most of the discussions below (highlighted in bold in the tables). The difference between the sequential and parallel computational times will be discussed later on.
+The sequential sampling time is the most representative indicator of the computational complexity scaling as the number of samples is always fixed, and there is no parallelization; thus, we shall watch this value in most of the discussions below (highlighted in bold in the tables). The speedup due to parallel computing will be discussed later on.
 \input{include/tables/processing-elements.tex}
 
 It can be seen in \tref{processing-elements} that all computational times grow with the number of processing elements. This behavior is expected as each processing element introduces additional complexity in the thermal system given by \eref{thermal-system}; more precisely, it leads to a larger number of thermal nodes $\nnodes$. Nevertheless, even for large examples, the timing is readily acceptable, taking into account the complexity of the inference procedure behind and the yielded accuracy.
-An interesting observation can be made from the error metric (NRMSE): the error tends to decrease as the number of processing elements grows. The explanation is that, with each core, the data set $\Data$ delivers more information to the inference to work with since the temperature profiles in $\Data$ are being collected for all the cores simultaneously.
+An interesting observation can be made from the NRMSE: the error tends to decrease as the number of processing elements grows. The explanation is that, with each core, $\Data$ delivers more information to the inference to work with since the temperature profiles in $\Data$ are being collected for all the cores simultaneously.
 
-\subsection{Number of Spatial Measurements}
+\subsection{Number of Measured Dies}
 \input{include/figures/chains.tex}
-In this subsection, we change the number of dies $\nrdies$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\ndies - \nrdies$ dies on the wafer are left unobserved). The considered scenarios are 1, 10, 20, 40, 80, and 160 dies. The results are reported in \tref{spatial-measurements}.
+In this subsection, we change the number of dies $\nrdies$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\ndies - \nrdies$ dies on the wafer are left unobserved). The considered scenarios are 1, 10, 20, 40, 80, and 160 measured dies. The results are reported in \tref{spatial-measurements}.
 \input{include/tables/spatial-measurements.tex}
 
 We see that the more data the proposed framework needs to process, the longer the execution time, which is reasonable. The trend, however, is not as steep as the one in \tref{processing-elements} since the thermal system stays unchanged.
-The NRMSE firmly decreases and drops below $4\%$ with around 20 measurement points, which is only $6.3\%$ of the total number of dies on the wafer.
+The error firmly decreases and drops below $4\%$ with around 20 measurement points, which is only $6.3\%$ of the total number of dies on the wafer.
 
 \input{include/figures/proposal.tex}
 This example is a great opportunity to illustrate that the joint posterior distribution provides a complete description of the uncertainty of the \qoi\ (recall also \sref{motivation}). In \tref{spatial-measurements}, we have two extreme cases: one and 160 measurement points. It is reasonable to anticipate that the predictions are less accurate in the former case than those in the latter, and this is exactly what the NRMSE has revealed in \tref{spatial-measurements}. In reality, unfortunately, the true values and, consequently, errors are unknown.
@@ -57,8 +57,8 @@ As we see, the growth of the computational time is relatively low. One might hav
 The NRMSE in \tref{temporal-measurements} is decreasing on average; however, the observed trend is less steady than the ones discovered before. The finding can be explained as follows. The distribution of the time moments in $\Data$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles. Some time moments can be more informative than the other. Consequently, more representative or less representative samples can end up in $\Data$ helping or misleading the inference procedure.
 Based on \tref{spatial-measurements} and \tref{temporal-measurements}, we can also conclude that a larger number of spatial measurements is more advantageous for the inference than a larger number of temporal measurements.
 
-\subsection{Measurement Noise}
-In this subsection, we vary the level of the noise in the input data set $\Data$ within the set $\{ 0, 0.5, 1, 2 \}$ (in Kelvins). Note that the corresponding prior distribution in \eref{sigma2-noise-prior} is kept unchanged. The results are given in \tref{noise-deviation}.
+\subsection{Deviation of the Measurement Noise}
+In this subsection, we vary the standard deviation of the noise in the input data set $\Data$ within the set $\{ 0, 0.5, 1, 2 \}$ (in Kelvins). Note that the corresponding prior distribution in \eref{sigma2-noise-prior} is kept unchanged. The results are given in \tref{noise-deviation}.
 \input{include/tables/noise-deviation.tex}
 
 Reasonable enough, the sampling time is approximately constant; however, we observe an increase of the optimization time with the decrease of the noise level, which can be ascribed to wider possibilities of perfection for the optimization procedure.

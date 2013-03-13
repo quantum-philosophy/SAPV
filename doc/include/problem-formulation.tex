@@ -15,7 +15,7 @@ The inputs to our framework are: (a) the specification of the fabrication proces
 \]
 such a data set composed of $\nrdies$ temperature profiles $(\mT^{(i)}_\meas, \partition{\mT})$ of $\nrdies$ out of $\ndies$ dies on the wafer and the corresponding spatial locations of these dies $\vr = (\r_i) \in \domain^\nrdies$ in the domain $\domain$ representing the surface of the wafer.
 It is important to note that $\mT^{(i)}_\meas$ can potentially contain data only for a subset of the processing elements, say $\nrprocs \leq \nprocs$, and/or only for a subset of the time moments of the power partition $\partition{\mP}$, say $\nrsteps \leq \nsteps$; therefore, we let $\mT^{(i)}_\meas$ be in the space $\real^{\nrprocs \times \nrsteps}$.
-For simplicity, the temperature profiles in $\Data$ are assumed to share the same time partition and the same subset of the processing elements.
-The test power profile is assumed to be fine-grained whereas temperature profiles are presumably coarse, \ie, $\nrsteps \ll \nsteps$.
+For simplicity, the temperature profiles in $\Data$ are assumed to share the same subset of the measured processing elements and the same time partition.
+The test power profile is assumed to be fine-grained whereas temperature profiles are presumably sparse, \ie, $\nrsteps \ll \nsteps$.
 Since $\Data$ is assumed to be incomplete, the number of measured dies is typically much smaller than the total number of dies on the wafer, \ie, $\nrdies \ll \ndies$.
 Finally, the output of the framework should be comprised of the probability distributions of $\u$ at an arbitrary set of spatial locations on the wafer chosen by the user.

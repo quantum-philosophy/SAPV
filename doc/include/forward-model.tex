@@ -1,0 +1,9 @@
+\input{include/power-model.tex}
+
+\input{include/thermal-model.tex}
+
+Now we apply the derivation above to evaluate $\nrdies$ temperature profiles at the spatial locations of the measurements in $\Data$, \ie, at $\{ \r_i \}_{i = 1}^\nrdies$. The resulting temperature profiles are then shrunk to keep data only for those processing elements and only for those moments of time that are present in the measured temperature profiles, \ie, we keep data only for $\nrprocs$ (out of $\nprocs$) processing elements and only for $\nrsteps$ (out of $\nsteps$) moments of time. Finally, the trimmed profiles are stacked into one vector with $\nrdies \nrprocs \nrsteps$ elements. With a slight abuse of notation, this vector is denoted by $\mvT$ and the overall procedure by $\model$, which we shall refer to as the forward model:
+\begin{equation} \elabel{model}
+  \mvT = \model{\u}.
+\end{equation}
+Also, let $\mvT_\meas \in \real^{\nrdies \nrprocs \nrsteps}$ be the stacked version of the measurements in $\Data$, preserving the one-to-one spatial correspondence between the respective elements of $\mvT$ and $\mvT_\meas$.

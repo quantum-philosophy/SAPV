@@ -1,11 +1,14 @@
-Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is an infinite-dimensional quantity.
-Hence, $\u$ can be seen as a stochastic process $\u(\o, \r)$, $\o \in \outcomes$, $\r \in \domain$, defined over a probability space with the set of outcomes $\outcomes$ \cite{durrett2010} and a spatial domain $\domain$ corresponding to the wafer.
-Once the wafer has been fabricated, the probability space yields a particular outcome $\o$, and $\u$ becomes deterministic in the sense that it remains constant at each location, \ie, $\u(\o, \r) := \u(\r)$, $\r \in \domain$. The values $\u(\r)$, $\r \in \domain$, however, are still unknown for us.
-In the Bayesian context, $\u$ should then attain a prior distribution, which will be further updated using the observed data $\Data$. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since it is flexible in capturing the correlation structures originating from the manufacturing process (described later on):
+Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is infinite-dimensional.
+Hence, $\u$ can be seen as a stochastic process $\u(\o, \r)$, $\o \in \outcomes$, $\r \in \domain$, defined over a probability space with the set of outcomes $\outcomes$ \cite{durrett2010} and the spatial domain $\domain$ corresponding to the wafer.
+Once the wafer has been fabricated, the probability space yields a particular outcome $\o$, and $\u$ becomes deterministic in the sense that it remains constant at each location, \ie, $\u(\o, \r) := \u(\r)$, $\r \in \domain$.
+The values $\u(\r)$, $\r \in \domain$, however, are still unknown for us.
+
+\subsubsection{The Prior of the \qoi}
+In the Bayesian context, the unknown $\u$ should attain a prior, which will be further updated using the observations in $\Data$. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since it is flexible and computationally efficient in capturing the correlation structures imposed by the manufacturing process (described later on):
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]
-where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, and $\vparam_\u$ denotes the parameters that $\fMean$ and $\fCov$ depend on. For convenience, let the expected value be fixed, \ie, $\fMean{\r} := \mu$, $\forall \r \in \domain$.
+where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, and $\vparam_\u$ denotes the parameters that $\fMean$ and $\fCov$ depend on. For convenience, let the expected value be fixed, \ie, $\fMean{\r} := \mu_\u$, $\forall \r \in \domain$.
 $\fCov$ is chosen to be the following composition:
 \begin{equation} \elabel{covariance-function}
   \fCov{\r, \r'} = \sigma_\u^2 \big( \eta \fCov_\SE(\r, \r') + (1 - \eta) \fCov_\OU(\r, \r') \big)
@@ -17,28 +20,21 @@ where
 \end{align*}
 are the squared exponential and Ornstein-Uhlenbeck correlation functions, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters; $\norm{\cdot}$ stands for the Euclidean distance.
 The choice of the covariance function is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between points that are at the same distance from the center of the wafer.
-The length-scale parameters $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant. All the above parameters of the prior of $\u$ can be included in the inference; however, for simplicity, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given in this work (see \cite{marzouk2009} and references therein). Therefore, at this stage, the parametrization of the prior distribution of $\u$ reads as $\vparam_\u = \{ \mu, \sigma_\u^2 \}$.
+The length-scale parameters $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant. All the above parameters of the prior of $\u$ can be included in the inference; however, for simplicity, $\eta$, $\ell_\SE$, and $\ell_\OU$ are assumed to be given in this work (see \cite{marzouk2009} and references therein). Therefore, at this stage, the parametrization of the prior distribution of $\u$ reads as $\vparam_\u = \{ \mu_\u, \sigma_\u^2 \}$.
 
-\subsubsection{The Forward Model} \slabel{model-order-reduction}
+\subsubsection{Model Order Reduction} \slabel{model-order-reduction}
 The infinite-dimensional object $\u$ is reduced to a finite-dimensional one via the Karhunen-Lo\`{e}ve (KL) expansion; see \aref{kl-expansion}. The discretization is performed with respect to the union of two sets of points on the wafer: the first one is composed of the $\nrdies \nrprocs$ spatial locations where the observations in $\Data$ were made (one location for each measured processing element on each of the selected dies), and the other of the locations where the user wishes to characterize $\u$. For simplicity, we assume that the user is interested in all processing elements in all dies on the wafer, which is $\ndies \nprocs$ locations in total. Consequently, we obtain an $\ndies \nprocs$-dimensional random variable denoted by $\vu: \outcomes \to \real^{\ndies \nprocs}$:
 \begin{equation} \elabel{kl-approximation}
-  \vu = \mu \vI + \sigma_\u \mKL \vz
+  \vu = \mu_\u \vI + \sigma_\u \mKL \vz
 \end{equation}
-where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI = (e_i = 1)$. The model order reduction procedure described in \aref{kl-expansion} is implied in \eref{kl-approximation}; thus, typically, $\nvars \ll \ndies \nprocs$.
+where we treat the constant multiplier $\sigma^2_\u$ in \eref{covariance-function} separately, $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution, and $\vI = (e_i = 1)$. The model order reduction procedure described in \aref{kl-expansion} is implied in \eref{kl-approximation}; thus, typically, $\nvars \ll \ndies \nprocs$. Let us redefine the parameters of the prior of $\u$ by $\vparam_\u = \{ \vz, \mu_\u, \sigma^2_\u \}$ and rewrite the forward model by $\mvT = \model{\vparam_\u}$.
 
-Let us redefine the parameters of the prior of $\u$ by $\vparam_\u = \{ \vz, \mu, \sigma^2_\u \}$.
-Denote the model developed in \sref{power-model} and \sref{thermal-model} by $\model$, which, for a given $\vparam_\u$, transforms the input dynamic power profile $\profilePdyn$ into a set of temperature profiles computed at the spatial locations where the data in $\Data$ were measured, and stacks these profiles into a single vector of temperature $\mvT \in \real^{\nrdies \nrprocs}$:
-\begin{equation} \elabel{model}
-  \mvT = \model{\vparam_\u} := \vectorize{\{\mT^{(i)}\}_{i = 1}^\nrdies}.
-\end{equation}
-In what follows, we shall refer to $\model$ as the forward model. Also, denote by $\mvT_\meas := \vectorize{\{\mT^{(i)}_\meas\}_{i = 1}^\nrdies} \in \real^{\nrdies \nrprocs}$ the corresponding vectorized version of the measurements in $\Data$.
-
-\subsubsection{The likelihood function}
+\subsubsection{The Likelihood Function}
 Even if $\u$ was known at any location on the wafer, the temperature profiles in $\Data$, stacked into $\mvT_\meas$, could still deviate from the model in \eref{model} as the measurement process is not perfect. To account for this,
 \[
   \mvT_\meas = \model{\vparam_\u} + \vnoise = \mvT + \vnoise
 \]
-where $\vnoise$ is an $\ndps$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent of $\u$ \cite{rasmussen2006, marzouk2009}. Therefore,
+where $\vnoise$ is an $\nrdies \nrprocs \nrsteps$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent of $\u$ \cite{rasmussen2006, marzouk2009}. Therefore,
 \[
   \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
 \]
@@ -48,25 +44,21 @@ where $\sigma^2_\noise$ is a parameter defining the variance of the noise; impos
 \end{equation}
 yielding the likelihood function of the data $\Data$.
 
-\subsubsection{The prior}
-Denote the parameters to be inferred by
-\[
-  \vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu, \sigma_\u^2, \sigma_\noise^2 \}.
-\]
-We put the following priors on $\vparam$:
+\subsubsection{The Priors of the Parameters}
+Denote the parameters to be inferred by $\vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}$. We put the following priors on $\vparam$:
 \begin{align}
   & \z_i \sim \gaussian{0}{1}, \elabel{z-prior} \\
-  & \mu \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{mu-u-prior} \\
+  & \mu_\u \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{mu-u-prior} \\
   & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and} \elabel{sigma2-u-prior} \\
   & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \elabel{sigma2-noise-prior}
 \end{align}
-The prior for $\vz$ is due to the properties of the KL expansion. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown \cite{gelman2004}. The hyperparameters $\mu_0$, $\tau^2_\u$, and $\tau^2_\noise$ represent (approximately) the posterior mean of $\mu_u$, $\sigma^2_\u$, and $\sigma^2_\noise$, respectively, and the hyperparameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the precision of our information. In the absence of such knowledge, non-informative priors can be chosen (see, \eg, \cite{gelman2004}).
+The prior for $\vz$ is due to the properties of the KL expansion. The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown. The parameters $\mu_0$, $\tau^2_\u$, and $\tau^2_\noise$ represent the presumable values, by the user, of $\mu_u$, $\sigma^2_\u$, and $\sigma^2_\noise$, respectively, and the parameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ represent the precision of this information. In the absence of such knowledge, non-informative priors can be utilized. Refer to, \eg, \cite{gelman2004, bernardo2007} for further details.
 
-\subsubsection{The posterior}
+\subsubsection{The Posterior}
 Taking the product of the likelihood in \eref{likelihood} and the priors in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain
 \begin{align}
-  & \ln \f{\vparam | \Data} + c = -\frac{\ndps}{2} \ln \sigma^2_\noise - \frac{\norm{\mvT_\meas - \mvT}^2}{2 \sigma^2_\noise} \nonumber \\
-  & {} - \frac{\norm{\vz}^2}{2} - \frac{(\mu - \mu_0)^2}{2 \sigma^2_0} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
+  & \ln \f{\vparam | \Data} + c = -\frac{\nrdies \nrprocs \nrsteps}{2} \ln \sigma^2_\noise - \frac{\norm{\mvT_\meas - \mvT}^2}{2 \sigma^2_\noise} \nonumber \\
+  & {} - \frac{\norm{\vz}^2}{2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
   & {} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
 \end{align}
 where $c$ is some constant. This expression is sufficient for the Metropolis algorithm (see \sref{bayesian-inference}); thus, we can readily draw samples from the posterior. Each sample of $\vparam_\u$ is then used in \eref{kl-approximation} to compute a sample of $\u$, \ie, the \qoi\ that we are concerned with, for all processing elements on the wafer.

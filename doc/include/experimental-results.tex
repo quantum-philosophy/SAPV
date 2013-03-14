@@ -1,8 +1,6 @@
 Without loss of generality, let us focus on one particular source of uncertainty: the subthreshold leakage current and, more specifically, on the effective channel length.
 The reason for this choice is that the effective channel length has the strongest influence on leakage \cite{chandrakasan2001, srivastava2010, juan2011, juan2012}; in particular, it also affects the threshold voltage. Consequently, in what follows, $\u$ stands for this important parameter.
 
-\input{include/figures/wafer-pick.tex}
-\input{include/figures/wafer-qoi-error.tex}
 Now we shall describe the default configuration of our experimental setup, which, in the following subsections, will be adjusted according to the purpose of each particular experiment.
 We consider a 45-nanometer technological process. The diameter of the wafer is 40 dies, the total number of dies $\ndies$ is 316, and the number of processing elements $\nprocs$ in each of the dies is four.
 The number of measured dies $\nrdies$ is 20. These dies are chosen as follows: the first one is placed in the middle of the wafer, and the other are selected sequentially such that the total distance from the already picked dies and the new one to the rest of the dies is minimized. An example is depicted in \fref{wafer-pick}.
@@ -21,7 +19,7 @@ In parallel computations, there are four processors employed.\footnote{All the e
 
 \subsection{Analysis of the Experimental Setup}
 In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration described earlier.
-The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi}. In this case, the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the \qoi.
+The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} where the normalized root-mean-square error (NRMSE) is below $2.8\%$.
 Now, we inspect the quality of the proposal distribution (recall \sref{bayesian-inference} and \sref{optimization}). To this end, we first plot (not shown) the posterior given in \eref{log-posterior} for each drawn sample and obtain a curve with $10^4$ points, which rapidly fluctuates around a constant level indicating that the constructed Markov chain vividly explores the underlying probability space.
 Next, we calculate the acceptance rate of the Metropolis algorithm and find it to be $20$--$30\%$ on average, which agrees with the recommendations from the literature \cite{gelman2004}.
 Another test, commonly used in statistics, to assess the quality of the proposal distribution is to depict side-by-side the posterior in \eref{log-posterior} and the tailored proposal in \eref{proposal} for each parameter, conditional on the other parameters being at their posterior modes. The curves (not shown) are nearly indistinguishable implying a high quality of the proposal. To sum up, the above observations suggest that the optimization and sampling procedures are fine-tuned.

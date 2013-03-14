@@ -4,7 +4,7 @@ Once the wafer has been fabricated, the probability space yields a particular ou
 The values $\u(\r)$, $\r \in \domain$, however, are still unknown for us.
 
 \subsubsection{The prior of the \qoi}
-In the Bayesian context, the unknown $\u$ should attain a prior, which will be further updated using the observations in $\Data$. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since it is flexible and computationally efficient in capturing the correlation structures imposed by the manufacturing process (described later on):
+In the Bayesian context, the unknown $\u$ should attain a prior, which will be further updated using the observations in $\Data$. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since it is flexible in capturing the correlation structures imposed by the manufacturing process (described later on) and is computationally efficient:
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]

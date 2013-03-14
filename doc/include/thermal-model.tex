@@ -1,6 +1,6 @@
 Using the specification of the fabrication process $\specification$ (see \sref{problem-formulation}), we construct a so-called thermal RC circuit of the system that captures the thermal behavior of a single die on the wafer \cite{kreith2000}.
 The circuit is composed of $\nnodes$ thermal nodes, and its structure depends on the intended level of granularity and, therefore, impacts the resulting accuracy. For clarity of presentation, we assume that each processing element is mapped onto one thermal node, and there can be other nodes corresponding to the passive elements of the die.
-The temperature of a die on the wafer is then modeled using the following system of differential-algebraic equations:
+The temperature of a die is then modeled using the following system of differential-algebraic equations:
 \begin{subnumcases}{\elabel{thermal-system}}
   \mC \: \frac{d\vX(\t)}{d\t} + \mG \: \vX(\t) = \mM \: \vP(\t, \vT(\t), \u) \elabel{heat-de} \\
   \vT(\t) = \mM^T \vX(\t) + \vT_\amb \elabel{temperature-output}

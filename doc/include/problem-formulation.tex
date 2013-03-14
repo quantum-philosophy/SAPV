@@ -1,22 +1,22 @@
 Consider a electric system that consists of $\nprocs$ power-dissipating components identified at the intended level of granularity (processors, ALUs, caches, registers, \etc); hereafter, these components are referred to as processing elements.
 The system is being produced on a silicon wafer that hosts $\ndies$ dies.
-Let $\specification$ be the specification of the fabrication process that includes: (a) the layout of the wafer; (b) the floorplan of a single die of the wafer; (c) the thermal parameters of the materials that the system is made of.
+Let $\specification$ be the specification of the fabrication process that includes: (a) the layout of the wafer; (b) the floorplan of a single die on the wafer; (c) the thermal parameters of the materials that the dies are made of.
 
 A power profile $\profileP$ of a die is a tuple composed of a data matrix $\mP = (\vP_i) \in \real^{\nprocs \times \nsteps}$, $\vP_i \in \real^\nprocs$, that captures the power dissipation of all the $\nprocs$ processing elements at $\nsteps$ moments of time and a (column) vector $\partition{\mP} = (\t_i) \in \real^{\nsteps}$ with positive and strictly increasing components that specifies these moments of time.
 The definition of a temperature profile $\profileT$ is the same as the one for power except that the data matrix $\mT$ contains temperature.
 
 The system is assumed to depend on a random element, denoted by $\u$, which manifests itself in deviations of the actual power dissipation from nominal values and, consequently, in deviations of temperature from the one corresponding to the nominal power consumption.
 The goal of this work is to develop a framework for the characterization of the distribution of $\u$ across the wafer such that this framework possesses the following properties: (a) low deployment costs, (b) computational efficiency, (c) ability to operate on incomplete and noisy data, and (d) ability to accommodate the prior knowledge of the user (explained later on).
-The inputs to our framework should be composed of (a) a specification of the fabrication process $\specification$, (b) a test workload given as a dynamic power profile $\profilePdyn$, and (c) prior knowledge or beliefs on $\u$.
-The output of the framework should be comprised of the required statistics, by the user, about the \qoi, which can be both global and local, \ie, specific to arbitrary locations on the wafer.
-A graphical representation of the inputs and outputs is given in \fref{algorithm}, which is further explained in \sref{proposed-framework}.
+The inputs to our framework should be composed of (a) a specification of the fabrication process $\specification$, (b) a test workload given as a detailed dynamic power profile $\profilePdyn$, and (c) prior knowledge or beliefs on $\u$.
+The output of the framework should comprise the required statistics, defined by the user, about the \qoi, which can be both global and local, \ie, specific to arbitrary locations on the wafer.
+A graphical representation of the inputs and outputs is given in \fref{algorithm}, which is further described in \sref{proposed-framework}.
 
 To approach the established goal, we propose the use of indirect measurements. Specifically, we aim at measuring temperature, which we shall analyze using the ideas originating from Bayesian inference. Thus, as the first step, the user is supposed to harvest, as described in \sref{motivation}, a set of temperature profiles, corresponding to $\profilePdyn$, at several locations on the wafer. Denote by
 \[
   \Data = \left\{ (\mT^{(i)}_\meas, \partition{\mT}), \r_i \right\}_{i = 1}^\nrdies
 \]
 such a data set composed of $\nrdies$ temperature profiles $(\mT^{(i)}_\meas, \partition{\mT})$ of $\nrdies$ out of $\ndies$ dies on the wafer and the corresponding spatial locations of these dies $\vr = (\r_i) \in \domain^\nrdies$ in the domain $\domain$ representing the surface of the wafer.
-It is important to note that $\mT^{(i)}_\meas$ can potentially contain data only for a subset of the processing elements, say $\nrprocs \leq \nprocs$, and/or only for a subset of the time moments of the power partition $\partition{\mP}$, say $\nrsteps \leq \nsteps$; therefore, we let $\mT^{(i)}_\meas$ be in the space $\real^{\nrprocs \times \nrsteps}$.
+It is important to note that $\mT^{(i)}_\meas$ can potentially contain data only for a subset of the processing elements, say $\nrprocs \leq \nprocs$ (see \fref{wafer-measured} for an illustration), and/or only for a subset of the time moments of the power partition $\partition{\mP}$, say $\nrsteps \leq \nsteps$; therefore, $\mT^{(i)}_\meas \in \real^{\nrprocs \times \nrsteps}$.
 For simplicity, the temperature profiles in $\Data$ are assumed to share the same subset of the measured processing elements and the same time partition.
-The test power profile is assumed to be fine-grained whereas temperature profiles are presumably sparse, \ie, $\nrsteps \ll \nsteps$.
-Since $\Data$ is assumed to be incomplete, the number of measured dies is typically much smaller than the total number of dies, \ie, $\nrdies \ll \ndies$ (for an illustration, see \fref{wafer-measured}).
+This time partition is presumably sparse as it can be more practical to track temperature at a much lower frequency than the one used for power, \ie, $\nrsteps \ll \nsteps$.
+For the same practical reason, the number of measured dies is presumably much smaller than the total number of dies, \ie, $\nrdies \ll \ndies$, as shown in \fref{wafer-measured}.

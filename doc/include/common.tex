@@ -12,7 +12,7 @@
 % Bibliography
 \usepackage{csquotes}
 \usepackage[backend=biber, maxnames=5, sorting=none]{biblatex}
-\renewcommand*{\bibfont}{\small}
+% \renewcommand*{\bibfont}{\small}
 
 % Text
 \newcommand{\qoi}{QOI}
@@ -48,10 +48,19 @@
   #1\ignorespaces
 }
 
+% Tables and figures
+\setlength{\topsep}{0pt}
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{0pt}
+
+% Formulas
+\setlength\abovedisplayskip{5pt}
+\setlength\belowdisplayskip{5pt}
+
 % References
 \newcommand{\eref}[1]{Eq.~(\ref{equ:#1})}
 \newcommand{\sref}[1]{Sec.~\ref{sec:#1}}
-\newcommand{\aref}[1]{App.~\ref{app:#1}}
+\newcommand{\aref}[1]{Appendix~\ref{app:#1}}
 \newcommand{\fref}[1]{Fig.~\ref{fig:#1}}
 \newcommand{\tref}[1]{Tab.~\ref{tab:#1}}
 

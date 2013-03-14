@@ -15,14 +15,14 @@ In the prior for the mean of $\u$ (see \eref{mu-u-prior}), we let $\mu_0$ be $45
 In the prior for the variance of $\u$ (see \eref{sigma2-u-prior}), we let $\tau_\u$ be $5\%$ of the mean value, and $\nu_\u$ is set to ten. The later has an intuitive interpretation in the Bayesian context: $\nu_\u$ can be thought of as being the number of imaginary observations (prior to actual observations) that the prior on $\tau_\u$ is based on.
 In the prior for the variance of noise (see \eref{sigma2-noise-prior}), we let $\tau_\noise$ be $1~\text{K}$, and $\nu_\noise = 10$ (the same meaning as for $\nu_\u$).
 In \eref{proposal}, the number of degrees of freedom $\nu$ is eight, and the tuning constant $\alpha$ is set to 0.5.
-The optimization procedure (recall \sref{proposal-distribution}) is undertaken using the Quasi-Newton algorithm with BFGS updates of the Hessian \cite{press2007}.
+The optimization procedure (recall \sref{optimization}) is undertaken using the Quasi-Newton algorithm with BFGS updates of the Hessian \cite{press2007}.
 The number of samples that we draw from the posterior is $10^4$; the first half of these samples is ascribed to the burn-in period leaving $5 \cdot 10^3$ effective samples $\nsamples$.
 In parallel computations, there are four processors employed.\footnote{All the experiments have been conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.}
 
 \subsection{Analysis of the Experimental Setup}
 In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration described earlier.
 The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi}. In this case, the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the \qoi.
-Now, we inspect the quality of the proposal distribution (recall \sref{bayesian-inference} and \sref{proposal-distribution}). To this end, we first plot (not shown) the posterior given in \eref{log-posterior} for each drawn sample and obtain a curve with $10^4$ points, which rapidly fluctuates around a constant level indicating that the constructed Markov chain vividly explores the underlying probability space.
+Now, we inspect the quality of the proposal distribution (recall \sref{bayesian-inference} and \sref{optimization}). To this end, we first plot (not shown) the posterior given in \eref{log-posterior} for each drawn sample and obtain a curve with $10^4$ points, which rapidly fluctuates around a constant level indicating that the constructed Markov chain vividly explores the underlying probability space.
 Next, we calculate the acceptance rate of the Metropolis algorithm and find it to be $20$--$30\%$ on average, which agrees with the recommendations from the literature \cite{gelman2004}.
 Another test, commonly used in statistics, to assess the quality of the proposal distribution is to depict side-by-side the posterior in \eref{log-posterior} and the tailored proposal in \eref{proposal} for each parameter, conditional on the other parameters being at their posterior modes. The curves (not shown) are nearly indistinguishable implying a high quality of the proposal. To sum up, the above observations suggest that the optimization and sampling procedures are fine-tuned.
 
@@ -65,7 +65,7 @@ A more important observation, revealed by this experiment, is that, in spite of 
 However, even with a high level of noise of two degrees---meaning that all measurements fall on the band of $8~\text{K}$ wide around the true values with probability more than $0.95$---the NRMSE is still only $4\%$.
 
 \subsection{Sequential vs. Parallel Sampling}
-In this subsection, we summarize the results of the sequential and parallel  sampling strategies (see \sref{sampling-strategy}).
+In this subsection, we summarize the results of the sequential and parallel  sampling strategies (see \sref{sampling}).
 In the non-parallel Metropolis algorithm, the optimization time is typically smaller than the time needed to draw posterior samples.
 The situation changes when parallel computing (with four processors, in our case) is utilized. The sampling time decreases by 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy.
 The overall speedup, \ie, including the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times, which can be pushed even further using more parallel processes.

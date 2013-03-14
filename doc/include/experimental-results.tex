@@ -20,13 +20,11 @@ The number of samples that we draw from the posterior is $10^4$; the first half 
 In parallel computations, there are four processors employed.\footnote{All the experiments have been conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.}
 
 \subsection{Analysis of the Experimental Setup}
-\input{include/figures/log-posterior.tex}
 In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration described earlier.
 The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi}. In this case, the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the \qoi.
-An inspection of the log-posterior depicted in \fref{log-posterior} (up to a constant summand) indicates that the constructed Markov chain vividly explores the probability space.
-The acceptance rate of the Metropolis algorithm, in this experiment, is $20$--$30\%$ on average, which agrees with the recommendations from the literature \cite{gelman2004}.
-Another test, commonly used in statistics, to assess the quality of the proposal distribution is given in \fref{proposal}. The figure depicts both the posterior density and the tailored proposal density in \eref{proposal} for each parameter, conditional on the other parameters being at their posterior modes.
-Since, in this example, the dimension of $\vparam$ is 30, the number of such plots is also 30. The curves are nearly indistinguishable implying a high quality of the proposal. To sum up, the above observations suggest that the optimization and sampling procedures are fine-tuned.
+Now, we inspect the quality of the proposal distribution (recall \sref{bayesian-inference} and \sref{proposal-distribution}). To this end, we first plot (not shown) the posterior given in \eref{log-posterior} for each drawn sample and obtain a curve with $10^4$ points, which rapidly fluctuates around a constant level indicating that the constructed Markov chain vividly explores the underlying probability space.
+Next, we calculate the acceptance rate of the Metropolis algorithm and find it to be $20$--$30\%$ on average, which agrees with the recommendations from the literature \cite{gelman2004}.
+Another test, commonly used in statistics, to assess the quality of the proposal distribution is to depict side-by-side the posterior in \eref{log-posterior} and the tailored proposal in \eref{proposal} for each parameter, conditional on the other parameters being at their posterior modes. The curves (not shown) are nearly indistinguishable implying a high quality of the proposal. To sum up, the above observations suggest that the optimization and sampling procedures are fine-tuned.
 
 \subsection{Number of Processing Elements on a Die}
 In this subsection, we consider five platforms with the number of processing elements in each die $\nprocs$ equal to 2, 4, 8, 16, and 32 cores, respectively. The results are summarized in \tref{processing-elements}.
@@ -38,16 +36,17 @@ It can be seen in \tref{processing-elements} that all computational times grow w
 An interesting observation can be made from the NRMSE: the error tends to decrease as the number of processing elements grows. The explanation is that, with each core, $\Data$ delivers more information to the inference to work with since the temperature profiles in $\Data$ are being collected for all the cores simultaneously.
 
 \subsection{Number of Measured Dies}
-\input{include/figures/chains.tex}
 In this subsection, we change the number of dies $\nrdies$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\ndies - \nrdies$ dies on the wafer are left unobserved). The considered scenarios are 1, 10, 20, 40, 80, and 160 measured dies. The results are reported in \tref{spatial-measurements}.
 \input{include/tables/spatial-measurements.tex}
 
 We see that the more data the proposed framework needs to process, the longer the execution time, which is reasonable. The trend, however, is not as steep as the one in \tref{processing-elements} since the thermal system stays unchanged.
 The error firmly decreases and drops below $4\%$ with around 20 measurement points, which is only $6.3\%$ of the total number of dies on the wafer.
 
-\input{include/figures/proposal.tex}
-This example is a great opportunity to illustrate that the joint posterior distribution provides a complete description of the uncertainty of the \qoi\ (recall also \sref{motivation}). In \tref{spatial-measurements}, we have two extreme cases: one and 160 measurement points. It is reasonable to anticipate that the predictions are less accurate in the former case than those in the latter, and this is exactly what the NRMSE has revealed in \tref{spatial-measurements}. In reality, unfortunately, the true values and, consequently, errors are unknown.
-It is straightforward, however, to use the posterior draws to quantify the reduction in uncertainty from using more die measurements. \fref{chains} shows that there is a huge reduction in posterior standard deviations of $\u$ across the wafer by increasing the number of dies from one (top) to 160 (bottom).
+This example is a great opportunity to emphasize that the posterior distribution provides a complete description of the uncertainty of the \qoi\ (recall also \sref{motivation}).
+In \tref{spatial-measurements}, we have two extreme cases: one and 160 measurement points. It is reasonable to anticipate that the predictions are less accurate in the former case than those in the latter, and this is exactly what the NRMSE has revealed in \tref{spatial-measurements}.
+Unfortunately, in reality, we do not have such a table to judge the accuracy of our predictions as the true values are unknown.
+It is straightforward, however, to use the posterior draws to quantify the reduction of the prediction uncertainty with respect to the amount of available data.
+The quantity to monitor here is the standard deviation of the constructed Markov chain: a lower level of this deviation implies a higher level of accuracy (certainty). In the experiment at hand, the reduction of the standard deviation with the traversal from one to 160 measured dies was found to be significant.
 
 \subsection{Number of Temporal Measurements}
 In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\nsteps - \nrsteps$ steps are discarded after $\model$ is evaluated for the input power profile $\profilePdyn$). The considered scenarios are 1, 10, 20, 40, 80, and 160 moments of time. The results are aggregated in \tref{temporal-measurements}.

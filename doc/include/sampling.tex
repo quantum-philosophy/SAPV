@@ -1,0 +1,16 @@
+\slabel{proposal-distribution}
+As discussed in \sref{bayesian-inference}, the core of the Metropolis algorithm is the proposal distribution. A carefully constructed proposal can significantly reduce the number of steps needed for the corresponding Markov chain to start producing representative samples; in other words, it can save a lot of forward model evaluations.
+A common technique to construct a high-quality proposal is to undertake an optimization procedure of the log-posterior given by \eref{log-posterior}, which we also do. Specifically, we seek for such a value of $\vparam$ that maximizes \eref{log-posterior}.
+Consequently, the optimization yields a highly probable value of $\vparam$, denoted by $\hat{\vparam}$, along with the corresponding Hessian matrix, denoted by $\mOI$. The two form a solid base for the proposal.
+For example, a classical choice of such a distribution is a multivariate Gaussian distribution wherein the mean is the current location of the Markov chain started from $\hat{\vparam}$, and the covariance matrix is the inverse of $\mOI$; see \cite{gelman2004, bernardo2007}.
+
+\slabel{sampling-strategy}
+In order to speed up the inference process even further, we make use of the omnipresent multicore parallelization for sampling. To this end, instead of utilizing the classical proposal mentioned in the previous paragraph---which is purely sequential as the mean for the next sample draw is dependent on the previous sample---we appeal to the independence sampler Metropolis algorithm \cite{gelman2004}. In this case, a typical choice of the proposal is a multivariate t-distribution, which is independent of the current position of the chain:
+\begin{equation} \elabel{proposal}
+  \vparam \sim \studentst{\nu}{\hat{\vparam}}{\alpha^2 \mOI^{-1}}
+\end{equation}
+where $\hat{\vparam}$ and $\mOI$ are as in \sref{proposal-distribution}, $\nu$ is the number of degrees of freedom, and $\alpha$ is a tuning constant. Now, the posterior in \eref{log-posterior} can be computed for all samples in parallel.
+
+Having completed the sampling procedure, we obtain a collection of samples of the parametrization $\vparam$. Since it can take time for a Markov chain to reach regions of high probability (see \sref{bayesian-inference}), a certain number of initial samples are typically discarded as being unrepresentative, which is known as a burn-in period.
+Each of the preserved samples of $\vparam$ is then used in \eref{kl-approximation} to compute a sample of $\u$, $\u_i \in \real^{\ndies \nprocs \nsteps}$.
+Denote such a data set with $\nsamples$ samples by $\UData = \{ \u_i \}_{i = 1}^\nsamples$.

@@ -15,11 +15,12 @@ In the prior for the variance of noise (see \eref{sigma2-noise-prior}), we let $
 In \eref{proposal}, the number of degrees of freedom $\nu$ is eight, and the tuning constant $\alpha$ is set to 0.5.
 The optimization procedure (recall \sref{optimization}) is undertaken using the Quasi-Newton algorithm with BFGS updates of the Hessian \cite{press2007}.
 The number of samples that we draw from the posterior is $10^4$; the first half of these samples is ascribed to the burn-in period leaving $5 \cdot 10^3$ effective samples $\nsamples$.
-In parallel computations, there are four processors employed.\footnote{All the experiments have been conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.}
+For parallel computations, we utilize four processors.\footnote{All the experiments have been conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.}
 
 \subsection{Analysis of the Experimental Setup}
+\input{include/figures/wafer-qoi-error.tex}
 In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration described earlier.
-The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} where the normalized root-mean-square error (NRMSE) is below $2.8\%$.
+The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} where the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the \qoi.
 Now, we inspect the quality of the proposal distribution (recall \sref{bayesian-inference} and \sref{optimization}). To this end, we first plot (not shown) the posterior given in \eref{log-posterior} for each drawn sample and obtain a curve with $10^4$ points, which rapidly fluctuates around a constant level indicating that the constructed Markov chain vividly explores the underlying probability space.
 Next, we calculate the acceptance rate of the Metropolis algorithm and find it to be $20$--$30\%$ on average, which agrees with the recommendations from the literature \cite{gelman2004}.
 Another test, commonly used in statistics, to assess the quality of the proposal distribution is to depict side-by-side the posterior in \eref{log-posterior} and the tailored proposal in \eref{proposal} for each parameter, conditional on the other parameters being at their posterior modes. The curves (not shown) are nearly indistinguishable implying a high quality of the proposal. To sum up, the above observations suggest that the optimization and sampling procedures are fine-tuned.
@@ -47,7 +48,7 @@ It is straightforward, however, to use the posterior draws to quantify the reduc
 The quantity to monitor here is the standard deviation of the constructed Markov chain: a lower level of this deviation implies a higher level of accuracy (certainty). In the experiment at hand, the reduction of the standard deviation with the traversal from one to 160 measured dies was found to be significant.
 
 \subsection{Number of Temporal Measurements}
-In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\nsteps - \nrsteps$ steps are discarded after $\model$ is evaluated for the input power profile $\profilePdyn$). The considered scenarios are 1, 10, 20, 40, 80, and 160 moments of time. The results are aggregated in \tref{temporal-measurements}.
+In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\nsteps - \nrsteps$ steps are discarded after $\model$ is evaluated for the input power profile $\profilePdyn$). The scenarios are 1, 10, 20, 40, 80, and 160 time moments. The results are aggregated in \tref{temporal-measurements}.
 \input{include/tables/temporal-measurements.tex}
 
 As we see, the growth of the computational time is relatively low. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\Data$ is identical (recall $\mvT_\meas \in \real^{\nrdies \nrprocs \nrsteps}$). However, the meaning of the two numbers, $\nrdies$ and $\nrsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.

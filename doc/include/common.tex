@@ -6,9 +6,12 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 
-\usepackage{csquotes}
-\usepackage[backend=biber, maxnames=1, sorting=none]{biblatex}
+% Balance the columns on the last page
+\usepackage{flushend}
 
+% Bibliography
+\usepackage{csquotes}
+\usepackage[backend=biber, maxnames=5, sorting=none]{biblatex}
 \renewcommand*{\bibfont}{\small}
 
 % Text
@@ -44,15 +47,6 @@
 \newcommand{\rowstyle}[1]{\gdef\currentrowstyle{#1}%
   #1\ignorespaces
 }
-
-% Tables and figures
-\setlength{\topsep}{0pt}
-\setlength{\abovecaptionskip}{5pt}
-\setlength{\belowcaptionskip}{0pt}
-
-% Formulas
-\setlength\abovedisplayskip{5pt}
-\setlength\belowdisplayskip{5pt}
 
 % References
 \newcommand{\eref}[1]{Eq.~(\ref{equ:#1})}

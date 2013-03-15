@@ -1,11 +1,12 @@
-Consider a electric system that consists of $\nprocs$ power-dissipating components identified at the intended level of granularity (processors, ALUs, caches, registers, \etc); hereafter, these components are referred to as processing elements.
+Consider an electric system that consists of $\nprocs$ active components, \ie, those that dissipate power, identified at the intended level of granularity (processors, ALUs, caches, registers, \etc); hereafter, these components are referred to as processing elements.
 The system is being produced on a silicon wafer that hosts $\ndies$ dies.
 Let $\specification$ be the specification of the fabrication process that includes: (a) the layout of the wafer; (b) the floorplan of a single die on the wafer; (c) the thermal parameters of the materials that the dies are made of.
 
 A power profile $\profileP$ of a die is a tuple composed of a data matrix $\mP = (\vP_i) \in \real^{\nprocs \times \nsteps}$, $\vP_i \in \real^\nprocs$, that captures the power dissipation of all the $\nprocs$ processing elements at $\nsteps$ moments of time and a (column) vector $\partition{\mP} = (\t_i) \in \real^{\nsteps}$ with positive and strictly increasing components that specifies these moments of time.
-The definition of a temperature profile $\profileT$ is the same as the one for power except that the data matrix $\mT$ contains temperature.
+The definition of a (transient) temperature profile $\profileT$ is the same as the one for power except that the data matrix $\mT$ contains temperature.
 
 The system is assumed to depend on a random element, denoted by $\u$, which manifests itself in deviations of the actual power dissipation from nominal values and, consequently, in deviations of temperature from the one corresponding to the nominal power consumption.
+
 The goal of this work is to develop a framework for the characterization of the distribution of $\u$ across the wafer such that this framework possesses the following properties: (a) low deployment costs, (b) computational efficiency, (c) ability to operate on incomplete and noisy data, and (d) ability to accommodate the prior knowledge of the user (explained later on).
 The inputs to our framework should be composed of (a) a specification of the fabrication process $\specification$, (b) a test workload given as a detailed dynamic power profile $\profilePdyn$, and (c) prior knowledge or beliefs on $\u$.
 The output of the framework should comprise the required statistics, defined by the user, about the \qoi, which can be both global and local, \ie, specific to arbitrary locations on the wafer.

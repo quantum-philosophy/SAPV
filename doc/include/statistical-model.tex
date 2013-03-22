@@ -4,7 +4,7 @@ Once the wafer has been fabricated, the probability space yields a particular ou
 The values $\u(\r)$, $\r \in \domain$, however, are still unknown for us.
 
 \subsubsection{The prior of the \qoi}
-In the Bayesian context, the unknown $\u$ should attain a prior, which will be further updated, through a likelihood function, using the observations in $\Data$. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since (a) it is flexible in capturing the correlation patterns induced by the manufacturing process (described later on); (b) such a prior is computationally efficient; (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, juan2011, juan2012}:
+In the Bayesian context, the unknown $\u$ should be assigned a prior, which will be further updated, through a likelihood function, using the observations in $\Data$. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since (a) it is flexible in capturing the correlation patterns induced by the manufacturing process (described later on); (b) such a prior is computationally efficient; (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, juan2011, juan2012}:
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]
@@ -34,11 +34,13 @@ Due to the imperfection of the measurement process, the temperature profiles in 
 \[
   \mvT_\meas = \model{\vparam_\u} + \vnoise = \mvT + \vnoise
 \]
-where $\vnoise$ is an $\nrdies \nrprocs \nrsteps$-dimensional vector of noise. The noise is typically assumed to be a white Gaussian noise and to be independent of $\u$ \cite{rasmussen2006, marzouk2009}. Therefore,
+where $\vnoise$ is an $\nrdies \nrprocs \nrsteps$-dimensional vector of noise, which is typically assumed to be a white Gaussian noise \cite{rasmussen2006, marzouk2009}.
+Imposing no loss of generality, the noise is assumed to be independent of $\u$ and to have the same magnitude for all measurements (characterized by the utilized instruments). Therefore,
 \[
   \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
 \]
-where $\sigma^2_\noise$ is a parameter defining the variance of the noise; imposing no loss of generality, the noise is assumed to have the same magnitude for all measurements (characterized by the utilized instruments). The noise can be interpreted as
+where $\sigma^2_\noise$ is a parameter defining the variance of the noise.
+The noise can be interpreted as
 \begin{equation} \elabel{likelihood}
   \mvT_\meas | \vparam_\u, \sigma_\noise^2 \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}
 \end{equation}
@@ -61,4 +63,4 @@ Taking the product of the likelihood in \eref{likelihood} and the priors in \ere
   & {} - \frac{\norm{\vz}^2}{2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
   & {} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
 \end{align}
-where $c$ is some constant. This expression is sufficient for the Metropolis algorithm to get started; thus, assuming that we have an adequate proposal distribution (see the next subsection), we can readily draw samples from the posterior.
+where $c$ is some constant. This expression is sufficient for the Metropolis-Hastings algorithm; thus, assuming that we have an adequate proposal distribution (see the next subsection), we can readily draw samples from the posterior.

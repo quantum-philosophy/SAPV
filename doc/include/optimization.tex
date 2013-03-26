@@ -1,6 +1,9 @@
 In this section, we describe the objective of Stage~2 in \fref{algorithm}.
-Since drawing samples directly from the posterior distribution in \eref{log-posterior} is not possible (see \sref{bayesian-inference}), we utilize the Metropolis-Hastings algorithm, which operates on an auxiliary, easy-to-sample distribution called the proposal distribution \cite{gelman2004}.
-A carefully chosen proposal can significantly reduce the number of steps needed for obtaining a good approximation of the posterior distribution; in other words, it can save a lot of evaluations of $\model$.
+Since drawing samples directly from the posterior distribution in \eref{log-posterior} is not possible (see \sref{bayesian-inference}), we utilize the Metropolis-Hastings algorithm \cite{gelman2004}.
+The algorithm operates on an auxiliary distribution, called the proposal distribution, which is chosen to be convenient for sampling.
+Although the requirements to this choice are rather weak, it is often difficult to pick an efficient proposal, which would yield a good approximation to the posterior distribution and, therefore, would considerably reduce the number of the forward model evaluations.
+The situation is significantly more severe for high-dimensional problems, and our problem, involving around 30 parameters, is one of such problems as we shall see in \sref{experimental-results}.
+Therefore, a careful construction of the proposal is an essential component of our framework.
 A common technique to construct a high-quality proposal is to perform an optimization procedure of the log-posterior given by \eref{log-posterior}.
 More specifically, we seek for such a value of $\vparam$ that maximizes \eref{log-posterior}; in this paper, this maximization is done via the Quasi-Newton algorithm with BFGS updates of the Hessian matrix \cite{press2007}.
 Having done the optimization, we obtain the most probable value of $\vparam$, called the posterior mode and denoted by $\hat{\vparam}$, and also compute the negative of the Hessian matrix at $\hat{\vparam}$, called the observed information matrix and denoted by $\mOI$ (see \fref{algorithm}).

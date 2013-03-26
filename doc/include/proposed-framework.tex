@@ -1,7 +1,7 @@
 \input{include/figures/algorithm.tex}
-In this section, we present our temperature-based technique for the characterization of process variation. The structure of the framework is divided into four major stages depicted in \fref{algorithm}.
+In this section, we present our temperature-based technique for the characterization of process variation. The framework is divided into four major stages depicted in \fref{algorithm}.
 Stage~1 is the data-harvesting stage wherein the user is supposed to collect a set of observations $\Data$ as described in \sref{motivation}.
-At Stage~2, we undertake an auxiliary procedure that delivers an optimized proposal distribution to the MCMC sampling stage, Stage~3.
+At Stage~2, we undertake an auxiliary procedure that delivers an optimized proposal distribution to the MCMC sampling in Stage~3.
 Stage~3 produces a collection of samples of the \qoi, such as the effective channel length, which is then processed at Stage~4 in order to estimate various characteristics, specified by the user, of this \qoi, \eg, to compute the probability of the effective channel length to be smaller than a certain threshold as motivated in \sref{motivation}.
 As it can be seen in \fref{algorithm}, Stage~2 and Stage~3 actively communicate with two models on the right, called the forward and statistical models, which we shall discuss next.
 

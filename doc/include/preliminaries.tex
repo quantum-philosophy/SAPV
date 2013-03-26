@@ -1,12 +1,12 @@
 In order to give a clear presentation of the proposed technique, we first overview some of the major components of Bayesian inference \cite{gelman2004}.
-Let $\vparam$ be a set of unknown parameters, which we would like to characterize. Our arsenal to combat the problem includes: (a) a data set of observations $\Data$, (b) a model $\model$ that connects $\vparam$ with $\Data$, and (c) our prior knowledge on $\vparam$. A natural solution is widely celebrated Bayes' rule:
-\[
-  \f{\vparam | \Data} \propto \f{\Data | \vparam} \f{\vparam}
-\]
+Let $\vparam$ be a set of unknown parameters, which we would like to characterize. Our arsenal to solve the problem includes: (a) a data set of observations $\Data$, (b) a model $\model$ that connects $\vparam$ with $\Data$, and (c) our prior knowledge on $\vparam$. A natural solution is Bayes' rule:
+\begin{equation} \elabel{bayes}
+  \f{\vparam | \Data} \propto \f{\Data | \vparam} \; \f{\vparam}
+\end{equation}
 where $\f{\cdot}$ denotes a probability density function, and the vertical bar stands for conditioning \cite{durrett2010}.
 $\f{\Data | \vparam}$ is known as the likelihood function, which accommodates the model $\model$ and yields the probability of observing the data $\Data$ given the parameters $\vparam$.
 $\f{\vparam}$ is called the prior of $\vparam$, which represents our knowledge on $\vparam$ prior to any observations.
-Finally, $\f{\vparam | \Data}$ reads as the posterior of $\vparam$ given $\Data$. Such a posterior is an exhaustive solution to our problem: having constructed $\f{\vparam | \Data}$, one can perform a thorough analysis of $\u$ by drawing samples from this posterior and estimating the needed characteristics.
+Finally, $\f{\vparam | \Data}$ reads as the posterior of $\vparam$ given $\Data$. Such a posterior is an exhaustive solution to our problem: having constructed $\f{\vparam | \Data}$, one can perform a thorough analysis of $\vparam$ by drawing samples from this posterior and estimating the needed characteristics.
 
 Unfortunately, due to $\model$ involved in the likelihood function, the posterior is often not available in closed form and, therefore, the sampling procedure is typically not straightforward.
 To tackle the difficulty, one usually relies on such techniques as Markov Chain Monte Carlo (MCMC) sampling \cite{gelman2004}. In this case, an ergodic Markov chain with the stationary distribution equal to the target posterior distribution is constructed and then utilized for the probability space exploration.

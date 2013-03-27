@@ -7,4 +7,4 @@ Therefore, a careful construction of the proposal distribution is an essential c
 A common technique to construct a high-quality proposal is to perform an optimization procedure of the log-posterior given by \eref{log-posterior}.
 More specifically, we seek for such a value of $\vparam$ that maximizes \eref{log-posterior}; in this paper, this maximization is done via the Quasi-Newton algorithm with BFGS updates of the Hessian matrix \cite{press2007}.
 Having done the optimization, we obtain the most probable value of $\vparam$, called the posterior mode and denoted by $\hat{\vparam}$, and also compute the negative of the Hessian matrix at $\hat{\vparam}$, called the observed information matrix and denoted by $\mOI$ (see \fref{algorithm}).
-The latter forms a solid base for the proposal as we shall discuss next.
+The latter forms a solid base for the proposal as described next.

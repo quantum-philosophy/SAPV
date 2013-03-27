@@ -8,5 +8,5 @@ where $\hat{\vparam}$ and $\mOI$ are as in \sref{optimization}, $\nu$ is the num
 Then the precomputed draws and their posterior evaluations can subsequently be accepted or rejected as in the usual Metropolis-Hasting algorithm.
 
 Having completed the sampling procedure, we obtain a collection of samples of $\vparam$. Due to the burn-in period (see \sref{bayesian-inference}), a certain number of initial samples are typically discarded as being unrepresentative.
-Each of the preserved samples of $\vparam$, comprising $\vz$, $\mu_\u$, and $\sigma^2_\u$, is then used in \eref{kl-approximation} to compute a sample of $\u$, $\u_i \in \real^{\ndies \nprocs}$.
-Denote such a data set with $\nsamples$ samples of the \qoi\ by $\UData = \{ \u_i \}_{i = 1}^\nsamples$.
+Each of the preserved samples of $\vparam$, comprising $\vz$, $\mu_\u$, and $\sigma^2_\u$, is then used in \eref{kl-approximation} to compute a sample of $\u$, $\vu_i \in \real^{\ndies \nprocs}$.
+Denote such a data set with $\nsamples$ samples of the \qoi\ by $\UData = \{ \vu_i \}_{i = 1}^\nsamples$.

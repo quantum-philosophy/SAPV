@@ -5,13 +5,13 @@ Once the wafer has been fabricated, the probability space yields a particular ou
 The values $\u(\r)$, $\r \in \domain$, however, are still unknown for us.
 In order to infer them, we employ the procedure developed in the current subsection; we shall refer to this procedure as the statistical model, which is shown in \fref{algorithm} and detailed in \fref{inference}. This model closely follows the general Bayesian approach outlined in \sref{bayesian-inference} and consists of the five components described next.
 
-\subsubsection{Prior of the \qoi}
-In the Bayesian context, the unknown $\u$ should be assigned a prior, which will be further updated, through a likelihood function, using the observations in $\Data$. In this work, we put a Gaussian process prior \cite{rasmussen2006} on $\u$ since (a) it is flexible in capturing the correlation patterns induced by the manufacturing process (described later on); (b) such a prior is computationally efficient; (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, juan2011, juan2012}:
+\subsubsection{Modeling the \qoi}
+The first step is to assign an adequate model to the unknown $\u$. We model $\u$ as a Gaussian process \cite{rasmussen2006} since (a) it is flexible in capturing the correlation patterns induced by the manufacturing process (described later on); (b) it is computationally efficient; and (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, juan2011, juan2012}:
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]
-where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$. Hereafter, the vertical bar, pronounced as ``given'', is used to mark the parameters that the probability distribution on the right-hand side depends on; in this case, such parameters are $\vparam_\u$, which we shall identify later on. For convenience, let the expected value be fixed, \ie, $\fMean{\r} := \mu_\u$, $\forall \r \in \domain$.
-$\fCov$ is chosen to be the following composition:
+where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, respectively. Hereafter, the vertical bar, pronounced as ``given'', is used to mark the parameters that the probability distribution on the right-hand side depends on. In this case, such parameters are $\vparam_\u$, which we shall identify later on. Before taking any measurements, $\u$ is assumed to be spatially unbiased; thus, we let $\fMean$ be given as a single location-independent parameter $\mu_\u$, \ie, $\fMean{r} = \mu_\u$, $\forall \r \in \domain$.
+The covariance function $\fCov$ is chosen to be the following composition:
 \begin{equation} \elabel{covariance-function}
   \fCov{\r, \r'} = \sigma_\u^2 \big( \eta \; \fCov_\SE(\r, \r') + (1 - \eta) \fCov_\OU(\r, \r') \big)
 \end{equation}
@@ -20,11 +20,11 @@ where
   & \fCov_\SE(\r, \r') = \exp\left(-\frac{\norm{\r - \r'}^2}{\ell_\SE^2}\right) \text{ and} \\
   & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU} \right)
 \end{align*}
-are the squared exponential and Ornstein-Uhlenbeck correlation functions, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters; $\norm{\cdot}$ stands for the Euclidean distance.
+are the squared exponential and Ornstein-Uhlenbeck correlation functions, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters; and $\norm{\cdot}$ stands for the Euclidean distance.
 The choice of the covariance function is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between points that are at the same distance from the center of the wafer.
 The length-scale parameters $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant.
 Although all the above parameters of the prior of $\u$ can be inferred from the data, for simplicity, we shall focus on $\mu_u$ and $\sigma_\u^2$.
-The rest of the parameters, namely, $\eta$, $\ell_\SE$, and $\ell_\OU$ of the covariance function $\fCov$, are assumed to be determined previous to our analysis based on the knowledge of the correlation patterns typical for the production process utilized (see \cite{marzouk2009} and references therein).
+The rest of the parameters, namely, $\eta$, $\ell_\SE$, and $\ell_\OU$ of the covariance function $\fCov$, are assumed to be determined \apriori\ to our analysis based on the knowledge of the correlation patterns typical for the production process utilized (see \cite{marzouk2009} and references therein).
 
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
 The infinite-dimensional object $\u$ is reduced to a finite-dimensional one via the procedure described in \aref{kl-expansion}.
@@ -41,17 +41,16 @@ Due to the imperfection of the measurement process, the temperature profiles in 
   \mvT_\meas = \model{\vparam_\u} + \vnoise = \mvT + \vnoise
 \end{equation}
 where $\vnoise$ is an $\nrdies \nrprocs \nrsteps$-dimensional vector of noise, which is typically assumed to be a white Gaussian noise \cite{rasmussen2006, marzouk2009}.
-Imposing no loss of generality, the noise is assumed to be independent of $\u$ and to have the same magnitude for all measurements (characterized by the utilized instruments). Therefore, the model of the noise is
+Without loss of generality, the noise is assumed to be independent of $\u$ and to have the same magnitude for all measurements (characterized by the utilized instruments). Therefore, the model of the noise is
 \begin{equation} \elabel{noise-model}
   \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
 \end{equation}
-where $\sigma^2_\noise$ is a parameter defining the variance of the noise.
+where $\sigma^2_\noise$ is a parameter defining the variance of the noise. Let us denote all the parameters identified so far by $\vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}$ (see \fref{inference}).
 Combining \eref{noisy-measurements} and \eref{noise-model}, we get
 \begin{equation} \elabel{likelihood}
-  \mvT_\meas | \vparam_\u, \sigma_\noise^2 \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}.
+  \mvT_\meas | \vparam \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}.
 \end{equation}
 The probability density function of this distribution is the likelihood function $\f{\Data | \vparam}$ of the data $\Data$.
-Denote all the identified parameters to be inferred by $\vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}$ (see \fref{inference}).
 
 \subsubsection{Priors of the parameters}
 We put the following priors on $\vparam$:
@@ -65,16 +64,11 @@ The prior for $\vz$ is due to the properties the decomposition in \eref{kl-appro
 The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown.
 The parameters $\mu_0$, $\tau^2_\u$, and $\tau^2_\noise$ represent the presumable values of $\mu_u$, $\sigma^2_\u$, and $\sigma^2_\noise$, respectively, and are set by the user based on the prior knowledge on the technological process and measurement instruments employed. The parameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the precision of this prior information.
 When the prior knowledge is weak, non-informative priors can be utilized \cite{gelman2004, bernardo2007}.
-Taking the product of the density functions in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain the prior for all the parameters, denoted by $\f{\vparam}$ in \eref{bayes}:
-\begin{equation} \elabel{prior}
-  \f{\vparam} = \f{\vz} \; \f{\mu_\u} \; \f{\sigma^2_\u} \; \f{\sigma^2_\noise}.
-\end{equation}
+Taking the product of the density functions in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain the prior for all the parameters, denoted by $\f{\vparam}$ in \eref{bayes}.
 
 \subsubsection{Posterior}
-As discussed in \sref{bayesian-inference} and shown in \eref{bayes}, the product of the likelihood function $\f{\Data | \vparam}$ in \eref{likelihood} and the prior $\f{\vparam}$ in \eref{prior} yields the corresponding posterior $\f{\vparam | \Data}$:
-\begin{align}
-  & \ln \f{\vparam | \Data} + c = -\frac{\nrdies \nrprocs \nrsteps}{2} \ln \sigma^2_\noise - \frac{\norm{\mvT_\meas - \mvT}^2}{2 \sigma^2_\noise} \nonumber \\
-  & {} - \frac{\norm{\vz}^2}{2} - \frac{(\mu_\u - \mu_0)^2}{2 \sigma^2_0} - \left(1 + \frac{\nu_\u}{2}\right) \ln \sigma^2_\u - \frac{\nu_\u \tau_\u^2}{2 \sigma^2_\u} \nonumber \\
-  & {} - \left(1 + \frac{\nu_\noise}{2}\right) \ln \sigma^2_\noise - \frac{\nu_\noise \tau_\noise^2}{2 \sigma^2_\noise} \elabel{log-posterior}
-\end{align}
-where, for convenience, the equation is given on the logarithmic scale, and $c$ is some constant. This expression is sufficient for the Metropolis-Hastings algorithm (see \sref{bayesian-inference}); thus, assuming that we have an adequate proposal distribution (see the next subsection), we can readily draw samples from the posterior.
+At this point, we have obtained the two pieces of the posterior shown in \eref{bayes}: the likelihood function, which is the density in \eref{likelihood}, and the prior, which is the product of the densities in \eref{z-prior}--\eref{sigma2-noise-prior}. Thus, the posterior reads as
+\begin{equation} \elabel{posterior}
+  \f{\vparam | \Data} \propto \f{\mvT_\meas | \vz, \mu_\u, \sigma^2_\u, \sigma^2_\noise} \; \f{\vz} \; \f{\mu_\u} \; \f{\sigma^2_\u} \; \f{\sigma^2_\noise}.
+\end{equation}
+This expression, given up to a constant multiplier, is sufficient for the Metropolis-Hastings algorithm (see \sref{bayesian-inference}). Therefore, assuming that we have an adequate proposal distribution (see the next subsection), we can readily draw samples from the posterior.

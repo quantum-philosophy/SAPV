@@ -13,8 +13,8 @@
 
 % Bibliography
 \usepackage{csquotes}
-\usepackage[backend=biber, maxnames=1, sorting=none]{biblatex}
-% \renewcommand*{\bibfont}{\small}
+\usepackage[backend=biber, maxnames=5, sorting=none]{biblatex}
+\renewcommand*{\bibfont}{\small}
 
 % Text
 \newcommand{\qoi}{QOI}
@@ -23,7 +23,6 @@
 \newcommand{\ie}{\emph{i.e.}}
 \newcommand{\eg}{\emph{e.g.}}
 \newcommand{\etc}{\emph{etc.}}
-\newcommand{\apriori}{\emph{a priori}}
 
 \newcommand{\blindreview}{%
   \textnormal{%
@@ -38,7 +37,7 @@
   \null
   \begin{center}%
     {\titlefont \@title \par}%
-    \vspace{-0.5em}%
+    \vspace{0em}%
   \end{center}%
   \par%
 }
@@ -158,12 +157,6 @@
 % Forward model
 \renewcommand{\r}{r}
 \newcommand{\vr}{\v{r}}
-
-\makeatletter
-\def\model{\@ifnextchar\bgroup{\modelWithArgument}{\modelWithoutArgument}}
-\def\modelWithArgument#1{\mathcal{M}(#1)}
-\def\modelWithoutArgument{\mathcal{M}}
-\makeatother
 
 % Statistical model
 \newcommand{\Data}{\mathcal{D}}

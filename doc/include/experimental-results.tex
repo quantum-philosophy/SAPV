@@ -18,15 +18,17 @@ The latter can be thought of as the number of imaginary observations that the ch
 In \eref{sigma2-noise-prior}, the parameter $\tau_\noise$ represents the precision (deviation) of the equipments utilized to collect the temperature measurements in the data set $\Data$ and can be found in the technical specification of these equipments; we set $\tau_\noise$ to $1~\text{K}$. The parameter $\nu_\noise$ has the same interpretation as $\nu_\u$; we set it to ten as well.
 In \eref{proposal}, $\nu$ and $\alpha$ are tuning parameters, which can be configured based on experiments; we set $\nu$ to eight and $\alpha$ to 0.5.
 The number of sample draws is another tuning parameter, which we set to $10^4$; the first half of these samples is ascribed to the burn-in period leaving $5 \cdot 10^3$ effective samples $\nsamples$.
+For the proposal optimization in \sref{optimization}, we use the Quasi-Newton algorithm \cite{press2007}.
 For parallel computing, we utilize four processors. All the experiments have been conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.
 
 \subsection{Analysis of the Experimental Setup}
 \input{include/figures/wafer-qoi-error.tex}
 In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration described earlier.
 The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} where the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the \qoi.
-Now we inspect the quality of the proposal distribution (recall \sref{bayesian-inference} and \sref{optimization}). To this end, we plot (not shown due to the lack of space) the posterior given in \eref{posterior} for each drawn sample and observe that the obtained curve rapidly fluctuates around a constant level indicating that the constructed Markov chain vividly explores the underlying probability space.
-Another test commonly used in statistics to assess the quality of the proposal distribution is to depict this distribution, given in \eref{posterior}, side-by-side with the tailored proposal distribution, given in \eref{proposal}, for each parameter conditioned on the other parameters being at their posterior modes.
-The curves (not shown due to the lack of space) are found to be practically indistinguishable implying a high quality of the proposal. To sum up, the performed analysis suggests that the optimization and sampling procedures are fine-tuned.
+Next we inspect the evolution of the obtained sequence of samples and observe that the constructed Markov chain vividly explores the underlying probability space.
+Another test commonly used to assess the quality of the proposal distribution is to compare the posterior in \eref{posterior} with the tailored proposal distribution in \eref{proposal} for each parameter conditioned on the other parameters being at $\hat{\vparam}$ (see \sref{optimization}).
+The two are found to be practically indistinguishable implying a high quality of the proposal.
+To sum up, the performed analysis suggests that the optimization and sampling procedures are fine-tuned.
 In what follows, we shall use the assessed default configuration and alter only one parameter at a time: the number of processing elements on a die $\nprocs$, the number of measured dies on the wafer $\nrprocs$, the number of temporal measurements $\nrsteps$, and the deviation of the noise $\sigma_\noise$.
 
 \subsection{Number of Processing Elements on a Die}
@@ -45,7 +47,7 @@ We see that the more data the proposed framework needs to process, the longer th
 The error firmly decreases and drops below $4\%$ with around 20 measurement points, which is only $6.3\%$ of the total number of dies on the wafer.
 
 \subsection{Number of Temporal Measurements}
-In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in the input data set $\Data$ (correspondingly, $\nsteps - \nrsteps$ time moments, see \fref{wafer-measured}, are discarded while evaluating $\model$). The scenarios are 1, 10, 20, 40, 80, and 160 time moments, respectively. The results are aggregated in \tref{temporal-measurements}.
+In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in $\Data$ (correspondingly, $\nsteps - \nrsteps$ time moments, see \fref{wafer-measured}, are discarded while evaluating the data model). The scenarios are 1, 10, 20, 40, 80, and 160 time moments, respectively. The results are aggregated in \tref{temporal-measurements}.
 \input{include/tables/temporal-measurements.tex}
 
 As we see, the growth of the computational time is relatively low. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\Data$ is identical (recall $\mvT_\meas \in \real^{\nrdies \nrprocs \nrsteps}$). However, the meaning of the two numbers, $\nrdies$ and $\nrsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.
@@ -61,6 +63,6 @@ However, even with a high level of noise of two degrees---meaning that measureme
 
 \subsection{Sequential vs. Parallel Sampling}
 In this section, we summarize the results of the sequential and parallel  sampling strategies (see \sref{sampling}).
-In the non-parallel Metropolis-Hastings algorithm, the optimization time is typically smaller than the time needed for drawing posterior samples.
+In the non-parallel MH algorithm, the optimization time is typically smaller than the time needed for drawing posterior samples.
 The situation changes when parallel computing is utilized. With four parallel processors, the sampling time decreases 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy.
 The overall speedup, \ie, including the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times, which can be pushed even further using more parallel processors.

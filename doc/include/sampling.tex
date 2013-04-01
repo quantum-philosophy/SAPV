@@ -1,13 +1,17 @@
-Let us turn to the sampling stage, Stage~3 in \fref{algorithm}. As noted earlier, we utilize the Metropolis-Hastings algorithm for sampling.
-A commonly used proposal distribution, needed for this algorithm, is a multivariate Gaussian distribution wherein the mean is the current location of the chain, and the covariance matrix is the inverse of the observed information matrix $\mOI$ obtained in \sref{optimization} (see \cite{gelman2004, bernardo2007}).
-In order to speed up the sampling process, we would like to make use of the potential of multicore parallelization. However, the above-mentioned classical proposal is purely sequential as the mean for the next sample draw is dependent on the previous sample. Therefore, we appeal to a variation of the Metropolis-Hastings algorithm known as the independence sampler \cite{gelman2004}. In this case, a typical choice of the proposal is a multivariate t-distribution, independent of the current position of the chain:
+Let us turn to Stage~3 in \fref{algorithm}.
+Here, we have at our disposal $\hat{\vparam}$ and $\mOI$ to construct an adequate proposal and utilize it for sampling.
+A commonly choice is a multivariate Gaussian distribution wherein the mean is the current location of the chain started at $\hat{\vparam}$, and the covariance matrix is the inverse of $\mOI$ (see \cite{gelman2004, bernardo2007}).
+In order to speed up the sampling process, we would like to make use of the potential of multicore parallelization.
+The above-mentioned proposal, however, is purely sequential as the mean for the next sample draw is dependent on the previous sample.
+Therefore, we appeal to a variation of the MH algorithm known as the independence sampler \cite{gelman2004}.
+In this case, a typical choice of the proposal is a multivariate t-distribution, independent of the current position of the chain:
 \begin{equation} \elabel{proposal}
   \vparam \sim \studentst{\nu}{\hat{\vparam}}{\alpha^2 \mOI^{-1}}
 \end{equation}
-where $\hat{\vparam}$ and $\mOI$ are as in \sref{optimization}, $\nu$ is the number of degrees of freedom, and $\alpha$ is a tuning constant controlling the standard deviation of the proposal distribution.
+where $\hat{\vparam}$ and $\mOI$ are as in \sref{optimization}, $\nu$ is the number of degrees of freedom, and $\alpha$ is a tuning constant.
 Now the proposal draws and the time-consuming evaluation of their posterior in \eref{posterior} can be computed for all samples in parallel.
-Then the precomputed draws and their posterior evaluations can subsequently be accepted or rejected as in the usual Metropolis-Hasting algorithm.
+Then the precomputed draws can subsequently be accepted or rejected as in the usual MH algorithm.
 
-Having completed the sampling procedure, we obtain a collection of samples of $\vparam$. Due to the burn-in period (see \sref{bayesian-inference}), a certain number of initial samples are typically discarded as being unrepresentative.
+Having completed the sampling procedure, we obtain a collection of samples of $\vparam$. The first portion of the drawn samples is typically discarded before the final computations as being unrepresentative; this portion is also known as the burn-in period.
 Each of the preserved samples of $\vparam$, comprising $\vz$, $\mu_\u$, and $\sigma^2_\u$, is then used in \eref{kl-approximation} to compute a sample of $\u$, $\vu_i \in \real^{\ndies \nprocs}$.
 Denote such a data set with $\nsamples$ samples of the \qoi\ by $\UData = \{ \vu_i \}_{i = 1}^\nsamples$.

@@ -10,7 +10,7 @@ The first step is to assign an adequate model to the unknown $\u$. We model $\u$
 \[
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \]
-where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, respectively. Hereafter, the vertical bar, pronounced as ``given'', is used to mark the parameters that the probability distribution on the right-hand side depends on. In this case, such parameters are $\vparam_\u$, which we shall identify later on. Before taking any measurements, $\u$ is assumed to be spatially unbiased; thus, we let $\fMean$ be given as a single location-independent parameter $\mu_\u$, \ie, $\fMean{r} = \mu_\u$, $\forall \r \in \domain$.
+where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, respectively. Hereafter, the vertical bar, pronounced as ``given'', is used to mark the parameters that the probability distribution on the right-hand side depends on. In this case, such parameters are $\vparam_\u$, which we shall identify later on. Prior to taking any measurements, $\u$ is assumed to be spatially unbiased; therefore, we let $\fMean$ be a single location-independent parameter $\mu_\u$, \ie, $\fMean{r} = \mu_\u$, $\forall \r \in \domain$.
 The covariance function $\fCov$ is chosen to be the following composition:
 \begin{equation} \elabel{covariance-function}
   \fCov{\r, \r'} = \sigma_\u^2 \big( \eta \; \fCov_\SE(\r, \r') + (1 - \eta) \fCov_\OU(\r, \r') \big)
@@ -21,7 +21,7 @@ where
   & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU} \right)
 \end{align*}
 are the squared exponential and Ornstein-Uhlenbeck correlation functions, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters; and $\norm{\cdot}$ stands for the Euclidean distance.
-The choice of the covariance function is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between points that are at the same distance from the center of the wafer.
+The choice of the covariance function $\fCov$ is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between points that are at the same distance from the center of the wafer.
 The length-scale parameters $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant.
 Although all the above parameters of the prior of $\u$ can be inferred from the data, for simplicity, we shall focus on $\mu_u$ and $\sigma_\u^2$.
 The rest of the parameters, namely, $\eta$, $\ell_\SE$, and $\ell_\OU$ of the covariance function $\fCov$, are assumed to be determined \apriori\ to our analysis based on the knowledge of the correlation patterns typical for the production process utilized (see \cite{marzouk2009} and references therein).

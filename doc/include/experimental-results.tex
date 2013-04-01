@@ -26,12 +26,12 @@ In order to ensure that the experimental setup is adequate, let us first perform
 The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} where the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the \qoi.
 Now we inspect the quality of the proposal distribution (recall \sref{bayesian-inference} and \sref{optimization}). To this end, we plot (not shown due to the lack of space) the posterior given in \eref{posterior} for each drawn sample and observe that the obtained curve rapidly fluctuates around a constant level indicating that the constructed Markov chain vividly explores the underlying probability space.
 Another test commonly used in statistics to assess the quality of the proposal distribution is to depict this distribution, given in \eref{posterior}, side-by-side with the tailored proposal distribution, given in \eref{proposal}, for each parameter conditioned on the other parameters being at their posterior modes.
-The curves (not shown due to the lack of space) are found to be nearly indistinguishable implying a high quality of the proposal. To sum up, the performed analysis suggests that the optimization and sampling procedures are fine-tuned.
+The curves (not shown due to the lack of space) are found to be practically indistinguishable implying a high quality of the proposal. To sum up, the performed analysis suggests that the optimization and sampling procedures are fine-tuned.
 In what follows, we shall use the assessed default configuration and alter only one parameter at a time: the number of processing elements on a die $\nprocs$, the number of measured dies on the wafer $\nrprocs$, the number of temporal measurements $\nrsteps$, and the deviation of the noise $\sigma_\noise$.
 
 \subsection{Number of Processing Elements on a Die}
 In this subsection, we consider five platforms with the number of processing elements in each die $\nprocs$ equal to 2, 4, 8, 16, and 32, respectively. The results are summarized in \tref{processing-elements}.
-In this and the following tables, we report the optimization (Stage~2 in \fref{algorithm}) and sampling (Stage~3 in \fref{algorithm}) times separately (given in minutes); moreover, the sampling time is given for two cases: sequential and parallel computing, which is followed by the total time and error. The computational time of the post-processing phase (Stage~4 in \fref{algorithm}) is not given as it is negligibly small.
+In this and the following tables, we report the optimization (Stage~2 in \fref{algorithm}) and sampling (Stage~3 in \fref{algorithm}) times separately (given in minutes); moreover, the sampling time is given for two cases: sequential and parallel computing, which is followed by the total time and error (NRMSE). The computational time of the post-processing phase (Stage~4 in \fref{algorithm}) is not given as it is negligibly small.
 The sequential sampling time is the most representative indicator of the computational complexity scaling as the number of samples is always fixed, and there is no parallelization; thus, we shall watch this value in most of the discussions below (highlighted in bold in the tables). The speedup due to parallel computing will be discussed later on.
 \input{include/tables/processing-elements.tex}
 
@@ -60,7 +60,7 @@ However, even with a high level of noise of two degrees---meaning that measureme
 \input{include/tables/noise-deviation.tex}
 
 \subsection{Sequential vs. Parallel Sampling}
-In this subsection, we summarize the results of the sequential and parallel  sampling strategies (see \sref{sampling}).
-In the non-parallel Metropolis-Hastings algorithm, the optimization time is typically smaller than the time needed to draw posterior samples.
-The situation changes when parallel computing (with four processors, in our case) is utilized. The sampling time decreases by 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy.
+In this section, we summarize the results of the sequential and parallel  sampling strategies (see \sref{sampling}).
+In the non-parallel Metropolis-Hastings algorithm, the optimization time is typically smaller than the time needed for drawing posterior samples.
+The situation changes when parallel computing is utilized. With four parallel processors, the sampling time decreases 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy.
 The overall speedup, \ie, including the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times, which can be pushed even further using more parallel processors.

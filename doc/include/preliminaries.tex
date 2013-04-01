@@ -1,5 +1,5 @@
-In order to give a clear presentation of the proposed technique, we first provide an overview of the major components of Bayesian inference \cite{gelman2004}.
-Let $\vparam$ be a set of unknown parameters, which we would like to characterize. Our arsenal to solve the problem includes: (a) a set of observations $\Data$, (b) a model $\model$ that connects $\vparam$ with $\Data$, and (c) our prior knowledge on $\vparam$. A natural solution is Bayes' rule:
+To give a clear presentation of the proposed technique, we first provide an overview of the basics of Bayesian inference \cite{gelman2004}.
+Let $\vparam$ be a set of unknown parameters (in our case, related to, \eg, the effective channel length), which we would like to characterize. Our arsenal to solve the problem includes: (a) a set of observations $\Data$ (in our case, temperature measurements), (b) a model $\model$ connecting $\vparam$ with $\Data$, and (c) prior beliefs on $\vparam$. A natural solution is Bayes' rule:
 \begin{equation} \elabel{bayes}
   \f{\vparam | \Data} \propto \f{\Data | \vparam} \; \f{\vparam}
 \end{equation}

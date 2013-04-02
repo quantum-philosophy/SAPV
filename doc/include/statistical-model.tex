@@ -1,9 +1,9 @@
 \input{include/figures/inference.tex}
 Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is infinite-dimensional.
 Hence, $\u$ can be seen as a stochastic process $\u(\o, \r)$, $\o \in \outcomes$, $\r \in \domain$, defined over a probability space with the set of outcomes $\outcomes$ \cite{durrett2010} and the spatial domain $\domain$ corresponding to the wafer.
-Once the wafer has been fabricated, the probability space yields a particular outcome $\o$, and $\u$ becomes deterministic in the sense that it is fixed at each location, \ie, $\u(\o, \r) := \u(\r)$, $\r \in \domain$.
+Once the wafer has been fabricated, the probability space yields a particular outcome $\o$, and $\u$ becomes deterministic in the sense that it is fixed at each location, \ie, $\u(\o, \r) = \u(\r)$, $\r \in \domain$.
 The values $\u(\r)$, $\r \in \domain$, however, are still unknown for us.
-In order to infer them, we employ the procedure developed in the current subsection; we shall refer to this procedure as the statistical model, which is shown in \fref{algorithm} and detailed in \fref{inference}. This model closely follows the general Bayesian approach outlined in \sref{bayesian-inference} and consists of the five components described next.
+In order to infer them, we employ the procedure developed in the current subsection. We shall refer to this procedure as the statistical model, which is shown in \fref{algorithm} and detailed in \fref{inference}. This model closely follows the general Bayesian approach outlined in \sref{bayesian-inference} and consists of the five components described below.
 
 \subsubsection{Modeling the \qoi}
 The first step is to assign an adequate model to the unknown $\u$. We model $\u$ as a Gaussian process \cite{rasmussen2006} since (a) it is flexible in capturing the correlation patterns induced by the manufacturing process (described later on); (b) it is computationally efficient; and (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, juan2011, juan2012}:
@@ -35,15 +35,15 @@ Then, following \aref{kl-expansion}, the dimensionality of the \qoi\ is reduced 
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu_\u \vI + \sigma_\u \mKL \vz
 \end{equation}
-where the final dimensionality is denoted by $\nvars$, $\vI = (e_i = 1) \in \real^{\ndies \nprocs}$, $\mKL \in \real^{\ndies \nprocs \times \nvars}$, and $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution.
-Typically, $\nvars \ll \ndies \nprocs$.
-Consequently, the model of $\u$ is now ready for practical computations.
-In what follows, the parameters of \eref{u-prior} is defined by $\vparam_\u = \{ \vz, \mu_\u, \sigma^2_\u \}$ (see \fref{inference}).
+where $\vI = (e_i = 1) \in \real^{\ndies \nprocs}$, $\mKL \in \real^{\ndies \nprocs \times \nvars}$, and $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution.
+$\nvars$ is the final dimensionality of the model of $\u$; typically, $\nvars \ll \ndies \nprocs$.
+Consequently, the \qoi\ is now ready for practical computations.
+In what follows, the parameters of \eref{u-prior} are defined by $\vparam_\u = \{ \vz, \mu_\u, \sigma^2_\u \}$ (see \fref{inference}).
 
 \subsubsection{Likelihood function}
 In the Bayesian context, the observed information is taken into account via a likelihood function (see \sref{bayesian-inference}).
 In our case, the observed data are the temperature profiles in $\Data$, stacked into $\mvT_\meas$, which are modeled using the data model described in \sref{data-model}.
-Now, since the measurement process is not perfect, we should take into consideration the measurement noise. To this end, for a given $\u$, the observed temperature $\mvT_\meas$ is assumed to deviate from the data model prediction $\mvT$ as follows:
+Since the measurement process is not perfect, we should also take into consideration the measurement noise. To this end, for a given $\u$, the observed temperature $\mvT_\meas$ is assumed to deviate from the data model prediction $\mvT$ as follows:
 \begin{equation} \elabel{noisy-measurements}
   \mvT_\meas = \mvT + \vnoise
 \end{equation}
@@ -75,7 +75,7 @@ When the prior knowledge is weak, non-informative priors can be utilized \cite{g
 Taking the product of the densities in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain the prior $\f{\vparam}$, which is the second part of the posterior in \eref{bayes}.
 
 \subsubsection{Posterior}
-At this point, we have obtained the two pieces of the posterior shown in \eref{bayes}: the likelihood function, which is the density in \eref{likelihood}, and the prior, which is the product of the densities in \eref{z-prior}--\eref{sigma2-noise-prior}. Thus, the posterior is then
+At this point, we have obtained the two pieces of the posterior shown in \eref{bayes}: the likelihood function, which is the density in \eref{likelihood}, and the prior, which is the product of the densities in \eref{z-prior}--\eref{sigma2-noise-prior}. Thus, the posterior is
 \begin{equation} \elabel{posterior}
   \f{\vparam | \Data} \propto \f{\mvT_\meas | \vz, \mu_\u, \sigma^2_\u, \sigma^2_\noise} \; \f{\vz} \; \f{\mu_\u} \; \f{\sigma^2_\u} \; \f{\sigma^2_\noise}.
 \end{equation}
@@ -83,6 +83,6 @@ Provided that we have a way of drawing samples from \eref{posterior}, the \qoi\ 
 The problem, however, is that the direct sampling of the posterior is not tractable due to the data model involved in the likelihood function via the temperature vector $\mvT$ (see \eref{likelihood} and \sref{data-model}).
 In order to circumvent this problem, we utilize the Metropolis-Hastings (MH) algorithm \cite{gelman2004} introduced in \sref{bayesian-inference}.
 The algorithm operates on an auxiliary distribution called the proposal distribution, which is chosen to be convenient for sampling.
-Each sample, drawn from this proposal, is then used in \eref{posterior} to evaluate the posterior probability of this sample and decide whether it should be accepted or rejected.\footnote{A reject means that the sequence of samples advances using the last accepted sample; in other words, it is never being interrupted.}
-The acceptance/rejection strategy pushes the produced chain of samples towards regions of high posterior probability, which, after a sufficient number of steps depending on the starting point of the chain and the efficiency of the moves, results in a good approximation of the target posterior distribution in \eref{posterior}.
-The choose of the proposal distribution is discussed next, in \sref{optimization}, and the further sampling procedure in \sref{sampling}.
+Each sample, drawn from this proposal, is then used in \eref{posterior} to evaluate the posterior probability of this sample and decide whether it should be accepted or rejected.\footnote{A reject means that the sequence of samples advances using the last accepted sample; therefore, the chain of samples is never interrupted.}
+The acceptance/rejection strategy of the MH algorithm pushes the produced chain of samples towards regions of high posterior probability, which, after a sufficient number of steps depending on the starting point of the chain and the efficiency of the moves, results in a good approximation of the target posterior distribution in \eref{posterior}.
+The preliminary computations needed for the proposal construction are discussed next, and the further sampling procedure in \sref{sampling}.

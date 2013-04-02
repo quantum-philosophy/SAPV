@@ -5,4 +5,4 @@ Therefore, a careful construction of the proposal is an essential component of o
 A common technique to construct a high-quality proposal is to perform an optimization procedure of the posterior given by \eref{posterior}.
 More specifically, we seek for such a value $\hat{\vparam}$ of $\vparam$ that maximizes \eref{posterior} and, hence, has the maximal posterior probability.
 We also compute the negative of the Hessian matrix at $\hat{\vparam}$, which is called the observed information matrix and denoted by $\mOI$ (see the output of Stage~2 in \fref{algorithm}).
-Using $\hat{\vparam}$ and $\mOI$, we can now construct such a proposal that will allow the MH algorithm (a) to start producing samples directly from the desired regions of high probability and (b) to explore those regions more rapidly.
+Using $\hat{\vparam}$ and $\mOI$, we can now construct such a proposal, which will allow the MH algorithm (a) to start producing samples directly from the desired regions of high probability and (b) to explore those regions more rapidly.

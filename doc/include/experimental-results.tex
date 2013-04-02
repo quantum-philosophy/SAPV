@@ -25,7 +25,7 @@ For parallel computing, we utilize four processors. All the experiments have bee
 \input{include/figures/wafer-qoi-error.tex}
 In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration described earlier.
 The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} where the normalized root-mean-square error (NRMSE) is below $2.8\%$, and the distribution of the absolute error across the wafer is visualized in \fref{wafer-qoi-error}. It can be seen that the framework produces a close match to the true value of the \qoi.
-Next we inspect the evolution of the obtained sequence of samples and observe that the constructed Markov chain vividly explores the underlying probability space.
+Next we inspect the trace of the obtained sequence of samples and observe that the constructed Markov chain vividly explores the underlying probability space.
 Another test commonly used to assess the quality of the proposal distribution is to compare the posterior in \eref{posterior} with the tailored proposal distribution in \eref{proposal} for each parameter conditioned on the other parameters being at $\hat{\vparam}$ (see \sref{optimization}).
 The two are found to be practically indistinguishable implying a high quality of the proposal.
 To sum up, the performed analysis suggests that the optimization and sampling procedures are fine-tuned.
@@ -65,4 +65,4 @@ However, even with a high level of noise of two degrees---meaning that measureme
 In this section, we summarize the results of the sequential and parallel  sampling strategies (see \sref{sampling}).
 In the non-parallel MH algorithm, the optimization time is typically smaller than the time needed for drawing posterior samples.
 The situation changes when parallel computing is utilized. With four parallel processors, the sampling time decreases 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy.
-The overall speedup, \ie, including the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times, which can be pushed even further using more parallel processors.
+The overall speedup, \ie, including the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times, which can be pushed even further employing more parallel processors.

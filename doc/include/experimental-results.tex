@@ -1,9 +1,9 @@
-Without loss of generality, let us focus on one particular source of uncertainty: the subthreshold leakage current and, more specifically, on the effective channel length.
+Without loss of generality, let us focus on one particular source of uncertainty: the effective channel length.
 The reason for this choice is that the effective channel length has the strongest influence on leakage \cite{chandrakasan2001, srivastava2010, juan2011, juan2012}; in particular, it also affects the threshold voltage. Consequently, in what follows, $\u$ stands for this crucial parameter.
 
 Now we shall describe the default configuration of our experimental setup, which, in the following subsections, will be adjusted according to the purpose of each particular experiment.
 We consider a 45-nanometer technological process. The diameter of the wafer is 20 dies, the total number of dies $\ndies$ is 316, and the number of processing elements $\nprocs$ in each of the dies is four.
-The number of measured dies $\nrdies$ is 20. These dies are chosen as follows: the first one is placed in the middle of the wafer, and the other are selected sequentially such that the total distance from the already picked dies and the new one to the rest of the dies is minimized.
+The number of measured dies $\nrdies$ is 20, and these dies are chosen by an algorithm, which pursues an even coverage of the wafer.
 The floorplans of the multiprocessor platforms are constructed in such a way that the processing elements form regular grids, as it is the case with, \eg, Alpha 21264 studied in \cite{juan2011}. The capacitance and conductance matrices in \eref{heat-de} are obtain using HotSpot v5.02 \cite{hotspot}.
 The dynamic power profiles involved in the experiments are based on simulations of randomly generated (via TGFF v3.5 \cite{dick1998}) task graphs.\footnote{The floorplans of the platforms, thermal configuration of HotSpot, task graphs of the applications, \etc\ are available online at \cite{sources}.} The sampling interval of power profiles is $1~\text{ms}$.
 Without loss of generality, the temperature- and channel-length-aware leakage model, used as a part of the power model given by \eref{total-power}, is constructed via SPICE simulations of reference electrical circuits built with the Predictive Technology Model \cite{ptm}, which is followed by a curve fitting procedure.
@@ -28,7 +28,7 @@ The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} w
 Next we inspect the trace of the obtained sequence of samples and observe that the constructed Markov chain vividly explores the underlying probability space.
 Another test commonly used to assess the quality of the proposal distribution is to compare the posterior in \eref{posterior} with the tailored proposal distribution in \eref{proposal} for each parameter conditioned on the other parameters being at $\hat{\vparam}$ (see \sref{optimization}).
 The two are found to be practically indistinguishable implying a high quality of the proposal.
-To sum up, the performed analysis suggests that the optimization and sampling procedures are fine-tuned.
+To sum up, the performed analysis suggests that the optimization and sampling procedures are well-tuned.
 In what follows, we shall use the assessed default configuration and alter only one parameter at a time: the number of processing elements on a die $\nprocs$, the number of measured dies on the wafer $\nrprocs$, the number of temporal measurements $\nrsteps$, and the deviation of the noise $\sigma_\noise$.
 
 \subsection{Number of Processing Elements on a Die}
@@ -50,9 +50,9 @@ The error firmly decreases and drops below $4\%$ with around 20 measurement poin
 In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in $\Data$ (correspondingly, $\nsteps - \nrsteps$ time moments, see \fref{wafer-measured}, are discarded while evaluating the data model). The scenarios are 1, 10, 20, 40, 80, and 160 time moments, respectively. The results are aggregated in \tref{temporal-measurements}.
 \input{include/tables/temporal-measurements.tex}
 
-As we see, the growth of the computational time is relatively low. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\Data$ is identical (recall $\mvT_\meas \in \real^{\nrdies \nrprocs \nrsteps}$). However, the meaning of the two numbers, $\nrdies$ and $\nrsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.
-The NRMSE in \tref{temporal-measurements} has a decreasing trend; however, this trend is less steady than the ones discovered before. The finding can be explained as follows. The distribution of the time moments in $\Data$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles. Some time moments can be more informative than the other. Consequently, more representative or less representative samples can end up in $\Data$ helping or misleading the inference procedure.
-Based on \tref{spatial-measurements} and \tref{temporal-measurements}, we can also conclude that a larger number of spatial measurements is more advantageous for the inference than a larger number of temporal measurements.
+As we see, the growth of the computational time is relatively small. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\Data$ is identical (recall $\mvT_\meas \in \real^{\nrdies \nrprocs \nrsteps}$). However, the meaning of the two numbers, $\nrdies$ and $\nrsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.
+The NRMSE in \tref{temporal-measurements} has a decreasing trend; however, this trend is less steady than the ones discovered before. The finding can be explained as follows. The distribution of the time moments in $\Data$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles. Some moments of time can be more informative than the other. Consequently, more representative or less representative samples can end up in $\Data$ helping or misleading the inference procedure.
+Based on \tref{spatial-measurements} and \tref{temporal-measurements}, we can also conclude that a larger number of spatial measurements, \ie, a larger number of measured dies, is more advantageous for the inference than a larger number of temporal measurements.
 
 \subsection{Deviation of the Measurement Noise}
 In this subsection, we vary the standard deviation of the noise (in Kelvins), affecting the data $\Data$, within the set $\{ 0, 0.5, 1, 2 \}$ coherent with the literature \cite{mesa-martinez2007}. Note that the corresponding prior distribution in \eref{sigma2-noise-prior} is kept unchanged. The results are given in \tref{noise-deviation}.
@@ -63,6 +63,6 @@ However, even with a high level of noise of two degrees---meaning that measureme
 
 \subsection{Sequential vs. Parallel Sampling}
 In this section, we summarize the results of the sequential and parallel  sampling strategies (see \sref{sampling}).
-In the non-parallel MH algorithm, the optimization time is typically smaller than the time needed for drawing posterior samples.
+In the sequential MH algorithm, the optimization time is typically smaller than the time needed for drawing posterior samples.
 The situation changes when parallel computing is utilized. With four parallel processors, the sampling time decreases 3.81 times on average, which indicates good parallelization properties of the chosen sampling strategy.
 The overall speedup, \ie, including the optimization part, ranges from 1.49 to 2.75 with the average value of 1.77 times, which can be pushed even further employing more parallel processors.

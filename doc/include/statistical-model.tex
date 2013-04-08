@@ -80,7 +80,7 @@ At this point, we have obtained the two pieces of the posterior shown in \eref{b
   \f{\vparam | \Data} \propto \f{\mvT_\meas | \vz, \mu_\u, \sigma^2_\u, \sigma^2_\noise} \; \f{\vz} \; \f{\mu_\u} \; \f{\sigma^2_\u} \; \f{\sigma^2_\noise}.
 \end{equation}
 Provided that we have a way of drawing samples from \eref{posterior}, the \qoi\ can be readily analyzed as we shall see in \sref{post-processing}.
-The problem, however, is that the direct sampling of the posterior is not tractable due to the data model involved in the likelihood function via the temperature vector $\mvT$ (see \eref{likelihood} and \sref{data-model}).
+The problem, however, is that the direct sampling of the posterior is not possible due to the data model involved in the likelihood function via the temperature vector $\mvT$ (see \eref{likelihood} and \sref{data-model}).
 In order to circumvent this problem, we utilize the Metropolis-Hastings (MH) algorithm \cite{gelman2004} introduced in \sref{bayesian-inference}.
 The algorithm operates on an auxiliary distribution called the proposal distribution, which is chosen to be convenient for sampling.
 Each sample, drawn from this proposal, is then used in \eref{posterior} to evaluate the posterior probability of this sample and decide whether it should be accepted or rejected.\footnote{A reject means that the sequence of samples advances using the last accepted sample; therefore, the chain of samples is never interrupted.}

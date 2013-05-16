@@ -28,7 +28,7 @@ function mapping = construct(this, wafer, options)
   case 'eig'
     mapping = decomposeEIG(C, threshold);
   case 'svd'
-    mapping = decomposeSVD(C, threshold);
+    mapping = Utils.decomposeCorrelation(C, threshold);
   otherwise
     assert(false);
   end
@@ -36,15 +36,6 @@ end
 
 function mapping = decomposeEIG(C, threshold)
   [ V, L ] = eig(C); L = diag(L);
-
-  [ ~, L, I ] = Utils.chooseSignificant(L, threshold);
-  V = V(:, I);
-
-  mapping = V * diag(sqrt(L));
-end
-
-function mapping = decomposeSVD(C, threshold)
-  [ V, L ] = pcacov(C);
 
   [ ~, L, I ] = Utils.chooseSignificant(L, threshold);
   V = V(:, I);

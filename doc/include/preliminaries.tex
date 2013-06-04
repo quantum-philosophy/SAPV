@@ -3,7 +3,7 @@ Let $\vparam$ be a set of unknown parameters (in our case, related to, \eg, the 
 \begin{equation} \elabel{bayes}
   \f{\vparam | \Data} \propto \f{\Data | \vparam} \; \f{\vparam}
 \end{equation}
-where $\f{\cdot}$ denotes a probability density function, and the vertical bar stands for conditioning \cite{durrett2010}.
+where $\f{\cdot}$ denotes a probability density function, and the vertical bar stands for conditioning.
 $\f{\Data | \vparam}$ is known as the likelihood function, which accommodates the data model and yields the probability of observing the data $\Data$ given the parameters $\vparam$.
 $\f{\vparam}$ is called the prior of $\vparam$, which represents our knowledge on $\vparam$ prior to any observations.
 $\f{\vparam | \Data}$ reads as the posterior of $\vparam$ given $\Data$. Such a posterior is an exhaustive solution to our problem: having constructed $\f{\vparam | \Data}$, one can perform a thorough analysis of $\vparam$ by drawing samples from this posterior and estimating the needed characteristics.

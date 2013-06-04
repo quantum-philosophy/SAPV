@@ -12,13 +12,10 @@ The inputs to our framework should be composed of (a) a set of layout-and-temper
 The output of the framework should comprise the required by the user statistics about the \qoi.
 A graphical representation of the inputs and outputs is given in \fref{algorithm}, which is further described in \sref{proposed-framework}.
 
-In order to approach the established goal, we propose the use of indirect measurements.
+To achieve the established goal, we propose the use of indirect measurements.
 Specifically, we aim at measuring temperature, which we shall then analyze using Bayesian inference.
-Thus, as the first step, the user is supposed to harvest, as described in \sref{motivation}, a set of temperature profiles, corresponding to $\profilePdyn$, at several locations on the wafer. Denote by
-\[
-  \Data = \left\{ (\mT^{(i)}_\meas, \partition{\mT}), \r_i \right\}_{i = 1}^\nrdies
-\]
-such a data set composed of $\nrdies$ temperature profiles $(\mT^{(i)}_\meas, \partition{\mT})$ of $\nrdies$ out of $\ndies$ dies on the wafer and the corresponding spatial locations of these dies $\vr = (\r_i) \in \domain^\nrdies$ in the domain $\domain$ representing the surface of the wafer.
+Thus, as the first step, the user is supposed to harvest, as described in \sref{motivation}, a set of temperature profiles, corresponding to $\profilePdyn$, at several locations on the wafer.
+Denote by $\Data = \{ (\mT^{(i)}_\meas, \partition{\mT}), \r_i \}_{i = 1}^\nrdies$ such a data set composed of $\nrdies$ temperature profiles $(\mT^{(i)}_\meas, \partition{\mT})$ of $\nrdies$ out of $\ndies$ dies on the wafer and the corresponding spatial locations of these dies $\vr = (\r_i) \in \domain^\nrdies$ in the domain $\domain$ representing the surface of the wafer.
 It is important to note that $\mT^{(i)}_\meas$ can potentially contain data only for a subset of the processing elements, say $\nrprocs \leq \nprocs$ (see \fref{wafer-measured} for an illustration), and/or only for a subset of the time moments of the power partition $\partition{\mP}$, say $\nrsteps \leq \nsteps$; therefore, $\mT^{(i)}_\meas \in \real^{\nrprocs \times \nrsteps}$.
 For simplicity, the temperature profiles in $\Data$ are assumed to share the same subset of the measured processing elements and the same time partition.
 This time partition is presumably sparse as it is more practical to track temperature at a much lower frequency than the one used for power, \ie, $\nrsteps \ll \nsteps$.

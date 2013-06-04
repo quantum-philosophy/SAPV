@@ -20,8 +20,7 @@ Another feature of the proposed framework is that probabilities of various event
 This is important since, in reality, the true values of the \qoi\ are unknown for us (otherwise, we would not need to quantify them), and, therefore, we can rely on our decisions only up to a certain probability.
 We can then reformulate the decision rule defined earlier as follows: (a) keep the die if $\probabilityMeasure(\u \geq \u_*)$ is larger than a certain threshold; (b) recycle the die otherwise.
 An illustration of this rule is given in \fref{wafer-defective} where the lower bound $\u_*$ is set to two standard deviations below the mean value of the effective channel length; the probability threshold of the action (a) is set to 0.9; the crosses mark both the true and inferred defective dies (they coincide); and the gradient from light gray to red corresponds to the inferred probability of a die to be defective. It can be seen that the inference accurately detects faulty regions.
-\input{include/figures/wafer-measured.tex}
-\input{include/figures/wafer-defective.tex}
+\input{include/figures/wafer-measured-defective.tex}
 
 In addition, we can introduce a trade-off action: (c) expose the die to a thorough inspection (\eg, via a test structure) if $\probabilityMeasure(\u \geq \u_*)$ is smaller than the threshold of (a) and is larger than some other threshold, \eg, $0.1 < \probabilityMeasure(\u \geq \u_*) < 0.9$. In this case, we can reduce costs by examining only those dies for which there is neither sufficiently strong evidence of their satisfactory nor unsatisfactory condition.
 Furthermore, one can introduce in the inference a so-called utility function, which, for each combination of an outcome of the effective channel length and a taken action, returns the corresponding gain that the decision maker obtains.

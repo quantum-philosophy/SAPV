@@ -1,12 +1,13 @@
-To give a clear presentation of the proposed technique, we first provide an overview of the basics of Bayesian inference \cite{gelman2004}.
-Let $\vparam$ be a set of unknown parameters (in our case, related to, \eg, the effective channel length), which we would like to characterize. Our arsenal to solve the problem includes: (a) a set of observations $\Data$ (in our case, temperature measurements), (b) a data model connecting $\vparam$ with $\Data$, and (c) prior beliefs on $\vparam$. A natural solution is Bayes' rule:
+To give a clear presentation of the proposed technique, we first overview the basics of Bayesian inference \cite{gelman2004}.
+Let $\vparam$ be a set of unknown parameters (in our case, related to, \eg, the effective channel length), which we would like to characterize. Our arsenal to solve the problem includes: (a) a set of observations $\Data$ (in our case, temperature), (b) a data model connecting $\vparam$ with $\Data$, and (c) prior beliefs on $\vparam$. A natural solution is Bayes' rule:
 \begin{equation} \elabel{bayes}
   \f{\vparam | \Data} \propto \f{\Data | \vparam} \; \f{\vparam}
 \end{equation}
-where $\f{\cdot}$ denotes a probability density function, and the vertical bar stands for conditioning.
+where $\f{\cdot}$ denotes a probability density function.
 $\f{\Data | \vparam}$ is known as the likelihood function, which accommodates the data model and yields the probability of observing the data $\Data$ given the parameters $\vparam$.
 $\f{\vparam}$ is called the prior of $\vparam$, which represents our knowledge on $\vparam$ prior to any observations.
-$\f{\vparam | \Data}$ reads as the posterior of $\vparam$ given $\Data$. Such a posterior is an exhaustive solution to our problem: having constructed $\f{\vparam | \Data}$, one can perform a thorough analysis of $\vparam$ by drawing samples from this posterior and estimating the needed characteristics.
+$\f{\vparam | \Data}$ reads as the posterior of $\vparam$ given $\Data$.
+Such a posterior is an exhaustive solution to our problem: having constructed $\f{\vparam | \Data}$, all the needed characteristics of $\vparam$ can be trivially estimated by drawing samples from this posterior.
 
 Unfortunately, the posterior distribution often does not belong to any of the common families of probability distributions, which is primarily due to the data model involved in the likelihood function, and, therefore, the sampling procedure is not straightforward.
 To tackle the difficulty, one usually relies on such techniques as Markov Chain Monte Carlo (MCMC) sampling \cite{gelman2004}. In this case, an ergodic Markov chain with the stationary distribution equal to the target posterior distribution is constructed and then utilized for the probability space exploration.

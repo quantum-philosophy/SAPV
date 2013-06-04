@@ -11,4 +11,4 @@ Now we apply the derivation above to evaluate $\nrdies$ temperature profiles at 
 The resulting profiles are then shrunk to keep data only for those processing elements and only for those moments of time that are present in the measured temperature profiles, \ie, we keep data only for $\nrprocs$ (out of $\nprocs$) processing elements and only for $\nrsteps$ (out of $\nsteps$) moments of time (see \fref{wafer-measured}).
 The trimmed profiles are then stacked into one vector with $\nrdies \nrprocs \nrsteps$ elements, which is denoted by $\mvT$.
 In what follows, we refer to the overall procedure, starting from power and yielding the temperature vector $\mvT$, as the data model (see \fref{algorithm}).
-Also, let $\mvT_\meas \in \real^{\nrdies \nrprocs \nrsteps}$ be the stacked version of the data in $\Data$, preserving the one-to-one spatial correspondence between the respective elements of $\mvT$ and $\mvT_\meas$.
+Also, let $\mvT_\meas \in \real^{\nrdies \nrprocs \nrsteps}$ be a stacked version of $\Data$ such that the respective elements of $\mvT$ and $\mvT_\meas$ correspond to the same location.

@@ -1,12 +1,9 @@
-\input{include/figures/inference.tex}
-Since, at each point of the continuum of spatial locations on the wafer, the random element $\u$ can potentially take a different value, $\u$ is infinite-dimensional.
-Hence, $\u$ can be seen as a stochastic process $\u(\o, \r)$, $\o \in \outcomes$, $\r \in \domain$, defined over a probability space with the set of outcomes $\outcomes$ and the spatial domain $\domain$ corresponding to the wafer.
-Once the wafer has been fabricated, the probability space yields a particular outcome $\o$, and $\u$ becomes deterministic in the sense that it is fixed at each location, \ie, $\u(\o, \r) = \u(\r)$, $\r \in \domain$.
-The values $\u(\r)$, $\r \in \domain$, however, are still unknown for us.
-In order to infer them, we employ the procedure developed in the current subsection. We shall refer to this procedure as the statistical model, which is shown in \fref{algorithm} and detailed in \fref{inference}. This model closely follows the general Bayesian approach outlined in \sref{bayesian-inference} and consists of the five components described below.
+Once the wafer has been fabricated, the values of $\u$ are fixed for all spatial locations of $\domain$; however, they remain unknown for us.
+In order to infer them, we employ the procedure described in the current subsection and displayed in \fref{inference}, which we shall refer to as the statistical model.
+The development of the model closely follows \sref{bayesian-inference} and consists of the five components described below.
 
 \subsubsection{Modeling the \qoi}
-The first step is to assign an adequate model to the unknown $\u$. We model $\u$ as a Gaussian process \cite{rasmussen2006} since (a) it is flexible in capturing the correlation patterns induced by the manufacturing process (described later on); (b) it is computationally efficient; and (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, juan2011, juan2012}:
+The first step is to assign an adequate model to the unknown $\u$. We model $\u$ as a Gaussian process \cite{rasmussen2006} since (a) it is flexible in capturing the correlation patterns induced by the manufacturing process; (b) it is computationally efficient; and (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, juan2011, juan2012}:
 \begin{equation} \elabel{u-prior}
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \end{equation}
@@ -20,15 +17,17 @@ where
   \fCov_\SE(\r, \r') = e^{-\frac{\norm{\r - \r'}^2}{\ell_\SE^2}} \hspace{1em} \text{ and } \hspace{1em}
   \fCov_\OU(\r, \r') = e^{- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU}}
 \]
-are the squared exponential and Ornstein-Uhlenbeck correlation functions, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are the length-scale parameters; and $\norm{\cdot}$ stands for the Euclidean distance.
-The choice of the covariance function $\fCov$ is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between points that are at the same distance from the center of the wafer.
-The length-scale parameters $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant.
+are the squared exponential and Ornstein-Uhlenbeck correlation functions, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are so-called length-scale parameters; and $\norm{\cdot}$ stands for the Euclidean distance.
+The choice of the covariance function $\fCov$ is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between the points that are at the same distance from the center of the wafer.
+$\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant.
 Although all the above parameters of the model of $\u$ can be inferred from the data, for simplicity, we shall focus on $\mu_u$ and $\sigma_\u^2$.
 The rest of the parameters, namely, $\eta$, $\ell_\SE$, and $\ell_\OU$ of the covariance function $\fCov$, are assumed to be determined prior to our analysis based on the knowledge of the correlation patterns typical for the production process utilized (see \cite{marzouk2009} and references therein).
 So far, we have established a model for $\u$; however, due to the infinite dimensionality, it is computationally intractable, which we address next.
 
+\input{include/figures/inference.tex}
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
-The infinite-dimensional object $\u$ is reduced to a finite-dimensional one as follows.
+The random element $\u$ is an infinite-dimensional object as it characterizes a continuum of spatial locations.
+For practical computations, however, it should be reduced to a finite-dimensional one.
 First, $\u$ is discretized with respect to the union of two sets of points on the wafer: the first one is composed of the $\nrdies \nrprocs$ spatial locations where the observations in $\Data$ were made (one location for each measured processing element on each of the selected dies), and the other of the locations where the user wishes to characterize $\u$.
 For simplicity, we assume that the user is interested in all processing elements on all dies, which is $\ndies \nprocs$ locations in total (see \fref{wafer-measured}). Consequently, we obtain an $\ndies \nprocs$-dimensional representation of $\u$ denoted by the vector $\vu$.
 Second, we compute the covariance matrix of $\vu$ via \eref{covariance-function} and factorize it using the eigenvalue decomposition \cite{press2007}.
@@ -55,7 +54,7 @@ Without loss of generality, the noise is assumed to be independent of $\u$ and t
   \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
 \end{equation}
 where $\sigma^2_\noise$ is the variance of the noise.
-Let us denote the parameters of the inference, identified so far, by $\vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}$ (see this union in \fref{inference}).
+Let us denote the parameters of the inference by $\vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}$ (see this union in \fref{inference}).
 Combining \eref{noisy-measurements} and \eref{noise-model}, we get
 \begin{equation} \elabel{likelihood}
   \mvT_\meas | \vparam \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}.
@@ -72,7 +71,7 @@ The prior for $\vz$ is due to the properties the decomposition in \eref{kl-appro
 The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown.
 The parameters $\mu_0$, $\tau^2_\u$, and $\tau^2_\noise$ represent the presumable values of $\mu_u$, $\sigma^2_\u$, and $\sigma^2_\noise$, respectively, and are set by the user based on the prior knowledge on the technological process and measurement instruments employed. The parameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the precision of this prior information.
 When the prior knowledge is weak, non-informative priors can be utilized \cite{gelman2004, bernardo2007}.
-Taking the product of the densities in \eref{priors}, we obtain the prior $\f{\vparam}$, which is the second part of the posterior in \eref{bayes}.
+Taking the product of the densities in \eref{priors}, we obtain the prior $\f{\vparam}$ completing \eref{bayes}.
 
 \subsubsection{Posterior}
 At this point, we have obtained the two pieces of the posterior shown in \eref{bayes}: the likelihood function, which is the density in \eref{likelihood}, and the prior, which is the product of the densities in \eref{priors}. Thus, the posterior is

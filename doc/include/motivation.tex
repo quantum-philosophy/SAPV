@@ -5,13 +5,21 @@ In order to reduce costs, the manufacturer is interested in detecting the faulty
 Then the possible actions that they might take with respect to a single die on the wafer are: (a) keep the die if it conforms to the specification; (b) recycle the die otherwise.
 Let the distribution of $\u$ across the wafer be the one depicted on the left side of \fref{wafer-qoi}.
 The gradient from navy to dark red represents the transition of $\u$ from low to high values; hence, the navy regions have a high level of the power/heat dissipation.\footnote{The experimental setup will be described in detail in \sref{experimental-results}.}
-In order to characterize the uncertainty due to the effective channel length $\u$, one can find the above-mentioned distribution by removing the top layer of (thus, destroying) the dies and measuring $\u$ directly.
-Alternatively, we can restrain our ambitions and change the \qoi\ to some other parameter, which can be measured without the need of damaging the dies, \eg, to the leakage current.
-In either way, one has to deploy adequate test structures on the dies and take direct measurements of the initial/surrogate \qoi. The problem, however, is that the described procedure is technologically complex and unpractical; thus, it might significantly increase the production costs.
-Furthermore, the first approach implies that all the measured dies have to be thrown away afterwards, and the second implies that the design decisions will be based on a surrogate quantity instead of the primary source of uncertainty, \ie, the effective channel length, which can compromise the reliability of such decisions.
 
-Our technique works differently. We apply a fixed workload to only a small number of dies on the wafer, measure the corresponding transient temperature profiles, and characterize the \qoi, which is the effective channel length in the current example, by analyzing the obtained data using Bayesian inference.
-The collected profiles can potentially be corrupted by the measurement noise. Since temperature is cheaper to track using, \eg, infrared cameras and no on-die test structures are required \cite{mesa-martinez2007}, our approach can decrease the costs associated with the characterization of process variation and further decision making.
+In order to quantify the uncertainty due to the variability of the effective channel length $\u$, one can find the above-mentioned distribution by removing the top layer of (thus, destroying) the dies and measuring $\u$ directly.
+Alternatively, despite the fact that the knowledge of $\u$ is more preferable, one can step back and decide to characterize process variation using some other parameter that can be measured without the need of damaging the dies, \eg, the leakage current.
+Note that, in this case, one does not attempt to recover the initial \qoi\ from the chosen surrogate.
+In either way, adequate test structures have to be present on the dies in order to take the corresponding measurements.
+The problem, however, is that the described procedure is technologically complex and, thus, might significantly increase the production costs.
+Moreover, the first approach implies that the measured dies have to be recycled afterwards, and the second implies that the design decisions will be based on a surrogate quantity instead of the primary source of uncertainty, which can compromise the reliability of such decisions.
+
+Our technique works differently.
+In order to characterize the \qoi, which is the effective channel length $\u$ in the ongoing example, we monitor an auxiliary quantity that depends on $\u$ and is more advantageous from the measurement perspective.
+The desired $\u$ is then quantified by analyzing the collected data with the machinery of Bayesian inference \cite{gelman2004}.
+For example, such an intermediate parameter can be temperature.
+In this case, we apply a fixed workload to a small number of dies on the wafer, measure the corresponding temperature profiles, and feed these data to Bayesian inference.
+Since temperature does not require extra equipments to be deployed on the dies and can be tracked using infrared cameras \cite{mesa-martinez2007} or built-in facilities of the dies, our approach can reduce the costs associated with the characterization of process variation and further decision making.
+In addition, we account for the fact that the collected information might be corrupted by the measurement noise.
 The result of our framework applied to a set of noisy temperature profiles measured for only 20 out of 316 dies on the wafer is shown on the right side of \fref{wafer-qoi}, and the locations of the dies selected for temperature measurements are depicted in \fref{wafer-measured}.
 It can be seen that the two maps in \fref{wafer-qoi} closely match each other implying that, based on less than $7\%$ of the dies measured, our approach is able to reconstruct the distribution of the effective channel length with a high level of accuracy.
 
@@ -26,3 +34,7 @@ Furthermore, one can take into consideration a so-called utility function, which
 For example, such a function can favor a rare omission of malfunctioning dies to a frequent inspection of correct dies as the latter might involve much more costs.
 The optimal decision is given by the action that maximizes the expected utility with respect to both the observed data and prior knowledge on $\u$ \cite{bernardo2007}.
 Thus, all possible $\u$ weighted by their probabilities will be taken into account in the final decision, incorporating also the preferences of the user via the utility function.
+
+Finally, we would like to emphasize that temperature is just one option.
+In certain situations, it might be more preferable to perform the above inference based on measurements of some other auxiliary quantity provided that it depends on the one, which we wish to characterize, \ie, on the \qoi\ $\u$.
+For example, the leakage current can be easier to measure than temperature if adequate test structures are already deployed on the wafer/dies for other purposes.

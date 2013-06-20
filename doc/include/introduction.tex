@@ -3,12 +3,12 @@ Therefore, the same workload applied to two ``identical'' dies can lead to two d
 Consequently, process variation leads to performance degradation in the best case and to severe faults or burnt silicon in the worst scenario.
 Under these circumstances, uncertainty quantification has evolved into an indispensable asset of the fabrication workflows in order to provide them with guaranties on the efficiency and robustness of products.
 
-An important target of uncertainty quantification is the characterization of the on-wafer distribution of a quantity of interest (\qoi), deteriorated by process variation, based on a data set of measurements.
-The problem belongs to the class of so-called inverse problems since the \qoi\ can be seen as an input to the system and the measurements as the corresponding output, which is opposed to direct problems wherein one studies outputs based on the knowledge of inputs (see, \eg, \cite{juan2011, juan2012}).
+An important target of uncertainty quantification is the characterization of the on-wafer distribution of a quantity of interest, deteriorated by process variation, based on measurements (not necessarily of the same quantity).
+The problem belongs to the class of inverse problems since the analyzed parameter can be seen as an input to the system and the measured data as the corresponding output, which is opposed to direct problems wherein one studies outputs based on the knowledge of inputs (see, \eg, \cite{juan2011, juan2012}).
 Such an inverse problem is addressed in this work: our goal is to characterize the key process parameters with high accuracy and at low costs.
-The established goal is accomplished by tracking supplementary quantities of higher levels that are more convenient and less expensive to be measured, \eg, power and temperature, and employing Bayesian statistics \cite{gelman2004} in order to infer the needed parameters from the collected observations.
+The goal is accomplished by tracking supplementary quantities of higher levels that are more convenient and less expensive to be measured, \eg, power and temperature, and employing Bayesian statistics \cite{gelman2004} in order to infer the needed parameters from the collected observations.
 
-Bayesian inference is utilized in \cite{zhang2010} to identify the optimal set of locations on a wafer, in which \qois\ should be measured in order to characterize them with the maximal accuracy.
+Bayesian inference is utilized in \cite{zhang2010} to identify the optimal set of locations on a wafer, in which the parameter under consideration should be measured in order to characterize it with the maximal accuracy.
 In \cite{paek2012}, the authors consider an inverse problem focused on the inference of the power dissipation based on transient temperature maps using Markov random fields.
 Another temperature-based characterization of power is developed in \cite{mesa-martinez2007} wherein a genetic algorithm is employed for the reconstruction of the power model.
 It should be noted that the inference in \cite{zhang2010} operates on direct measurements meaning that the output of \cite{zhang2010} is the same quantity as the one being measured.

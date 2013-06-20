@@ -29,6 +29,9 @@
 \newcommand{\qoi}{QOI}
 \newcommand{\qois}{QOIs}
 
+\newcommand{\qom}{QOM}
+\newcommand{\qoms}{QOMs}
+
 \newcommand{\ie}{\emph{i.e.}}
 \newcommand{\eg}{\emph{e.g.}}
 \newcommand{\etc}{\emph{etc.}}
@@ -152,9 +155,27 @@
 \newcommand{\mG}{\m{G}}
 \newcommand{\mM}{\m{B}}
 
-% Forward model
+% Data model
 \renewcommand{\r}{r}
 \newcommand{\vr}{\v{r}}
+
+% Quantity of interest
+\renewcommand{\u}{u}
+\newcommand{\vu}{\v{u}}
+\newcommand{\mU}{\m{U}}
+
+% Quantity of measure
+\newcommand{\q}{q}
+\newcommand{\vq}{\v{q}}
+\newcommand{\mQ}{\m{Q}}
+
+\makeatletter
+\def\oBB{\@ifnextchar\bgroup{\oBBPlus}{\oBBZero}}
+\def\oBBPlus#1{\@ifnextchar\bgroup{\oBBTwo{#1}}{\oBBOne{#1}}}
+\def\oBBTwo#1#2{f_{#1}\left(#2\right)}
+\def\oBBOne#1{f\left(#1\right)}
+\def\oBBZero{f}
+\makeatother
 
 % Statistical model
 \newcommand{\Data}{\mathcal{D}}
@@ -163,10 +184,6 @@
 \newcommand{\noise}{\epsilon}
 \newcommand{\mnoise}{\boldsymbol\epsilon}
 \newcommand{\vnoise}{\boldsymbol\epsilon}
-
-\renewcommand{\u}{u}
-\newcommand{\vu}{\v{u}}
-\newcommand{\mU}{\m{U}}
 
 \newcommand{\z}{z}
 \newcommand{\vz}{\v{z}}

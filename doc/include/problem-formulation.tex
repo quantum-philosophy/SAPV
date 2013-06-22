@@ -6,25 +6,19 @@ The \qoi\ is assumed to be impractical for direct measurements.
 
 The goal of this work is to develop a statistical framework targeted at the identification of the on-wafer distribution of $\u$ with the following properties: (a) low measurement costs; (b) high computational speed; (c) robustness to the measurement noise; (d) ability to assess the trustworthiness of the collected data and corresponding predictions; and (e) ability to accommodate prior information on $\u$.
 
-In order to achieve the above goal, we propose the use of indirect measurements.
+In order to achieve the aforementioned goal, we propose the use of indirect measurements.
 Specifically, instead of $\u$, we measure an auxiliary parameter $\q$, which we shall refer to as the quantity of measure (\qom).
 The observations of $\q$ are then processed via Bayesian inference in order to derive the distribution of the \qoi, $\u$.
-The \qom\ is chosen such that: (a) $\q$ is convenient and cheap to be monitored directly; (b) $\q$ depends on $\u$, which is signified by $\q = \oBB{\u}$; and (c) there is a way to compute $\q$ for a given $\u$.
-The last means that $\oBB$ should be known, although it does not have to be explicit since $\oBB$ is used inside our framework as a ``black box''.
+The \qom\ is chosen such that: (a) $\q$ is convenient and cheap to be tracked; (b) $\q$ depends on $\u$, which is signified by $\q = \oBB{\u}$; and (c) there is a way to compute $\q$ for a given $\u$.
+The last means that $\oBB$ should be known; however, it does not have to be explicit since $\oBB$ appears inside our framework as a ``black box''.
 For example, $\oBB$ can be a piece of code or an output of an adequate simulator.
 
-Consequently, as the first step, the user of the proposed framework is supposed to harvest a set of observations of $\q$ at several locations on the wafer (recall the example with temperature in \sref{motivation}).
-For simplicity, we let one die correspond to one (potential) measurement location.
-Denote by $\Data = \{ (\q_i^\meas, \r_i) \}_{i = 1}^\nrdies$ such a data set composed of: (a) $\nrdies$ observations $\q_i^\meas$ of $\nrdies$ out of $\ndies$ dies on the wafer and (b) the corresponding spatial locations of these dies $\r_i \in \domain$ in the domain $\domain$ representing the surface of the wafer.
-The dimensionality of $\q_i^\meas$ is not specified since it depends on a particular choice of $\q$.
-For example, in \sref{motivation}, $\q_i^\meas$ was an $\nprocs \times \nsteps$ matrix capturing temperature of $\nprocs$ processing elements, located on the $i$th measured die, for $\nsteps$ moments of time.
-It is important to note that $\q_i^\meas$ can potentially contain data only for a subset of the processing elements, say $\nrprocs \leq \nprocs$ (see \fref{wafer-measured} for an illustration), and/or only for a subset of the time moments of the power partition $\partition{\mP}$, say $\nrsteps \leq \nsteps$; therefore, $\mT^{(i)}_\meas \in \real^{\nrprocs \times \nrsteps}$.
-For simplicity, the temperature profiles in $\Data$ are assumed to share the same subset of the measured processing elements and the same time partition.
-This time partition is presumably sparse as it is more practical to track temperature at a much lower frequency than the one used for power, \ie, $\nrsteps \ll \nsteps$.
-For the same reason, the number of measured dies is presumably much smaller than the total number of dies, \ie, $\nrdies \ll \ndies$.
+As the first step, the user of the proposed framework is supposed to harvest a set of observations of $\q$ at several locations on the wafer (recall \sref{motivation}).
+Although these locations can be arbitrary, for clarity of presentation, we let one die refer to one (potential) measurement site, and this site can comprise up to $\nprocs$ measurement points corresponding to the centers of the processing elements.
+Denote by $\QData = \{ \q_i^\meas \}_{i = 1}^\nrdies$ such a data set composed of $\nrdies$ observations $\q_i^\meas$ of $\q$, which are made at $\nrprocs$ out of $\nprocs$ processing elements located at $\nrdies$ out of $\ndies$ dies on the wafer.
+It is implied that the site of each observation is recorded as well.
+The dimensionality of $\q_i^\meas$ is not specified since it depends on the choice of the \qom, $\q$.
+For example, in \sref{motivation}, the observation $\q_i^\meas$ was an $\nprocs \times \nsteps$ matrix capturing temperature of $\nprocs$ processing elements, located on the $i$th measured die, for $\nsteps$ moments of time.
+Note that $\QData$ typically contains data only for a small subset of the dies on the wafer, \ie, $\nrdies \ll \ndies$.
 
-
-Let $\specification$ be a collection of all the information relevant to the production process at hand including: (a) the layout of the wafer and (b) the floorplan of a die on the wafer.
-
-A power profile $\profileP$ of a die is a tuple composed of a data matrix $\mP = (\vP_i) \in \real^{\nprocs \times \nsteps}$, $\vP_i \in \real^\nprocs$, that captures the power dissipation of the $\nprocs$ processing elements at $\nsteps$ moments of time and a (column) vector $\partition{\mP} = (\t_i) \in \real^{\nsteps}$ with positive and strictly increasing components that specifies these moments of time.
-The definition of a (transient) temperature profile $\profileT$ is the same except that the data matrix $\mT$ contains temperature.
+For convenience, we denote by $\specification$ all the information relevant to the production and measurement processes including: (a) the layout of the wafer and (b) the floorplan of a die on the wafer.

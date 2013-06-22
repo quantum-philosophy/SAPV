@@ -36,6 +36,12 @@
 \newcommand{\eg}{\emph{e.g.}}
 \newcommand{\etc}{\emph{etc.}}
 
+\makeatletter
+\def\stage#1{\@ifnextchar\bgroup{\stageDouble{#1}}{\stageSingle{#1}}}
+\def\stageSingle#1{Stage~#1}
+\def\stageDouble#1#2{Stage~#1.\hspace{0.5em}\emph{#2}}
+\makeatother
+
 \newcommand{\blindreview}{%
   \textnormal{%
     $\text{HIDDEN FOR BLIND REVIEW}$%
@@ -139,6 +145,7 @@
 \newcommand{\meas}{\text{msr}}
 
 % Power
+\newcommand{\p}{p}
 \renewcommand{\P}{p}
 \newcommand{\vP}{\v{p}}
 \newcommand{\mP}{\m{P}}
@@ -179,6 +186,7 @@
 
 % Statistical model
 \newcommand{\Data}{\mathcal{D}}
+\newcommand{\QData}{\mathcal{Q}}
 \newcommand{\UData}{\mathcal{U}}
 
 \newcommand{\noise}{\epsilon}

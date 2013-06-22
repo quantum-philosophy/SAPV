@@ -1,12 +1,13 @@
 \input{include/figures/algorithm.tex}
-In this section, we present our temperature-based technique for the characterization of process variation. The framework is divided into four major stages depicted in \fref{algorithm}.
-Stage~1 is the data-harvesting stage wherein the user is supposed to collect a set of observations $\Data$ as mentioned in \sref{motivation}.
-At Stage~2, we undertake an optimization procedure, which assists the MCMC sampling at Stage~3 in the construction of an efficient proposal distribution.
-Stage~3 produces a collection of samples of the \qoi, such as the effective channel length, which is then processed at Stage~4 in order to estimate various characteristics, specified by the user, of this \qoi, \eg, to compute the probability of the effective channel length to be smaller than a certain threshold as motivated in \sref{motivation}.
-As it can be seen in \fref{algorithm}, Stage~2 and Stage~3 actively communicate with two models on the right, called the data and statistical models, which we discuss next.
+In this section, we present our statistical framework for the characterization of process variation.
+The technique is divided into four major stages depicted in \fref{algorithm}.
+\stage{1}\ is the data-harvesting stage wherein the user collects a set of observations of the \qom, $\q$, forming $\QData$.
+At \stage{2}, we undertake an optimization procedure, which assists the MCMC sampling at \stage{3}\ in the construction of an efficient proposal distribution.
+\stage{3}\ produces a collection of samples of the \qoi, $\u$, such as the effective channel length, which is then processed at \stage{4}\ in order to estimate all the needed characteristics of this \qoi, \eg, the probability of the effective channel length to be smaller than a certain threshold as motivated in \sref{motivation}.
+As it can be seen in \fref{algorithm}, \stage{2}\ and \stage{3}\ actively communicate with two models on the right, called the data and statistical models, which we shall discuss next.
 
-\subsection{Data Model} \slabel{data-model} \slabel{power-model} \slabel{thermal-model}
-\input{include/forward-model.tex}
+\subsection{Data Model} \slabel{data-model}
+\input{include/data-model.tex}
 
 \subsection{Statistical Model} \slabel{statistical-model}
 \input{include/statistical-model.tex}

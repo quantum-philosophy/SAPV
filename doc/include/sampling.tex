@@ -1,6 +1,6 @@
-Let us turn to Stage~3 in \fref{algorithm}.
-We have at our disposal $\hat{\vparam}$ and $\mOI$ from Stage~2 in order to construct an adequate proposal and utilize it for sampling.
-A commonly used proposal is a multivariate Gaussian distribution wherein the mean is the current location of the chain of samples started at $\hat{\vparam}$, and the covariance matrix is the inverse of $\mOI$ \cite{gelman2004, bernardo2007}.
+Let us turn to \stage{3}\ in \fref{algorithm}.
+We have at our disposal $\hat{\vparam}$ and $\mOI$ from \stage{2}\ in order to construct an adequate proposal and utilize it for sampling.
+A commonly used proposal is a multivariate Gaussian distribution wherein the mean is the current location of the chain of samples started at $\hat{\vparam}$, and the covariance matrix is the inverse of $\mOI$ \cite{gelman2004}.
 In order to speed up the sampling process, we would like to make use of the potential of multicore parallelization.
 The above proposal, however, is purely sequential as the mean for the next sample draw is dependent on the previous sample.
 Therefore, we appeal to a variation of the MH algorithm known as the independence sampler \cite{gelman2004}.

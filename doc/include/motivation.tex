@@ -1,10 +1,10 @@
 \input{include/figures/wafer-qoi.tex}
-Let us consider an important application of the proposed technique: the characterization of the distribution, across a silicon wafer, of the effective channel length, denoted by $\u$. The effective channel length has one of the strongest effects on the subthreshold leakage current and, consequently, on power and temperature \cite{juan2011, juan2012}; at the same time, $\u$ is well-known to be severely deteriorated by process variation \cite{chandrakasan2001, srivastava2010}.
+Let us consider an important application of the proposed technique: the characterization of the distribution, across a silicon wafer, of the effective channel length, denoted by $\u$. The effective channel length has one of the strongest effects on the subthreshold leakage current and, consequently, on power and temperature \cite{juan2012}; at the same time, $\u$ is well-known to be severely deteriorated by process variation \cite{chandrakasan2001, srivastava2010}.
 Assume the technological process imposes a lower bound $\u_*$ on $\u$.\footnote{For simplicity, a possible upper bound on the effective channel length is ignored in the motivational example.} This bound separates defective dies ($\u < \u_*$) from those that are acceptable ($\u \geq \u_*$).
 In order to reduce costs, the manufacturer is interested in detecting the faulty dies and taking them out of the production process at early stages.
 Then the possible actions that they might take with respect to a single die on the wafer are: (a) keep the die if it conforms to the specification; (b) recycle the die otherwise.
 Let the distribution of $\u$ across the wafer be the one depicted on the left side of \fref{wafer-qoi}.
-The gradient from navy to dark red represents the transition of $\u$ from low to high values; hence, the navy regions have a high level of the power/heat dissipation.\footnote{The experimental setup will be described in detail in \sref{experimental-results}.}
+The gradient from navy to dark red represents the transition of $\u$ from low to high values; hence, the navy regions have a high level of the power and heat dissipation.\footnote{The experimental setup will be described in detail in \sref{experimental-results}.}
 
 In order to quantify the uncertainty due to the variability of the effective channel length $\u$, one can find the above-mentioned distribution by removing the top layer of (thus, destroying) the dies and measuring $\u$ directly.
 Alternatively, despite the fact that the knowledge of $\u$ is more preferable, one can step back and decide to characterize process variation using some other parameter that can be measured without the need of damaging the dies, \eg, the leakage current.
@@ -33,7 +33,7 @@ An illustration of this rule is given in \fref{wafer-defective} where the lower 
 In addition, we can introduce a trade-off action: (c) expose the die to a thorough inspection (\eg, via a test structure) if $\probabilityMeasure(\u \geq \u_*)$ is smaller than the threshold of (a) and is larger than some other threshold, \eg, $0.1 < \probabilityMeasure(\u \geq \u_*) < 0.9$. In this case, we can reduce costs by examining only those dies for which there is neither sufficiently strong evidence of their satisfactory nor unsatisfactory condition.
 Furthermore, one can take into consideration a so-called utility function, which, for each combination of an outcome of $\u$ and a taken action, returns the gain that the decision maker obtains.
 For example, such a function can favor a rare omission of malfunctioning dies to a frequent inspection of correct dies as the latter might involve much more costs.
-The optimal decision is given by the action that maximizes the expected utility with respect to both the observed data and prior knowledge on $\u$ \cite{bernardo2007}.
+The optimal decision is given by the action that maximizes the expected utility with respect to both the observed data and prior knowledge on $\u$.
 Thus, all possible $\u$ weighted by their probabilities will be taken into account in the final decision, incorporating also the preferences of the user via the utility function.
 
 Finally, we would like to emphasize that temperature is just one option.

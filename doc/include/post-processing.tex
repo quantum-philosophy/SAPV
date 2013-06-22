@@ -1,4 +1,6 @@
-At Stage~4 in \fref{algorithm}, using the set of samples $\UData$, the user computes the desired statistics about the \qoi\ such as the most probable value of the effective channel length at an arbitrary point on the wafer, the probability of an area on the wafer to be defective, \etc\ The computations boil down to the estimation of expected values with respect to the posterior distribution of $\vparam$.
-This estimation is done in the standard sample-based fashion, that is, in order to compute the expected value of some quantity, one needs to evaluate it for each $\vu_i$ in $\UData$ and then take the average value.
-It is worth emphasizing that such statistics can be estimated not only for $\u$ itself, but also for other quantities dependent on $\u$.
-Also, the strength of the Bayesian approach to inference really starts to shine when one needs to take a decision of some kind based on the collected observations in $\Data$ (recall the discussion in \sref{motivation}).
+At \stage{4}\ in \fref{algorithm}, using the set of samples $\UData$, the user computes the desired statistics of the \qoi\ such as the most probable value of the effective channel length at some location of interest, the probability of a certain area on the wafer to be defective, \etc\ The computations boil down to the estimation of expected values with respect to the posterior distribution of $\vparam$, $\f{\vparam | \QData}$.
+This estimation is done in the standard sample-based fashion, that is, in order to compute some arbitrary quantity dependent on $\u$, one needs to evaluate this quantity for each $\vu_i$ in $\UData$ and then take the average.
+
+The strength of the Bayesian approach to inference really starts to shine when we are also interested in assessing the trustworthiness of the measured data and, therefore, the reliability of the estimates/decisions based on these data.
+Such an assessment can readily be undertaken using our framework since the delivered posterior distribution contains all the needed information about the \qoi.
+This is especially helpful in decision making as exemplified in \sref{motivation}.

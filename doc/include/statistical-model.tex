@@ -31,10 +31,10 @@ At this point, we have established a model for $\u$; however, due to the infinit
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
 The random element $\u$ is an infinite-dimensional object as it characterizes a continuum of spatial locations.
 For practical computations, however, it should be reduced to a finite-dimensional one.
-First, $\u$ is discretized with respect to the union of two sets of points on the wafer: the first one is composed of the $\nrdies \nrprocs$ points where the observations in $\QData$ were made (one location for each measured processing element on each of the selected dies), and the other of the points where the user wishes to characterize $\u$.
-For simplicity, we assume that the user is interested in all processing elements on all dies, which is $\ndies \nprocs$ locations in total (see \fref{wafer-measured}). Consequently, we obtain an $\ndies \nprocs$-dimensional representation of $\u$ denoted by the vector $\vu$.
-Second, we compute the covariance matrix of $\vu$ via \eref{covariance-function} and factorize it using the eigenvalue decomposition \cite{press2007}.
-Then the dimensionality of the \qoi\ is reduced even further by discarding those eigenvalues (and the corresponding eigenvectors) whose contribution to the overall sum of the eigenvalues is below a certain threshold.
+First, $\u$ is discretized with respect to the union of two sets of points on the wafer: the first one is composed of the $\nrdies \nrprocs$ points where the observations in $\QData$ were made (one location for each measured processing element on each measured die), and the other of the points where the user wishes to characterize $\u$.
+For simplicity, we assume that the user is interested in all processing elements at all measurement sites, which is $\ndies \nprocs$ locations in total (see \fref{wafer-measured}). Consequently, we obtain an $\ndies \nprocs$-dimensional representation of $\u$ denoted by the vector $\vu$.
+Second, the dimensionality of the \qoi\ is reduced even further by applying the well-known principal component analysis to the covariance matrix of $\vu$ computed via \eref{covariance-function}.
+More precisely, we factorize the computed matrix using the eigenvalue decomposition \cite{press2007} and discard those eigenvalues (and their eigenvectors) whose contribution to the total sum of the eigenvalues is below a certain threshold.
 The result is
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu_\u \vI + \sigma_\u \mKL \vz
@@ -45,29 +45,31 @@ Consequently, the \qoi\ is now ready for practical computations.
 In what follows, the parameters of \eref{u-prior} are defined by $\vparam_\u = \{ \vz, \mu_\u, \sigma^2_\u \}$ (see \fref{inference}).
 
 \subsubsection{Likelihood function}
-In the Bayesian context, the observed information is taken into account via a likelihood function (see \sref{bayesian-inference}).
-In our case, the observed data are the temperature profiles in $\Data$, stacked into $\mvT_\meas$, which are modeled using the data model described in \sref{data-model}.
-Since the measurement process is not perfect, we should also take into consideration the measurement noise. To this end, for a given $\u$, the observed temperature $\mvT_\meas$ is assumed to deviate from the data model prediction $\mvT$ as follows:
+In the Bayesian context, the observed information is taken into account via a likelihood function (see \sref{preliminaries}).
+In our case, this information is the measurements $\QData$ stacked into $\vq^\meas$ as described in \sref{data-model}.
+Since the measurement process is not perfect, we should also take into consideration the measurement noise.
+To this end, for a given $\u$, the observed $\vq^\meas$ is assumed to deviate from the data model prediction $\vq$ as follows:
 \begin{equation} \elabel{noisy-measurements}
-  \mvT_\meas = \mvT + \vnoise
+  \vq^\meas = \vq + \vnoise
 \end{equation}
 where $\vnoise$ is an $\nrdies \nrprocs \nrsteps$-dimensional vector of noise, which is typically assumed to be a white Gaussian noise \cite{rasmussen2006, marzouk2009}.
-Without loss of generality, the noise is assumed to be independent of $\u$ and to have the same magnitude for all measurements (characterized by the utilized instruments). Consequently, the model of the noise is
+Without loss of generality, the noise is assumed to be independent of $\u$ and to have the same magnitude for all measurements (characterized by the utilized instruments).
+Consequently, the model of the noise is
 \begin{equation} \elabel{noise-model}
-  \vnoise | \sigma^2_\noise \sim \gaussian{0}{\sigma^2_\noise \mI}
+  \vnoise | \sigma^2_\noise \sim \gaussian{\vZero}{\sigma^2_\noise \mOne}
 \end{equation}
-where $\sigma^2_\noise$ is the variance of the noise.
-Let us denote the parameters of the inference by $\vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}$ (see this union in \fref{inference}).
-Combining \eref{noisy-measurements} and \eref{noise-model}, we get
+where $\sigma^2_\noise$ is the variance of the noise, and $\mOne$ is the identity matrix.
+Let us denote the parameters of the inference by $\vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}$ (observe this union in \fref{inference}).
+Finally, combining \eref{noisy-measurements} and \eref{noise-model}, we obtain
 \begin{equation} \elabel{likelihood}
-  \mvT_\meas | \vparam \sim \gaussian{\mvT}{\sigma_\noise^2 \mI}.
+  \vq^\meas | \vparam \sim \gaussian{\vq}{\sigma_\noise^2 \mOne}.
 \end{equation}
-The probability density function of this distribution is the likelihood function $\f{\Data | \vparam}$ of our statistical model, which is the first of the two components needed for the posterior given in \eref{bayes}.
+The probability density function of this distribution is the likelihood function $\f{\QData | \vparam}$ of our statistical model, which is the first of the two components needed for the posterior given in \eref{bayes}.
 
 \subsubsection{Priors of the parameters}
 The second component of the posterior in \eref{bayes} is the prior $\f{\vparam}$, which we now need to decide on. In this paper, we put the following priors on $\vparam$:
 \begin{align}
-  & \z_i \sim \gaussian{0}{1}, \hspace{1em} \mu_\u \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{priors} \\
+  & \vz \sim \gaussian{\vZero}{\mOne}, \hspace{1em} \mu_\u \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{priors} \\
   & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and } \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \nonumber
 \end{align}
 The prior for $\vz$ is due to the properties the decomposition in \eref{kl-approximation}.
@@ -77,13 +79,13 @@ When the prior knowledge is weak, non-informative priors can be utilized \cite{g
 Taking the product of the densities in \eref{priors}, we obtain the prior $\f{\vparam}$ completing \eref{bayes}.
 
 \subsubsection{Posterior}
-At this point, we have obtained the two pieces of the posterior shown in \eref{bayes}: the likelihood function, which is the density in \eref{likelihood}, and the prior, which is the product of the densities in \eref{priors}. Thus, the posterior is
+At this point, we have obtained the two pieces of the posterior shown in \eref{bayes}: the likelihood function, which is the density in \eref{likelihood}, and the prior, which is the product of the four densities in \eref{priors}. Thus, the posterior is
 \begin{equation} \elabel{posterior}
-  \f{\vparam | \Data} \propto \f{\mvT_\meas | \vz, \mu_\u, \sigma^2_\u, \sigma^2_\noise} \; \f{\vz} \; \f{\mu_\u} \; \f{\sigma^2_\u} \; \f{\sigma^2_\noise}.
+  \f{\vparam | \QData} \propto \f{\vq^\meas | \vz, \mu_\u, \sigma^2_\u, \sigma^2_\noise} \; \f{\vz} \; \f{\mu_\u} \; \f{\sigma^2_\u} \; \f{\sigma^2_\noise}.
 \end{equation}
 Provided that we have a way of drawing samples from \eref{posterior}, the \qoi\ can be readily analyzed as we shall see in \sref{post-processing}.
-The problem, however, is that the direct sampling of the posterior is not possible due to the data model involved in the likelihood function via the temperature vector $\mvT$ (see \eref{likelihood} and \sref{data-model}).
-In order to circumvent this problem, we utilize the Metropolis-Hastings (MH) algorithm \cite{gelman2004} introduced in \sref{bayesian-inference}.
+The problem, however, is that the direct sampling of the posterior is not possible due to the data model involved in the likelihood function via $\vq$ (see \eref{likelihood} and \sref{data-model}).
+In order to circumvent this problem, we utilize the Metropolis-Hastings (MH) algorithm \cite{gelman2004} introduced in \sref{preliminaries}.
 The algorithm operates on an auxiliary distribution called the proposal distribution, which is chosen to be convenient for sampling.
 Each sample, drawn from this proposal, is then used in \eref{posterior} to evaluate the posterior probability of this sample and decide whether it should be accepted or rejected.\footnote{A reject means that the sequence of samples advances using the last accepted sample; therefore, the chain of samples is never interrupted.}
 The acceptance/rejection strategy of the MH algorithm pushes the produced chain of samples towards regions of high posterior probability, which, after a sufficient number of steps depending on the starting point of the chain and the efficiency of the moves, results in a good approximation of the target posterior distribution in \eref{posterior}.

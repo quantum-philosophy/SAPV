@@ -1,18 +1,16 @@
 The data model is essentially a directed relation between the \qoi, $\u$, and the \qom, $\q$, which we denote by the ``black-box'' transformation $\q = \oBB{\u}$.
 $\oBB$ depends on the choice of $\q$ and is specified by the user according to the guidelines in \sref{problem-formulation}.
 
+The data model is utilized to predict the values of the \qom\ at the same sites and the same processing elements as the ones used to collect $\QData$.
+The resulting data are then stacked into one vector with $\nrdies \nrprocs \nrsteps$ elements (see \sref{problem-formulation}), which is denoted by $\vq$.
+Also, let $\vq^\meas \in \real^{\nrdies \nrprocs \nrsteps}$ be a stacked version of the data in $\QData$ such that the respective elements of $\vq$ and $\vq^\meas$ correspond to the same location.
+
 In order to acquire a better understanding of the data model, let us return to the setup considered in \sref{motivation}.
 In this case, $\u$ stands for the effective channel length, and $\q$ stands for the temperature profile corresponding to a fixed workload given as, \eg, a dynamic power profile.
-The choice of $\u$ and $\q$ for illustration is dictated by the fact that such a high-level parameter as temperature constitutes a challenging task for the inference of such a low-level parameter as the effective channel length, which implies an intense assessment of the propose technique.
-The performance of our framework is expected to increase when the auxiliary parameter $\q$ that resides ``closer'' to the target parameter $\u$ with respect to the transformation $\q = \oBB{\u}$ provided that the amount and granularity of the measurement data stay the same.
-For example, such a ``closer'' quantity $\q$ can be the leakage current; however, the leakage current is not always the most preferable parameter to work with.
-
-In the ongoing example, the data model $\q = \oBB{\u}$ can be roughly divided into two transitions: (a) the effective channel length $\u$ to the leakage power $\p_\leak$ and (b) the leakage power $\p_\leak$ to the corresponding temperature profile $\q$.
+The data model $\q = \oBB{\u}$ can be roughly divided into two transitions: (a) the effective channel length $\u$ to the leakage power $\p_\leak$ and (b) the leakage power $\p_\leak$ to the corresponding temperature profile $\q$.
 The first transition is accomplished using one of the leakage models broadly found in the contemporary literature; see, \eg, \cite{chandrakasan2001, srivastava2010, juan2012}.
 In particular, a leakage model can be constructed via a fitting procedure applied a data set of SPICE simulations of reference electrical circuits.
 The only requirement to such a model is that it should be parametrized by $\u$.
 In addition, it can also be parametrized by temperature in order to account for the well-known interdependency between leakage and temperature.
 The second transition is undertaken by combining the leakage power $\p_\leak$ with the dynamic power $\p_\dyn$ that corresponds to the considered workload used for heating the dies.
 The obtained total power along with the temperature-related information contained in $\specification$ (mainly, the floorplan and thermal parameters of the die) are fed to a thermal simulator in order to acquire the corresponding temperature $\q$.
-
-Without loss of generality, in the experimental results reported in \sref{experimental-results}, we use a temperature-aware model for leakage attained via fitting to SPICE simulations, and the temperature calculations are undertaken in the same way as the one described in \cite{ukhov2012}, which is based on the HotSpot thermal model \cite{hotspot}.

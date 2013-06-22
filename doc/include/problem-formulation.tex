@@ -17,8 +17,8 @@ As the first step, the user of the proposed framework is supposed to harvest a s
 Although these locations can be arbitrary, for clarity of presentation, we let one die refer to one (potential) measurement site, and this site can comprise up to $\nprocs$ measurement points corresponding to the centers of the processing elements.
 Denote by $\QData = \{ \q_i^\meas \}_{i = 1}^\nrdies$ such a data set composed of $\nrdies$ observations $\q_i^\meas$ of $\q$, which are made at $\nrprocs$ out of $\nprocs$ processing elements located at $\nrdies$ out of $\ndies$ dies on the wafer.
 It is implied that the site of each observation is recorded as well.
-The dimensionality of $\q_i^\meas$ is not specified since it depends on the choice of the \qom, $\q$.
-For example, in \sref{motivation}, the observation $\q_i^\meas$ was an $\nprocs \times \nsteps$ matrix capturing temperature of $\nprocs$ processing elements, located on the $i$th measured die, for $\nsteps$ moments of time.
+The dimensionality of $\q_i^\meas$ is $\nprocs \times \nrsteps$ where $\nrsteps$ is the amount of data captured per processing element.
+For example, in \sref{motivation}, $\q_i^\meas$ was an $\nprocs \times \nrsteps$ matrix capturing temperature of $\nprocs$ processing elements, located on the $i$th measured die, for $\nrsteps$ moments of time.
 Note that $\QData$ typically contains data only for a small subset of the dies on the wafer, \ie, $\nrdies \ll \ndies$.
 
 For convenience, we denote by $\specification$ all the information relevant to the production and measurement processes including: (a) the layout of the wafer and (b) the floorplan of a die on the wafer.

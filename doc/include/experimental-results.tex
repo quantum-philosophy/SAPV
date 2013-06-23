@@ -21,15 +21,14 @@ The threshold parameter of the model order reduction procedure described in \sre
 The parameters $\mu_0$ and $\tau_\u$ of the priors in \eref{priors} are specific to the considered technological process; we set $\mu_0$ to $45~\text{nm}$ and $\tau_\u$ to 5\% of $\mu_0$ \cite{juan2012}.
 The parameters $\sigma_0$ and $\nu_\u$ determine the precision of the information on $\mu_0$ and $\tau_\u$ and are set according to the beliefs of the user; we set $\sigma_0$ to 1\% of $\mu_0$ and $\nu_\u$ to ten.
 The latter can be thought of as the number of imaginary observations that the choice of $\tau_\u$ is based on.
-The parameter $\tau_\noise$ represents the precision (deviation) of the equipments utilized to collect the temperature measurements in the data set $\QData$ and can be found in the technical specification of these equipments; we set $\tau_\noise$ to $1~\text{K}$. The parameter $\nu_\noise$ has the same interpretation as $\nu_\u$; we set it to ten as well.
+The parameter $\tau_\noise$ represents the precision (deviation) of the equipments utilized to collect the data set $\QData$ and can be found in the technical specification of these equipments; we set $\tau_\noise$ to $1~\text{K}$. The parameter $\nu_\noise$ has the same interpretation as $\nu_\u$; we set it to ten as well.
 In \eref{proposal}, $\nu$ and $\alpha$ are tuning parameters, which can be configured based on experiments; we set $\nu$ to eight and $\alpha$ to 0.5.
 The number of sample draws is another tuning parameter, which we set to $10^4$; the first half of these samples is ascribed to the burn-in period leaving $5 \cdot 10^3$ effective samples $\nsamples$.
 For the optimization in \sref{optimization}, we use the Quasi-Newton algorithm \cite{press2007}.
 For parallel computations, we utilize four processors.
-Finally, all the experiments are conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.
+All the experiments are conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.
 
-\subsection{Analysis of the Experimental Setup}
-In order to ensure that the experimental setup is adequate, let us first perform a detailed analysis of the results obtained for one particular example with the default configuration.
+In order to ensure that the experimental setup is adequate, we first perform a detailed analysis of the results obtained for one particular example with the default configuration.
 The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} where the normalized root-mean-square error (NRMSE) is below 2.8\%, and the absolute error is bounded by 1.4~nm, which suggests that the framework produces a close match to the true value of the \qoi.
 Next we inspect the trace of the obtained sequence of samples and observe that the constructed Markov chain vividly explores the underlying probability space.
 Another test commonly used to assess the quality of the proposal distribution is to compare the posterior in \eref{posterior} with the tailored proposal distribution in \eref{proposal} for each parameter conditioned on the other parameters being at $\hat{\vparam}$ (see \sref{optimization}).
@@ -50,12 +49,12 @@ An interesting observation can be made from the NRMSE: the error tends to decrea
 The explanation is that, with each processing element, $\QData$ delivers more information to the inference to work with since the temperature profiles are collected for all processing elements simultaneously; in our scenario, $\nrprocs = \nprocs$ (\sref{model-order-reduction}).
 
 \subsection{Number of Spatial Measurements}
-Let us change the number of dies $\nrdies$ for which the measurement data are available in the input data set $\QData$ (correspondingly, $\ndies - \nrdies$ dies are left unobserved in \fref{wafer-measured}). The considered scenarios are 1, 10, 20, 40, 80, and 160 measured dies, respectively. The results are reported in \tref{spatial-measurements}.
+Let us change the number of dies $\nrdies$ for which the measurement data are available in the input data set $\QData$ (correspondingly, $\ndies - \nrdies$ dies are left unobserved in \fref{wafer-measured}). The considered scenarios are 10, 20, 40, 80, and 160 measured dies, respectively. The results are reported in \tref{spatial-measurements}.
 We see that the more data the proposed framework needs to process, the longer the execution time, which is reasonable. The trend, however, is not as steep as the one in \tref{processing-elements} since the thermal system stays unchanged.
 The error firmly decreases and drops below 4\% with around 20 measurement points, which is only 6.3\% of the total number of dies on the wafer.
 
 \subsection{Number of Temporal Measurements}
-In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in $\QData$. The scenarios are 1, 10, 20, 40, 80, and 160 time moments, respectively. The results are aggregated in \tref{temporal-measurements}.
+In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in $\QData$. The scenarios are 10, 20, 40, 80, and 160 time moments, respectively. The results are aggregated in \tref{temporal-measurements}.
 As we see, the growth of the computational time is relatively small. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\QData$ is identical (recall $\vq^\meas \in \real^{\nrdies \nrprocs \nrsteps}$). However, the meaning of the two numbers, $\nrdies$ and $\nrsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.
 The NRMSE in \tref{temporal-measurements} has a decreasing trend; however, this trend is less steady than the ones discovered before. The finding can be explained as follows. The distribution of the time moments in $\QData$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles.
 Some moments of time can be more informative than the other.

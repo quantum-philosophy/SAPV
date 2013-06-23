@@ -8,7 +8,7 @@ The gradient from navy to dark red represents the transition of $\u$ from low to
 
 In order to quantify the uncertainty due to the variability of the effective channel length $\u$, one can find the above-mentioned distribution by removing the top layer of (thus, destroying) the dies and measuring $\u$ directly.
 Alternatively, despite the fact that the knowledge of $\u$ is more preferable, one can step back and decide to characterize process variation using some other parameter that can be measured without the need of damaging the dies, \eg, the leakage current.
-It should be noted that, in this case, nobody attempts to recover $\u$ from the chosen surrogate.
+It should be noted that, in this case, the chosen surrogate is the final product, and $\u$ is left unknown.
 In either way, adequate test structures have to be present on the dies in order to take the corresponding measurements.
 The problem, however, is that the described procedure is technologically complex and, thus, might significantly increase the production costs.
 Moreover, the first approach implies that the measured dies have to be recycled afterwards, and the second implies that the design decisions will be based on a surrogate quantity instead of the primary source of uncertainty, which can compromise the reliability of such decisions.
@@ -16,13 +16,13 @@ Moreover, the first approach implies that the measured dies have to be recycled 
 Our technique works differently.
 In order to characterize the effective channel length $\u$, we monitor an auxiliary quantity $\q$ that depends on $\u$ and is more advantageous from the measurement perspective.
 The distribution of $\u$ across the whole wafer is then obtained via Bayesian inference \cite{gelman2004} applied the collected measurements of $\q$.
-These measurements are taken at only a small number of locations on the wafer and can potentially be corrupted by the noise due to the imperfection of the measurement equipments.
+These measurements are taken only on a small number of locations on the wafer and can potentially be corrupted by the noise due to the imperfection of the measurement equipments.
 
 Assume that $\q$ is temperature.
 We can then apply a fixed workload to a few dies on the wafer and measure the corresponding temperature profiles.
-Since temperature does not require extra equipments to be deployed on the wafer and can be tracked using infrared cameras \cite{mesa-martinez2007} or built-in facilities of the dies, our approach can significantly reduce the costs associated with the characterization of process variation and further decision making.
-The result of our framework applied to a set of noisy temperature profiles measured for only 20 out of 316 dies on the wafer is shown on the right side of \fref{wafer-qoi}, and the locations of the dies selected for temperature measurements are depicted in \fref{wafer-measured}.
-It can be seen that the two maps in \fref{wafer-qoi} closely match each other implying that, based on less than $7\%$ of the dies measured, our approach is able to reconstruct the distribution of the effective channel length with a high level of accuracy.
+Since temperature does not require extra equipments to be deployed on the wafer and can be tracked using infrared cameras \cite{mesa-martinez2007} or built-in facilities of the dies, our approach can reduce the costs associated with the analysis of process variation.
+The result of our framework applied to a set of noisy temperature profiles measured for only 7\% of the dies on the wafer is shown on the right side of \fref{wafer-qoi}, and the locations of the selected dies are depicted in \fref{wafer-measured}.
+It can be seen that the two maps in \fref{wafer-qoi} closely match each other implying that our approach is able to reconstruct the distribution of the effective channel length with a high level of accuracy.
 
 Another feature of the proposed framework is that probabilities of various events, \eg, $\probabilityMeasure(\u \geq \u_*)$, can readily be estimated.
 This is important since, in reality, the true values are unknown for us (otherwise, we would not need to quantify them), and, therefore, we can rely on our decisions only up to a certain probability.

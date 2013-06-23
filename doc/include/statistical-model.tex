@@ -1,6 +1,6 @@
-Once the wafer has been fabricated, the values of $\u$ are fixed at all locations on the wafer; however, this distribution remains unknown for us.
-In order to infer it, we employ the procedure, referred to as the statistical model, described in the current subsection and displayed in \fref{inference}.
-The development of the statistical model closely follows \sref{preliminaries} and consists of the five components described below.
+Once the wafer has been fabricated, the values of $\u$ are fixed for all locations on the wafer; however, they remains unknown for us.
+In order to infer them, we employ the procedure, called the statistical model, developed in the current subsection and displayed in \fref{inference}.
+The development consists of the five components described below.
 
 \subsubsection{Model of the \qoi}
 The first step is to assign an adequate model to the unknown $\u$.
@@ -8,7 +8,7 @@ We model $\u$ as a Gaussian process \cite{rasmussen2006} since: (a) it is flexib
 \begin{equation} \elabel{u-prior}
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \end{equation}
-where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, respectively.
+where $\fMean(\r)$ and $\fCov(\r, \r')$ are the mean and covariance functions of $\u$, respectively, and $\r, \r' \in \real^2$ denote coordinates on the wafer.
 Hereafter, the vertical bar, pronounced as ``given'', is used to mark the parameters that the probability distribution on the right-hand side depends on. In this case, such parameters are $\vparam_\u$, which we shall identify later on.
 Prior to taking any measurements, $\u$ is assumed to be spatially unbiased; therefore, we let $\fMean$ be a single location-independent parameter $\mu_\u$, \ie, $\fMean{r} = \mu_\u$, $\forall \r \in \real^2$.
 The covariance function $\fCov$ is chosen to be the following composition:
@@ -24,15 +24,18 @@ are the squared exponential and Ornstein-Uhlenbeck correlation functions, respec
 The choice of the covariance function $\fCov$ is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between the points that are at the same distance from the center of the wafer.
 $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant.
 Although all the above parameters of the model of $\u$ can be inferred from the data, for simplicity, we shall focus on $\mu_u$ and $\sigma_\u^2$.
-The rest of the parameters, namely, $\eta$, $\ell_\SE$, and $\ell_\OU$ of the covariance function $\fCov$, are assumed to be determined prior to our analysis based on the knowledge of the correlation patterns typical for the production process utilized (see \cite{marzouk2009} and references therein).
-At this point, we have established a model for $\u$; however, due to the infinite dimensionality, it is computationally intractable, which we address next.
+The rest of the parameters, namely, $\eta$, $\ell_\SE$, and $\ell_\OU$, are assumed to be determined prior to our analysis based on the knowledge of the correlation patterns typical for the production process utilized (see \cite{marzouk2009} and references therein).
+
+We have established a model for $\u$ as a stochastic process.
+Now the model requires one additional treatment in order to make it computationally tractable, which we shall discuss next.
 
 \input{include/figures/inference.tex}
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
-The random element $\u$ is an infinite-dimensional object as it characterizes a continuum of spatial locations.
+The model of the \qoi\ is an infinite-dimensional object as it characterizes a continuum of spatial locations.
 For practical computations, however, it should be reduced to a finite-dimensional one.
 First, $\u$ is discretized with respect to the union of two sets of points on the wafer: the first one is composed of the $\nrdies \nrprocs$ points where the observations in $\QData$ were made (one location for each measured processing element on each measured die), and the other of the points where the user wishes to characterize $\u$.
-For simplicity, we assume that the user is interested in all processing elements at all measurement sites, which is $\ndies \nprocs$ locations in total (see \fref{wafer-measured}). Consequently, we obtain an $\ndies \nprocs$-dimensional representation of $\u$ denoted by the vector $\vu$.
+For simplicity, we assume that the user is interested in all processing elements at all measurement sites, which is $\ndies \nprocs$ locations in total (see \fref{wafer-measured}).
+Consequently, we obtain an $\ndies \nprocs$-dimensional representation of $\u$ denoted by the vector $\vu$.
 Second, the dimensionality of the \qoi\ is reduced even further by applying the well-known principal component analysis to the covariance matrix of $\vu$ computed via \eref{covariance-function}.
 More precisely, we factorize the computed matrix using the eigenvalue decomposition \cite{press2007} and discard those eigenvalues (and their eigenvectors) whose contribution to the total sum of the eigenvalues is below a certain threshold.
 The result is
@@ -54,11 +57,11 @@ To this end, for a given $\u$, the observed $\vq^\meas$ is assumed to deviate fr
 \end{equation}
 where $\vnoise$ is an $\nrdies \nrprocs \nrsteps$-dimensional vector of noise, which is typically assumed to be a white Gaussian noise \cite{rasmussen2006, marzouk2009}.
 Without loss of generality, the noise is assumed to be independent of $\u$ and to have the same magnitude for all measurements (characterized by the utilized instruments).
-Consequently, the model of the noise is
+Hence, the model of the noise is
 \begin{equation} \elabel{noise-model}
   \vnoise | \sigma^2_\noise \sim \gaussian{\vZero}{\sigma^2_\noise \mOne}
 \end{equation}
-where $\sigma^2_\noise$ is the variance of the noise, and $\mOne$ is the identity matrix.
+where $\sigma^2_\noise$ is the variance of the noise, $\vZero$ is a vector of zeros, and $\mOne$ is the identity matrix.
 Let us denote the parameters of the inference by $\vparam = \vparam_\u \cup \{ \sigma_\noise^2 \} = \{ \vz, \mu_\u, \sigma_\u^2, \sigma_\noise^2 \}$ (observe this union in \fref{inference}).
 Finally, combining \eref{noisy-measurements} and \eref{noise-model}, we obtain
 \begin{equation} \elabel{likelihood}
@@ -67,7 +70,8 @@ Finally, combining \eref{noisy-measurements} and \eref{noise-model}, we obtain
 The probability density function of this distribution is the likelihood function $\f{\QData | \vparam}$ of our statistical model, which is the first of the two components needed for the posterior given in \eref{bayes}.
 
 \subsubsection{Priors of the parameters}
-The second component of the posterior in \eref{bayes} is the prior $\f{\vparam}$, which we now need to decide on. In this paper, we put the following priors on $\vparam$:
+The second component of the posterior in \eref{bayes} is the prior $\f{\vparam}$, which we now need to decide on.
+In this paper, we put the following priors on $\vparam$:
 \begin{align}
   & \vz \sim \gaussian{\vZero}{\mOne}, \hspace{1em} \mu_\u \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{priors} \\
   & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and } \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \nonumber

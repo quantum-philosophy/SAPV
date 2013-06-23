@@ -1,19 +1,20 @@
 \input{include/tables/performance.tex}
-In this section, we assess the proposed framework using the illustrative example carried through the paper: the characterization of the distribution of the effective channel length $\u$ based on temperature profiles $\q$.
+In this section, we assess our framework using the example carried through the paper from the very beginning: the inference of the effective channel length $\u$ based on temperature $\q$.
 This choice of $\u$ and $\q$ for illustration is dictated by the fact that such a high-level parameter as temperature constitutes a challenging task for the inference of such a low-level parameter as the effective channel length, which implies an intense assessment of the propose technique.
 In addition, the chosen process parameter is an important target \perse\ as it is affected by process variation the most and considerably impacts the power/heat dissipation \cite{chandrakasan2001, srivastava2010, juan2012}; in particular, it also influence other process-related characteristics such as the threshold voltage.
-The performance of our framework is expected to increase when the auxiliary parameter $\q$ resides ``closer'' to the target parameter $\u$ with respect to the transformation $\q = \oBB{\u}$ (see \sref{data-model}) provided that the amount and granularity of the measurement data stay the same.
-For instance, such a ``closer'' quantity $\q$ can be the leakage current, which, however, might not always be the most preferable parameter to work with.
+The performance of our approach is expected to increase when the auxiliary parameter $\q$ resides ``closer'' to the target parameter $\u$ with respect to the transformation $\q = \oBB{\u}$ (see \sref{data-model}) provided that the quality of the measurement data stay the same.
+For instance, such a ``closer'' quantity $\q$ can be the leakage current, which, however, might not always be the most preferable parameter to measure.
 
-Now we shall describe the default configuration of our setup, which, in the following subsections, will be adjusted according to the purpose of each particular experiment.
-We consider a 45-nanometer technological process. The diameter of the wafer is 20 dies, the total number of dies $\ndies$ is 316, and the number of processing elements $\nprocs$ in each of the dies is four.
+Now we shall describe the default configuration of our setup, which will be later adjusted according to the purpose of each particular experiment.
+We consider a 45-nanometer technological process.
+The diameter of the wafer is 20 dies, the total number of dies $\ndies$ is 316, and the number of processing elements $\nprocs$ in each of the dies is four.
 The number of measured dies $\nrdies$ is 20, and these dies are chosen by an algorithm, which pursues an even coverage of the wafer.
 The floorplans of the multiprocessor platforms are constructed in such a way that the processing elements form regular grids.
 The dynamic power profiles involved in the experiments are based on simulations of randomly generated task graphs.
 The sampling interval of these profiles is 1~ms.
-The leakage model, parametrized by temperature and the effective channel length, is constructed by fitting to a data set of SPICE simulations of a reference electrical circuit.
-The temperature calculations are undertaken using the approach described in \cite{ukhov2012}, which is based on HotSpot v5.02 \cite{hotspot}.\footnote{The floorplans of the platforms, task graphs of the applications, thermal configuration of HotSpot, \etc\ are available online at \cite{sources}.}
-The input data set of measurements $\UData$ is obtained as follows: (a) draw a sample of $\u$ from a Gaussian distribution with mean 45~nm and the covariance function given by \eref{covariance-function} wherein the standard deviation is 5\% \cite{juan2012}; (b) perform one temperature simulation per each of the $\nrdies$ selected dies under the corresponding dynamic power profile; (c) shrink the fine-grained temperature profiles to keep only $\nrsteps$, which is equal to 20 by default, evenly spaced moments of time; and (d) perturb the obtained data set using a white Gaussian noise with the standard deviation of $1~\text{K}$ (Kelvin).
+The leakage model, parametrized by temperature and the effective channel length, is constructed by fitting to SPICE simulations of a reference electrical circuit.
+The temperature calculations are undertaken using the approach described in \cite{ukhov2012} based on HotSpot v5.02 \cite{hotspot}.\footnote{The floorplans of the platforms, task graphs of the applications, thermal configuration of HotSpot, \etc\ are available online at \cite{sources}.}
+The input data set $\UData$ is obtained as follows: (a) draw a sample of $\u$ from a Gaussian distribution with mean 45~nm and the covariance function in \eref{covariance-function} wherein the standard deviation is 5\% \cite{juan2012}; (b) perform one fine-grained temperature simulation per each of the $\nrdies$ selected dies under the corresponding dynamic power profile; (c) shrink the temperature profiles to keep only $\nrsteps$, which is equal to 20 by default, evenly spaced moments of time; and (d) perturb the obtained data set using a white Gaussian noise with the standard deviation of $1~\text{K}$ (Kelvin).
 
 Let us turn to the statistical model in \sref{statistical-model} and summarize the intuition and our assignment for each parameter of this model.
 In the covariance function given by \eref{covariance-function}, the weight parameter $\eta$ and the two length-scale parameters $\ell_\SE$ and $\ell_\OU$ should be set according to the correlation patterns typical for the production process at hand \cite{chandrakasan2001, cheng2011}; we set $\eta$ to 0.7 and $\ell_\SE$ and $\ell_\OU$ to half the radius of the wafer.
@@ -28,17 +29,17 @@ For the optimization in \sref{optimization}, we use the Quasi-Newton algorithm \
 For parallel computations, we utilize four processors.
 All the experiments are conducted on a GNU/Linux machine with Intel Core i7 2.66~GHz and 8~GB of RAM.
 
-In order to ensure that the experimental setup is adequate, we first perform a detailed analysis of the results obtained for one particular example with the default configuration.
+To ensure that the experimental setup is adequate, we first perform a detailed inspection of the results obtained for one particular example with the default configuration.
 The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} where the normalized root-mean-square error (NRMSE) is below 2.8\%, and the absolute error is bounded by 1.4~nm, which suggests that the framework produces a close match to the true value of the \qoi.
-Next we inspect the trace of the obtained sequence of samples and observe that the constructed Markov chain vividly explores the underlying probability space.
-Another test commonly used to assess the quality of the proposal distribution is to compare the posterior in \eref{posterior} with the tailored proposal distribution in \eref{proposal} for each parameter conditioned on the other parameters being at $\hat{\vparam}$ (see \sref{optimization}).
-The two are found to be practically indistinguishable implying a high quality of the proposal.
-To sum up, the performed analysis suggests that the optimization and sampling procedures are tuned well.
-In what follows, we shall use the assessed default configuration and alter only one parameter at a time: the number of processing elements on a die $\nprocs$, the number of measured dies on the wafer $\nrdies$, the number of temporal measurements $\nrsteps$, and the deviation of the noise $\sigma_\noise$.
+We have also looked at the behavior of the constructed Markov chains and the quality of the proposal distribution; however, due to the shortage of space, these results are not presented here.
+All the observations suggest that the optimization and sampling procedures are properly configured.
+
+In what follows, we shall use the assessed configuration and alter only one parameter at a time: the number of processing elements on a die $\nprocs$, the number of measured dies on the wafer $\nrdies$, the number of temporal measurements $\nrsteps$, and the deviation of the noise $\sigma_\noise$.
 
 \subsection{Number of Processing Elements on a Die}
-In this subsection, we consider five platforms with the number of processing elements in each die $\nprocs$ equal to 2, 4, 8, 16, and 32, respectively. The results are summarized in \tref{processing-elements}.
-In this and the following tables, we report the optimization (\stage{2}\ in \fref{algorithm}) and sampling (\stage{3}\ in \fref{algorithm}) times separately (given in minutes); moreover, the sampling time is given for two cases: sequential and parallel computing, which is followed by the total time and error (NRMSE).
+In this subsection, we consider five platforms with the number of processing elements on each die $\nprocs$ equal to 2, 4, 8, 16, and 32, respectively. The results are summarized in \tref{processing-elements}.
+In this and the following tables, we report the optimization (\stage{2}\ in \fref{algorithm}) and sampling (\stage{3}\ in \fref{algorithm}) times separately (given in minutes).
+In addition, the sampling time is given for two cases: sequential and parallel computing, which is followed by the total time and error (NRMSE).
 The computational time of the post-processing phase (\stage{4}\ in \fref{algorithm}) is not given as it is negligibly small.
 The sequential sampling time is the most representative indicator of the computational complexity scaling as the number of samples is always fixed, and there is no parallelization; thus, we shall watch this value in most of the discussions below (highlighted in bold).
 

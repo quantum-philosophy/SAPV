@@ -6,7 +6,16 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 
+% Bibliography
+\usepackage{csquotes}
+\usepackage[backend=biber, maxnames=1, sorting=none]{biblatex}
+\renewcommand*{\bibfont}{\small}
+
+% Footnotes below figures
 \usepackage[bottom]{footmisc}
+
+% Balance the columns on the last page
+\usepackage{flushend}
 
 % Format
 \usepackage{anysize}
@@ -17,13 +26,15 @@
 % \columnsep 5mm
 % \linespread{1}
 
-% Balance the columns on the last page
-\usepackage{flushend}
+% Spacing
+\setlength{\topsep}{0pt}
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{0pt}
+\renewcommand{\arraystretch}{1.0}
+\setlength{\tabcolsep}{4pt}
 
-% Bibliography
-\usepackage{csquotes}
-\usepackage[backend=biber, maxnames=1, sorting=none]{biblatex}
-\renewcommand*{\bibfont}{\small}
+\setlength\abovedisplayskip{5pt}
+\setlength\belowdisplayskip{5pt}
 
 % Text
 \newcommand{\qoi}{QOI}
@@ -43,11 +54,7 @@
 \def\stageDouble#1#2{Stage~#1.\hspace{0.5em}\emph{#2}}
 \makeatother
 
-\newcommand{\blindreview}{%
-  \textnormal{%
-    $\text{HIDDEN FOR BLIND REVIEW}$%
-  }%
-}
+\newcommand{\blindreview}{\textnormal{HIDDEN FOR BLIND REVIEW}}
 
 \usepackage{array}
 \newcolumntype{=}{>{\global\let\currentrowstyle\relax}}
@@ -56,27 +63,14 @@
   #1\ignorespaces
 }
 
-% Tables and figures
-\setlength{\topsep}{0pt}
-\setlength{\abovecaptionskip}{5pt}
-\setlength{\belowcaptionskip}{0pt}
-\renewcommand{\arraystretch}{1.0}
-\setlength{\tabcolsep}{4pt}
-
-% Formulas
-\setlength\abovedisplayskip{5pt}
-\setlength\belowdisplayskip{5pt}
-
 % References
 \newcommand{\eref}[1]{Eq.~(\ref{equ:#1})}
 \newcommand{\sref}[1]{Sec.~\ref{sec:#1}}
-\newcommand{\aref}[1]{Appendix~\ref{app:#1}}
 \newcommand{\fref}[1]{Fig.~\ref{fig:#1}}
 \newcommand{\tref}[1]{Tab.~\ref{tab:#1}}
 
 \newcommand{\elabel}[1]{\label{equ:#1}}
 \newcommand{\slabel}[1]{\label{sec:#1}}
-\newcommand{\alabel}[1]{\label{app:#1}}
 \newcommand{\flabel}[1]{\label{fig:#1}}
 \newcommand{\tlabel}[1]{\label{tab:#1}}
 
@@ -90,19 +84,12 @@
 \newcommand{\abs}[1]{| #1 |}
 \newcommand{\norm}[1]{\| #1 \|}
 
-\newcommand{\vI}{\v{e}}
-\newcommand{\mI}{\m{I}}
+\newcommand{\vOne}{\v{e}}
 \newcommand{\mOne}{\m{I}}
 \newcommand{\vZero}{\v{0}}
 
-\newcommand{\diag}[1]{\text{diag}(#1)}
-
 % Probability theory
-\renewcommand{\o}{\omega}
-\newcommand{\outcomes}{\Omega}
-\newcommand{\sigmaAlgebra}{\mathcal{F}}
 \newcommand{\probabilityMeasure}{\mathbb{P}}
-\newcommand{\probabilitySpace}{(\outcomes, \sigmaAlgebra, \probabilityMeasure)}
 
 \newcommand{\gaussian}[2]{\mathcal{N}\left( #1, #2 \right)}
 \newcommand{\gaussianp}[2]{\mathcal{GP}\left( #1, #2 \right)}
@@ -127,56 +114,31 @@
 \def\EWithoutArgument{\mathbb{E}}
 \makeatother
 
-\newcommand{\Cov}[1]{\mathbb{C}\text{ov}\left( #1 \right)}
-
-\newcommand{\mCov}{\m{K}}
-
 \newcommand{\mean}{\mu}
 \newcommand{\vmean}{{\boldsymbol\mu}}
 
 % Karhunen-Loeve expansion
-\newcommand{\domain}{\mathcal{R}}
 \newcommand{\mKL}{\m{L}}
-
-% Temperature
-\newcommand{\T}{q}
-\newcommand{\vT}{\v{q}}
-\newcommand{\mT}{\m{Q}}
-\newcommand{\mvT}{\v{q}}
-\newcommand{\amb}{\text{amb}}
-\newcommand{\meas}{\text{msr}}
 
 % Power
 \newcommand{\p}{p}
-\renewcommand{\P}{p}
-\newcommand{\vP}{\v{p}}
-\newcommand{\mP}{\m{P}}
 \newcommand{\dyn}{\text{dyn}}
 \newcommand{\leak}{\text{leak}}
 
-% Thermal model
-\renewcommand{\t}{t}
-
+% Data model
 \newcommand{\specification}{\mathcal{S}}
 
-\newcommand{\vX}{\v{x}}
-\newcommand{\mC}{\m{C}}
-\newcommand{\mG}{\m{G}}
-\newcommand{\mM}{\m{B}}
-
-% Data model
 \renewcommand{\r}{r}
-\newcommand{\vr}{\v{r}}
 
 % Quantity of interest
 \renewcommand{\u}{u}
 \newcommand{\vu}{\v{u}}
-\newcommand{\mU}{\m{U}}
 
 % Quantity of measure
 \newcommand{\q}{q}
 \newcommand{\vq}{\v{q}}
-\newcommand{\mQ}{\m{Q}}
+
+\newcommand{\meas}{\text{msr}}
 
 \makeatletter
 \def\oBB{\@ifnextchar\bgroup{\oBBPlus}{\oBBZero}}
@@ -191,38 +153,18 @@
 \newcommand{\UData}{\mathcal{U}}
 
 \newcommand{\noise}{\epsilon}
-\newcommand{\mnoise}{\boldsymbol\epsilon}
 \newcommand{\vnoise}{\boldsymbol\epsilon}
 
 \newcommand{\z}{z}
 \newcommand{\vz}{\v{z}}
 
 \newcommand{\param}{\theta}
-\newcommand{\Param}{\Theta}
-
 \newcommand{\vparam}{{\boldsymbol\theta}}
 
 \newcommand{\SE}{\text{SE}}
 \newcommand{\OU}{\text{OU}}
 
 \newcommand{\mOI}{\m{J}}
-
-% Profiles
-\newcommand{\profile}[1]{( #1, \partition{#1} )}
-
-\newcommand{\partition}[1]{\tau[#1]}
-
-\makeatletter
-\def\profileP{\@ifnextchar\bgroup{\profilePWithArgument}{\profilePWithoutArgument}}
-\def\profilePWithArgument#1{\profile{\mP(#1)}}
-\def\profilePWithoutArgument{\profile{\mP}}
-
-\newcommand{\profilePdyn}{(\mP_\dyn, \partition{\mP})}
-
-\def\profileT{\@ifnextchar\bgroup{\profileTWithArgument}{\profileTWithoutArgument}}
-\def\profileTWithArgument#1{\profile{\mT(#1)}}
-\def\profileTWithoutArgument{\profile{\mT}}
-\makeatother
 
 % Numbers
 \newcommand{\ndies}{{n_\text{d}}}

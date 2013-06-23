@@ -10,7 +10,7 @@ We model $\u$ as a Gaussian process \cite{rasmussen2006} since: (a) it is flexib
 \end{equation}
 where $\fMean$ and $\fCov$ are the mean and covariance functions of $\u$, respectively.
 Hereafter, the vertical bar, pronounced as ``given'', is used to mark the parameters that the probability distribution on the right-hand side depends on. In this case, such parameters are $\vparam_\u$, which we shall identify later on.
-Prior to taking any measurements, $\u$ is assumed to be spatially unbiased; therefore, we let $\fMean$ be a single location-independent parameter $\mu_\u$, \ie, $\fMean{r} = \mu_\u$, $\forall \r \in \domain$.
+Prior to taking any measurements, $\u$ is assumed to be spatially unbiased; therefore, we let $\fMean$ be a single location-independent parameter $\mu_\u$, \ie, $\fMean{r} = \mu_\u$, $\forall \r \in \real^2$.
 The covariance function $\fCov$ is chosen to be the following composition:
 \begin{equation} \elabel{covariance-function}
   \fCov{\r, \r'} = \sigma_\u^2 \big( \eta \; \fCov_\SE(\r, \r') + (1 - \eta) \fCov_\OU(\r, \r') \big)
@@ -37,9 +37,9 @@ Second, the dimensionality of the \qoi\ is reduced even further by applying the 
 More precisely, we factorize the computed matrix using the eigenvalue decomposition \cite{press2007} and discard those eigenvalues (and their eigenvectors) whose contribution to the total sum of the eigenvalues is below a certain threshold.
 The result is
 \begin{equation} \elabel{kl-approximation}
-  \vu = \mu_\u \vI + \sigma_\u \mKL \vz
+  \vu = \mu_\u \vOne + \sigma_\u \mKL \vz
 \end{equation}
-where $\vI = (e_i = 1) \in \real^{\ndies \nprocs}$, $\mKL \in \real^{\ndies \nprocs \times \nvars}$, and $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution.
+where $\vOne = (e_i = 1) \in \real^{\ndies \nprocs}$, $\mKL \in \real^{\ndies \nprocs \times \nvars}$, and $\vz = (\z_i) \in \real^\nvars$ obey the standard Gaussian distribution.
 $\nvars$ is the final dimensionality of the model of $\u$; typically, $\nvars \ll \ndies \nprocs$.
 Consequently, the \qoi\ is now ready for practical computations.
 In what follows, the parameters of \eref{u-prior} are defined by $\vparam_\u = \{ \vz, \mu_\u, \sigma^2_\u \}$ (see \fref{inference}).

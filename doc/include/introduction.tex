@@ -9,14 +9,15 @@ Such an inverse problem is addressed in this work: our goal is to characterize t
 The goal is accomplished by tracking supplementary quantities, which are more convenient and less expensive for measurement, and employing Bayesian statistics \cite{gelman2004} to infer the needed parameters from the harvested data.
 
 Bayesian inference is utilized in \cite{zhang2010} to identify the optimal set of locations on a wafer, in which the parameter under consideration should be measured in order to characterize it with the maximal accuracy.
+The expectation-maximization algorithm is considered in \cite{reda2009} in order to estimate missing test measurements.
 In \cite{paek2012}, the authors consider an inverse problem focused on the inference of the power dissipation based on transient temperature maps using Markov random fields.
 Another temperature-based characterization of power is developed in \cite{mesa-martinez2007} wherein a genetic algorithm is employed for the reconstruction of the power model.
-It should be noted that the inference in \cite{zhang2010} operates on direct measurements meaning that the output of \cite{zhang2010} is the same quantity as the one being measured.
-Therefore, the technique in \cite{zhang2010} is impractical for the majority of process parameters since the corresponding direct measurements have undesirable implications as we shall discuss in \sref{motivation}.
-Moreover, the technique in \cite{zhang2010} is tailored for the secondary quantities affected by process variation, such as frequencies, voltages, and currents, but not the primary sources of uncertainty such as the effective channel length and gate oxide thickness.
+It should be noted that the inference procedures in \cite{zhang2010, reda2009} operates on direct measurements meaning that the output is the same quantity as the one being measured.
+Therefore, these techniques in \cite{zhang2010, reda2009} are impractical for the majority of process parameters since the corresponding direct measurements have undesirable implications as we shall discuss in \sref{motivation}.
+Thus, the procedures in \cite{zhang2010, reda2009} are tailored for the secondary quantities affected by process variation, such as frequencies, voltages, and currents, but not the primary sources of uncertainty such as the effective channel length and gate oxide thickness.
 The approaches in \cite{paek2012} and \cite{mesa-martinez2007}, on the other hand, concentrating on the power dissipation of a single die, are not concerned with process variation.
 
-Our work makes the following main contributions.
-First, we propose a novel approach to the quantification of process variation based on indirect, incomplete, and noisy measurements.
-Indirectness is the key ingredient as it allows for significant savings of the costs associated with the data-harvesting stage and subsequent analysis.
-Second, we develop and implement a solid framework around the proposed idea and perform a thorough study of various aspects of the framework, which are of high practical interests.
+Our work makes the following main contribution.
+We propose a novel approach to the quantification of process variation based on indirect, incomplete, and noisy measurements.
+Indirectness is the key ingredient as it allows for significant savings of the costs associated with the data-harvesting stage.
+Moreover, we develop a solid framework around the proposed idea and perform a thorough study of various aspects of our technique.

@@ -31,13 +31,13 @@ Now the model requires one additional treatment in order to make it computationa
 
 \input{include/figures/inference.tex}
 \subsubsection{Model order reduction} \slabel{model-order-reduction}
-The model of the \qoi\ is an infinite-dimensional object as it characterizes a continuum of spatial locations.
+The model of the \qoi\ is an infinite-dimensional object as it characterizes a continuum of locations.
 For practical computations, however, it should be reduced to a finite-dimensional one.
-First, $\u$ is discretized with respect to the union of two sets of points on the wafer: the first one is composed of the $\nrdies \nrprocs$ points where the observations in $\QData$ were made (one location for each measured processing element on each measured die), and the other of the points where the user wishes to characterize $\u$.
-For simplicity, we assume that the user is interested in all processing elements at all measurement sites, which is $\ndies \nprocs$ locations in total (see \fref{wafer-measured}).
-Consequently, we obtain an $\ndies \nprocs$-dimensional representation of $\u$ denoted by the vector $\vu$.
-Second, the dimensionality of the \qoi\ is reduced even further by applying the well-known principal component analysis to the covariance matrix of $\vu$ computed via \eref{covariance-function}.
-More precisely, we factorize the computed matrix using the eigenvalue decomposition \cite{press2007} and discard those eigenvalues (and their eigenvectors) whose contribution to the total sum of the eigenvalues is below a certain threshold.
+First, $\u$ is discretized with respect to the union of two sets of points: the first one is composed of the $\nrdies \nprocs$ points where the observations in $\QData$ were made ($\nrdies$ selected sites with $\nprocs$ inner locations each), and the other of the points where the user wishes to characterize $\u$.
+For simplicity, we assume that the user is interested in all the measurement sites.
+Consequently, we obtain an $\ndies \nprocs$-dimensional representation of $\u$ denoted by $\vu \in \real^{\ndies \nprocs}$.
+Second, the dimensionality is reduced even further by applying the well-known principal component analysis to the covariance matrix of $\vu$ computed via \eref{covariance-function}.
+More precisely, we factorize this matrix using the eigenvalue decomposition \cite{press2007} and discard those eigenvalues (and their eigenvectors) whose contribution to the total sum of the eigenvalues is below a certain threshold.
 The result is
 \begin{equation} \elabel{kl-approximation}
   \vu = \mu_\u \vOne + \sigma_\u \mKL \vz
@@ -55,7 +55,7 @@ To this end, for a given $\u$, the observed $\vq^\meas$ is assumed to deviate fr
 \begin{equation} \elabel{noisy-measurements}
   \vq^\meas = \vq + \vnoise
 \end{equation}
-where $\vnoise$ is an $\nrdies \nrprocs \nrsteps$-dimensional vector of noise, which is typically assumed to be a white Gaussian noise \cite{rasmussen2006, marzouk2009}.
+where $\vnoise$ is an $\nrdies \nprocs \nsteps$-dimensional vector of noise, which is typically assumed to be a white Gaussian noise \cite{rasmussen2006, marzouk2009}.
 Without loss of generality, the noise is assumed to be independent of $\u$ and to have the same magnitude for all measurements (characterized by the utilized instruments).
 Hence, the model of the noise is
 \begin{equation} \elabel{noise-model}

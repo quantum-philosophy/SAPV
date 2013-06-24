@@ -7,14 +7,15 @@ For instance, such a ``closer'' quantity $\q$ can be the leakage current, which,
 
 Now we shall describe the default configuration of our setup, which will be later adjusted according to the purpose of each particular experiment.
 We consider a 45-nanometer technological process.
-The diameter of the wafer is 20 dies, the total number of dies $\ndies$ is 316, and the number of processing elements $\nprocs$ in each of the dies is four.
+The diameter of the wafer is 20 dies, and the total number of dies $\ndies$ is 316.
 The number of measured dies $\nrdies$ is 20, and these dies are chosen by an algorithm, which pursues an even coverage of the wafer.
+The number of processing elements in each die is four, and they are the points of taking measurements, \ie, $\nprocs = 4$.
 The floorplans of the multiprocessor platforms are constructed in such a way that the processing elements form regular grids.
 The dynamic power profiles involved in the experiments are based on simulations of randomly generated task graphs.
 The sampling interval of these profiles is 1~ms.
-The leakage model, parametrized by temperature and the effective channel length, is constructed by fitting to SPICE simulations of a reference electrical circuit.
-The temperature calculations are undertaken using the approach described in \cite{ukhov2012} based on HotSpot v5.02 \cite{hotspot}.\footnote{The floorplans of the platforms, task graphs of the applications, thermal configuration of HotSpot, \etc\ are available online at \cite{sources}.}
-The input data set $\UData$ is obtained as follows: (a) draw a sample of $\u$ from a Gaussian distribution with mean 45~nm and the covariance function in \eref{covariance-function} wherein the standard deviation is 5\% \cite{juan2012}; (b) perform one fine-grained temperature simulation per each of the $\nrdies$ selected dies under the corresponding dynamic power profile; (c) shrink the temperature profiles to keep only $\nrsteps$, which is equal to 20 by default, evenly spaced moments of time; and (d) perturb the obtained data set using a white Gaussian noise with the standard deviation of $1~\text{K}$ (Kelvin).
+The leakage model, parametrized by temperature and the effective channel length, is constructed by fitting to SPICE simulations of reference electrical circuits.
+The temperature calculations are undertaken using the approach described in \cite{ukhov2012}, based on HotSpot v5.02 \cite{hotspot}.\footnote{The floorplans of the platforms, task graphs of the applications, thermal configuration of HotSpot, \etc\ are available online at \cite{sources}.}
+The input data set $\UData$ is obtained as follows: (a) draw a sample of $\u$ from a Gaussian distribution with mean 45~nm and the covariance function in \eref{covariance-function} wherein the standard deviation is 5\% \cite{juan2012}; (b) perform one fine-grained temperature simulation per each of the $\nrdies$ selected dies under the corresponding dynamic power profile; (c) shrink the temperature profiles to keep only $\nsteps$, which is equal to 20 by default, evenly spaced moments of time; and (d) perturb the obtained data set using a white Gaussian noise with the standard deviation of $1~\text{K}$ (Kelvin).
 
 Let us turn to the statistical model in \sref{statistical-model} and summarize the intuition and our assignment for each parameter of this model.
 In the covariance function given by \eref{covariance-function}, the weight parameter $\eta$ and the two length-scale parameters $\ell_\SE$ and $\ell_\OU$ should be set according to the correlation patterns typical for the production process at hand \cite{chandrakasan2001, cheng2011}; we set $\eta$ to 0.7 and $\ell_\SE$ and $\ell_\OU$ to half the radius of the wafer.
@@ -34,7 +35,7 @@ The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} w
 We have also looked at the behavior of the constructed Markov chains and the quality of the proposal distribution; however, due to the shortage of space, these results are not presented here.
 All the observations suggest that the optimization and sampling procedures are properly configured.
 
-In what follows, we shall use the assessed configuration and alter only one parameter at a time: the number of processing elements on a die $\nprocs$, the number of measured dies on the wafer $\nrdies$, the number of temporal measurements $\nrsteps$, and the deviation of the noise $\sigma_\noise$.
+In what follows, we shall use the assessed configuration and alter only one parameter at a time: the number of processing elements on a die $\nprocs$, the number of measured dies on the wafer $\nrdies$, the number of temporal measurements $\nsteps$, and the deviation of the noise $\sigma_\noise$.
 
 \subsection{Number of Processing Elements on a Die}
 In this subsection, we consider five platforms with the number of processing elements on each die $\nprocs$ equal to 2, 4, 8, 16, and 32, respectively. The results are summarized in \tref{processing-elements}.
@@ -47,16 +48,19 @@ It can be seen in \tref{processing-elements} that all computational times grow w
 This behavior is expected as each processing element increases the amount of work for the temperature simulator.
 Nevertheless, even for large examples, the timing is readily acceptable, taking into account the complexity of the inference procedure behind and the yielded accuracy.
 An interesting observation can be made from the NRMSE: the error tends to decrease as $\nprocs$ grows.
-The explanation is that, with each processing element, $\QData$ delivers more information to the inference to work with since the temperature profiles are collected for all processing elements simultaneously; in our scenario, $\nrprocs = \nprocs$ (\sref{model-order-reduction}).
+The explanation is that, with each processing element, $\QData$ delivers more information to the inference to work with since the temperature profiles are collected for all processing elements simultaneously (\sref{model-order-reduction}).
 
 \subsection{Number of Spatial Measurements}
-Let us change the number of dies $\nrdies$ for which the measurement data are available in the input data set $\QData$ (correspondingly, $\ndies - \nrdies$ dies are left unobserved in \fref{wafer-measured}). The considered scenarios are 10, 20, 40, 80, and 160 measured dies, respectively. The results are reported in \tref{spatial-measurements}.
-We see that the more data the proposed framework needs to process, the longer the execution time, which is reasonable. The trend, however, is not as steep as the one in \tref{processing-elements} since the thermal system stays unchanged.
-The error firmly decreases and drops below 4\% with around 20 measurement points, which is only 6.3\% of the total number of dies on the wafer.
+Let us change the number of dies $\nrdies$ for which the measurement data are available in the input data set $\QData$.
+The considered scenarios are 10, 20, 40, 80, and 160 measured dies, respectively.
+The results are reported in \tref{spatial-measurements}.
+We see that the more data the proposed framework needs to process, the longer the execution time, which is reasonable.
+The trend, however, is not as steep as the one in \tref{processing-elements} since the thermal modeling stays unchanged.
+The error firmly decreases and drops below 4\% with around 20 sites measured, which is only 6.3\% of the total number of dies on the wafer.
 
 \subsection{Number of Temporal Measurements}
-In this subsection, we sweep the number of moments of time $\nrsteps$ for which the measurement data are available in $\QData$. The scenarios are 10, 20, 40, 80, and 160 time moments, respectively. The results are aggregated in \tref{temporal-measurements}.
-As we see, the growth of the computational time is relatively small. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\QData$ is identical (recall $\vq^\meas \in \real^{\nrdies \nrprocs \nrsteps}$). However, the meaning of the two numbers, $\nrdies$ and $\nrsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.
+In this subsection, we sweep the number of moments of time $\nsteps$ for which the measurement data are available in $\QData$. The scenarios are 10, 20, 40, 80, and 160 time moments, respectively. The results are aggregated in \tref{temporal-measurements}.
+As we see, the growth of the computational time is relatively small. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\QData$ is identical (recall $\vq^\meas \in \real^{\nrdies \nprocs \nsteps}$). However, the meaning of the two numbers, $\nrdies$ and $\nsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.
 The NRMSE in \tref{temporal-measurements} has a decreasing trend; however, this trend is less steady than the ones discovered before. The finding can be explained as follows. The distribution of the time moments in $\QData$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles.
 Some moments of time can be more informative than the other.
 Hence, more or less representative samples can end up in $\QData$ helping or misleading the inference.

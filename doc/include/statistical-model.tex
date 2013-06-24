@@ -1,10 +1,10 @@
-Once the wafer has been fabricated, the values of $\u$ are fixed for all locations on the wafer; however, they remains unknown for us.
+Once the wafer has been fabricated, the values of $\u$ are fixed for all locations on the wafer; however, they remain unknown for us.
 In order to infer them, we employ the procedure, called the statistical model, developed in the current subsection and displayed in \fref{inference}.
 The development consists of the five components described below.
 
 \subsubsection{Model of the \qoi}
 The first step is to assign an adequate model to the unknown $\u$.
-We model $\u$ as a Gaussian process \cite{rasmussen2006} since: (a) it is flexible in capturing the correlation patterns induced by the manufacturing process, and (b) it is computationally efficient; and (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, juan2012}. Thus, we have
+We model $\u$ as a Gaussian process \cite{rasmussen2006} since: (a) it is flexible in capturing the correlation patterns induced by the manufacturing process, and (b) it is computationally efficient; and (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, reda2009, juan2012}. Thus, we have
 \begin{equation} \elabel{u-prior}
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \end{equation}
@@ -48,7 +48,7 @@ Consequently, the \qoi\ is now ready for practical computations.
 In what follows, the parameters of \eref{u-prior} are defined by $\vparam_\u = \{ \vz, \mu_\u, \sigma^2_\u \}$ (see \fref{inference}).
 
 \subsubsection{Likelihood function}
-In the Bayesian context, the observed information is taken into account via a likelihood function (see \sref{preliminaries}).
+In a Bayesian context, the observed information is taken into account via a likelihood function (see \sref{preliminaries}).
 In our case, this information is the measurements $\QData$ stacked into $\vq^\meas$ as described in \sref{data-model}.
 Since the measurement process is not perfect, we should also take into consideration the measurement noise.
 To this end, for a given $\u$, the observed $\vq^\meas$ is assumed to deviate from the data model prediction $\vq$ as follows:

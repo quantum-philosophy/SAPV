@@ -1,7 +1,7 @@
 \input{include/tables/performance.tex}
 In this section, we assess our framework using the example carried through the paper from the very beginning: the inference of the effective channel length $\u$ based on temperature $\q$.
 This choice of $\u$ and $\q$ for illustration is dictated by the fact that such a high-level parameter as temperature constitutes a challenging task for the inference of such a low-level parameter as the effective channel length, which implies an intense assessment of the propose technique.
-In addition, the chosen process parameter is an important target \perse\ as it is affected by process variation the most and considerably impacts the power/heat dissipation \cite{chandrakasan2001, srivastava2010, juan2012}; in particular, it also influence other process-related characteristics such as the threshold voltage.
+In addition, the chosen process parameter is an important target \perse\ as it is affected by process variation the most and considerably impacts the power/heat dissipation \cite{chandrakasan2001, srivastava2010, juan2012}; in particular, it also influences other process-related characteristics such as the threshold voltage.
 The performance of our approach is expected to increase when the auxiliary parameter $\q$ resides ``closer'' to the target parameter $\u$ with respect to the transformation $\q = \oBB{\u}$ (see \sref{data-model}) provided that the quality of the measurement data stay the same.
 For instance, such a ``closer'' quantity $\q$ can be the leakage current, which, however, might not always be the most preferable parameter to measure.
 
@@ -35,36 +35,42 @@ The true and inferred distributions of the \qoi\ are shown in \fref{wafer-qoi} w
 We have also looked at the behavior of the constructed Markov chains and the quality of the proposal distribution; however, due to the shortage of space, these results are not presented here.
 All the observations suggest that the optimization and sampling procedures are properly configured.
 
-In what follows, we shall use the assessed configuration and alter only one parameter at a time: the number of processing elements on a die $\nprocs$, the number of measured dies on the wafer $\nrdies$, the number of temporal measurements $\nsteps$, and the deviation of the noise $\sigma_\noise$.
+Next we use the assessed configuration and alter only one parameter at a time: the number of measured sites/dies $\nrdies$; the number of processing elements/measured points $\nprocs$ on a site; the amount of data per measurement point $\nsteps$; and the noise deviation $\sigma_\noise$.
 
-\subsection{Number of Processing Elements on a Die}
-In this subsection, we consider five platforms with the number of processing elements on each die $\nprocs$ equal to 2, 4, 8, 16, and 32, respectively. The results are summarized in \tref{processing-elements}.
+\subsection{Number of Measured Sites}
+Let us change the number of dies $\nrdies$ that have been measured.
+The considered scenarios are 10, 20, 40, 80, and 160 measured dies, respectively.
+The results are reported in \tref{spatial-measurements}.
 In this and the following tables, we report the optimization (\stage{2}\ in \fref{algorithm}) and sampling (\stage{3}\ in \fref{algorithm}) times separately (given in minutes).
 In addition, the sampling time is given for two cases: sequential and parallel computing, which is followed by the total time and error (NRMSE).
 The computational time of the post-processing phase (\stage{4}\ in \fref{algorithm}) is not given as it is negligibly small.
 The sequential sampling time is the most representative indicator of the computational complexity scaling as the number of samples is always fixed, and there is no parallelization; thus, we shall watch this value in most of the discussions below (highlighted in bold).
 
-It can be seen in \tref{processing-elements} that all computational times grow with the number of processing elements.
-This behavior is expected as each processing element increases the amount of work for the temperature simulator.
+We see in \tref{spatial-measurements} that the more data the proposed framework needs to process, the longer the execution times, which is reasonable.
+The trend, however, is rather modest: with the doubling of $\nrdies$, all the computational times increase less than two times.
+The error firmly decreases and stays below 4\% with around 20 sites measured, which is only 6.3\% of the total number of dies on the wafer.
+
+\subsection{Number of Measured Points Per Site}
+Here we consider five platforms with the number of processing elements/measurement points $\nprocs$ on each die equal to 2, 4, 8, 16, and 32, respectively.
+The results are summarized in \tref{processing-elements}.
+All the computational times grow with $\nprocs$.
+This behavior is expected as the granularity of the utilized thermal model (see \sref{data-model} and \cite{ukhov2012}) is binded to the number of processing elements; therefore, the temperature simulations become more intense.
 Nevertheless, even for large examples, the timing is readily acceptable, taking into account the complexity of the inference procedure behind and the yielded accuracy.
 An interesting observation can be made from the NRMSE: the error tends to decrease as $\nprocs$ grows.
-The explanation is that, with each processing element, $\QData$ delivers more information to the inference to work with since the temperature profiles are collected for all processing elements simultaneously (\sref{model-order-reduction}).
+The explanation is that, with each processing element, $\QData$ delivers more information to the inference to work with since the temperature profiles are collected for all the processing elements simultaneously.
 
-\subsection{Number of Spatial Measurements}
-Let us change the number of dies $\nrdies$ for which the measurement data are available in the input data set $\QData$.
-The considered scenarios are 10, 20, 40, 80, and 160 measured dies, respectively.
-The results are reported in \tref{spatial-measurements}.
-We see that the more data the proposed framework needs to process, the longer the execution time, which is reasonable.
-The trend, however, is not as steep as the one in \tref{processing-elements} since the thermal modeling stays unchanged.
-The error firmly decreases and drops below 4\% with around 20 sites measured, which is only 6.3\% of the total number of dies on the wafer.
-
-\subsection{Number of Temporal Measurements}
-In this subsection, we sweep the number of moments of time $\nsteps$ for which the measurement data are available in $\QData$. The scenarios are 10, 20, 40, 80, and 160 time moments, respectively. The results are aggregated in \tref{temporal-measurements}.
-As we see, the growth of the computational time is relatively small. One might have expected this time to be the same as the one for the spatial measurements since, formally, their influence on the dimensionality of $\QData$ is identical (recall $\vq^\meas \in \real^{\nrdies \nprocs \nsteps}$). However, the meaning of the two numbers, $\nrdies$ and $\nsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different. Thus, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{spatial-measurements} and \tref{temporal-measurements}.
-The NRMSE in \tref{temporal-measurements} has a decreasing trend; however, this trend is less steady than the ones discovered before. The finding can be explained as follows. The distribution of the time moments in $\QData$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles.
+\subsection{Amount of Data Per Measured Point}
+In this subsection, we sweep the number of moments of time $\nsteps$ captured by the measured temperature profiles.
+The scenarios are 10, 20, 40, 80, and 160 time moments, respectively.
+The results are aggregated in \tref{temporal-measurements}.
+As we see, the growth of the computational time is relatively small.
+One might have expected this growth due to $\nsteps$ to be the same as the one due to $\nprocs$ since, formally, their influence on the dimensionality of $\QData$ is identical (recall $\vq^\meas \in \real^{\nrdies \nprocs \nsteps}$).
+However, the meaning of the two numbers, $\nprocs$ and $\nsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different.
+Therefore, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{processing-elements} and \tref{temporal-measurements}.
+The NRMSE in \tref{temporal-measurements} has a decreasing trend; however, this trend is less steady than the ones discovered before. The finding can be explained as follows.
+The distribution of the time moments in $\QData$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles.
 Some moments of time can be more informative than the other.
 Hence, more or less representative samples can end up in $\QData$ helping or misleading the inference.
-Based on \tref{spatial-measurements} and \tref{temporal-measurements}, we can also conclude that a larger number of spatial measurements is more advantageous for the inference than a larger number of temporal measurements.
 
 \subsection{Deviation of the Measurement Noise}
 Next we vary the standard deviation of the noise (in Kelvins), affecting the data $\QData$, within the set $\{ 0, 0.5, 1, 2 \}$ coherent with the literature \cite{mesa-martinez2007}. Note that the corresponding prior distribution in \eref{priors} is kept unchanged. The results are given in \tref{noise-deviation}.

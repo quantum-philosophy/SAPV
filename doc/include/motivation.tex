@@ -16,12 +16,12 @@ Moreover, the first approach implies that the measured dies have to be recycled 
 Our technique works differently.
 In order to characterize the effective channel length $\u$, we monitor an auxiliary quantity $\q$ that depends on $\u$ and is more advantageous from the measurement perspective.
 The distribution of $\u$ across the whole wafer is then obtained via Bayesian inference \cite{gelman2004} applied the collected measurements of $\q$.
-These measurements are taken only on a small number of locations on the wafer and can potentially be corrupted by the noise due to the imperfection of the measurement equipments.
+These measurements are taken only for a small number of locations on the wafer and can potentially be corrupted by the noise due to the imperfection of the measurement equipments.
 
-Assume that $\q$ is temperature.
-We can then apply a fixed workload to a few dies on the wafer and measure the corresponding temperature profiles.
+Let us consider one particular helper $\q$, which can be used to study the effective channel length $\u$; specifically, let $\q$ be temperature (we elaborate further on this choice in \sref{experimental-results}).
+We can then apply a fixed workload (\eg, run the same application under the same conditions) to a few dies on the wafer and measure the corresponding temperature profiles.
 Since temperature does not require extra equipments to be deployed on the wafer and can be tracked using infrared cameras \cite{mesa-martinez2007} or built-in facilities of the dies, our approach can reduce the costs associated with the analysis of process variation.
-The result of our framework applied to a set of noisy temperature profiles measured for only 7\% of the dies on the wafer is shown on the right side of \fref{wafer-qoi}, and the locations of the selected dies are depicted in \fref{wafer-measured}.
+The results of our framework applied to a set of noisy temperature profiles measured for only 7\% of the dies on the wafer are shown on the right side of \fref{wafer-qoi}, and the locations of the selected dies are depicted in \fref{wafer-measured}.
 It can be seen that the two maps in \fref{wafer-qoi} closely match each other implying that our approach is able to reconstruct the distribution of the effective channel length with a high level of accuracy.
 
 Another feature of the proposed framework is that probabilities of various events, \eg, $\probabilityMeasure(\u \geq \u_*)$, can readily be estimated.

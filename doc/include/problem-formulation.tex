@@ -17,7 +17,7 @@ Without loss of generality, we shall adhere to the following convention.
 One die corresponds to one potential measurement site, and $\nrdies \ll \ndies$ denotes the number of those sites that have been selected for measurements.
 Each site comprises $\nprocs$ measurement points, and each point contains $\nsteps$ data instances.
 For example, in \sref{motivation}, each observation was an $\nprocs \times \nsteps$ matrix capturing temperature of $\nprocs$ processing elements for $\nsteps$ moments of time.
-Denote by $\QData = \{ \q_i^\meas \}_{i = 1}^\nrdies$ the collected data set where $\q_i^\meas \in \real^{\nprocs \times \nsteps}$ stands for one observation of the \qom.
+Denote by $\QData = \{ \q_i^\meas \}_{i = 1}^\nrdies$ the collected data set where $\q_i^\meas \in \real^{\nprocs \times \nsteps}$ stands for one observation (one site) of the \qom.
 It is implied that the placement of each selected site is recorded along with $\QData$.
 
 For convenience, we denote by $\specification$ all the information relevant to the production and measurement processes including: (a) the layout of the wafer and (b) the floorplan of a die on the wafer.

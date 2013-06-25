@@ -54,7 +54,7 @@ The error firmly decreases and drops below 4\% with around 20 sites measured, wh
 Here we consider five platforms with the number of processing elements/measurement points $\nprocs$ on each die equal to 2, 4, 8, 16, and 32, respectively.
 The results are summarized in \tref{processing-elements}.
 All the computational times grow with $\nprocs$.
-This behavior is expected as the granularity of the utilized thermal model (see \sref{data-model} and \cite{ukhov2012}) is binded to the number of processing elements; therefore, the temperature simulations become more intensive.
+This behavior is expected as the granularity of the utilized thermal model (see \sref{data-model} and \cite{ukhov2012}) is bound to the number of processing elements; therefore, the temperature simulations become more intensive.
 Nevertheless, even for large examples, the timing is readily acceptable, taking into account the complexity of the inference procedure behind and the yielded accuracy.
 An interesting observation can be made from the NRMSE: the error tends to decrease as $\nprocs$ grows.
 The explanation is that, with each processing element, $\QData$ delivers more information to the inference to work with since the temperature profiles are collected for all the processing elements simultaneously.

@@ -1,24 +1,24 @@
 \newcommand{\spaceTables}{\hspace{0.5em}}
 \begin{table*}
 \scriptsize
-\begin{minipage}{0.36\linewidth}
+\begin{minipage}{0.32\linewidth}
   \centering
   \caption{Measured sites \textnormal{$\nrdies$}}
-  \begin{tabular*}{1\linewidth}{=l-r-r-r-r-r}
+  \begin{tabular*}{1\linewidth}{=l-r-r-r-r-r-r}
     \toprule
-    & 10 & 20 & 40 & 80 & 160 \\
+    * & 1 & 10 & 20 & 40 & 80 & 160 \\
     \midrule
     \midrule
-    Optimization time, m & 2.49 & 3.34 &  4.59 &  7.33 & 10.29 \\
+    OT, m &  0.41 & 2.49 & 3.34 &  4.59 &  7.33 & 10.29 \\
     \midrule
     \rowstyle{\bfseries}
-    Sequential time, m   & 3.99 & 4.60 &  5.79 &  8.49 & 12.96 \\
-    Total time, m        & 6.47 & 7.94 & 10.38 & 15.81 & 23.25 \\
+    ST, m &  2.40 & 3.99 & 4.60 &  5.79 &  8.49 & 12.96 \\
+    TT, m &  2.81 & 6.47 & 7.94 & 10.38 & 15.81 & 23.25 \\
     \midrule
-    Parallel time, m     & 1.02 & 1.18 &  1.51 &  2.16 &  3.62 \\
-    Total time, m        & 3.50 & 4.52 &  6.10 &  9.49 & 13.91 \\
+    PT, m &  0.61 & 1.02 & 1.18 &  1.51 &  2.16 &  3.62 \\
+    TT, m &  1.02 & 3.50 & 4.52 &  6.10 &  9.49 & 13.91 \\
     \midrule
-    NRMSE, \%            & 4.40 & 3.42 &  1.09 &  0.85 &  0.67 \\
+    E, \% & 30.49 & 4.40 & 3.42 &  1.09 &  0.85 &  0.67 \\
     \bottomrule
   \end{tabular*}
   \tlabel{spatial-measurements}
@@ -47,24 +47,24 @@
   \tlabel{processing-elements}
 \end{minipage}
 \spaceTables
-\begin{minipage}{0.21\linewidth}
+\begin{minipage}{0.24\linewidth}
   \centering
   \caption{Data amount per point \textnormal{$\nsteps$}}
-  \begin{tabular*}{1\linewidth}{=r-r-r-r-r}
+  \begin{tabular*}{1\linewidth}{=r-r-r-r-r-r}
     \toprule
-    10 & 20 & 40 & 80 & 160 \\
+    1 & 10 & 20 & 40 & 80 & 160 \\
     \midrule
     \midrule
-    3.02 & 3.34 & 3.62 & 3.64 & 4.20 \\
+    1.12 & 3.02 & 3.34 & 3.62 & 3.64 & 4.20 \\
     \midrule
     \rowstyle{\bfseries}
-    4.38 & 4.60 & 4.67 & 4.80 & 4.97 \\
-    7.40 & 7.94 & 8.29 & 8.44 & 9.16 \\
+    2.40 & 4.38 & 4.60 & 4.67 & 4.80 & 4.97 \\
+    3.52 & 7.40 & 7.94 & 8.29 & 8.44 & 9.16 \\
     \midrule
-    1.13 & 1.18 & 1.22 & 1.25 & 1.30 \\
-    4.16 & 4.52 & 4.84 & 4.89 & 5.50 \\
+    0.62 & 1.13 & 1.18 & 1.22 & 1.25 & 1.30 \\
+    1.74 & 4.16 & 4.52 & 4.84 & 4.89 & 5.50 \\
     \midrule
-    2.72 & 3.42 & 1.83 & 2.34 & 1.32 \\
+    7.48 & 2.72 & 3.42 & 1.83 & 2.34 & 1.32 \\
     \bottomrule
   \end{tabular*}
   \tlabel{temporal-measurements}
@@ -92,5 +92,12 @@
   \end{tabular*}
   \tlabel{noise-deviation}
 \end{minipage}
-\vspace{-1.5em}
+\vspace{0.7em}
+\par
+* OT --- optimization time, ST --- sequential sampling time, PT --- parallel sampling time, TT --- total time (optimization plus sampling), and E --- NRMSE.
+\vspace{-2.0em}
 \end{table*}
+% s   = [ 2.40 3.99 4.60  5.79  8.49 12.96 3.71 4.60  6.03  8.92 14.77 2.40 4.38 4.60 4.67 4.80 4.97 4.76 4.70 4.60 4.71 ]
+% p   = [ 0.61 1.02 1.18  1.51  2.16  3.62 0.98 1.18  1.58  2.51  5.30 0.62 1.13 1.18 1.22 1.25 1.30 1.19 1.17 1.18 1.18 ]
+% st2 = [ 2.81 6.47 7.94 10.38 15.81 23.25 6.38 7.94 11.23 16.29 28.62 3.52 7.40 7.94 8.29 8.44 9.16 9.84 8.43 7.94 7.90 ]
+% pt2 = [ 1.02 3.50 4.52  6.10  9.49 13.91 3.65 4.52  6.78  9.88 19.15 1.74 4.16 4.52 4.84 4.89 5.50 6.27 4.91 4.52 4.37 ]

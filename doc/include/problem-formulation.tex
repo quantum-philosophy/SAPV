@@ -1,12 +1,12 @@
 Consider a generic electronic system, which is fabricated on a silicon wafer hosting $\ndies$ dies.
 The system depends on a process parameter $\u$, which we are interested in studying and shall refer to as the quantity of interest (\qoi).
 Due to the presence of process variation, the value of $\u$ deviates from the nominal one, and this deviation can be different at different locations on the wafer.
-The \qoi\ is assumed to be impractical for direct measurements.
+The \qoi\ is assumed to be expensive/impractical for direct measurements.
 
 The goal of this work is to develop a statistical framework targeted at the identification of the on-wafer distribution of $\u$ with the following properties: (a) low measurement costs; (b) high computational speed; (c) robustness to the measurement noise; (d) ability to assess the trustworthiness of the collected data and corresponding predictions; and (e) ability to accommodate prior knowledge on $\u$.
 
 In order to achieve the aforementioned goal, we propose the use of indirect measurements.
-Specifically, instead of $\u$, we measure an auxiliary parameter $\q$, which we shall refer to as the quantity of measure (\qom).
+Specifically, instead of $\u$, we measure an auxiliary parameter $\q$, which we shall refer to as the quantity of measurement (\qom).
 The observations of $\q$ are then processed via Bayesian inference in order to derive the distribution of the \qoi, $\u$.
 The \qom\ is chosen such that: (a) $\q$ is convenient and cheap to be tracked; (b) $\q$ depends on $\u$, which is signified by $\q = \oBB{\u}$; and (c) there is a way to compute $\q$ for a given $\u$.
 The last means that $\oBB$ should be known; however, it does not have to be explicitly given: our framework uses $\oBB$ as a ``black box''.
@@ -19,5 +19,8 @@ Each site comprises $\nprocs$ measurement points, and each point contains $\nste
 For example, in \sref{motivation}, each observation was an $\nprocs \times \nsteps$ matrix capturing temperature of $\nprocs$ processing elements for $\nsteps$ moments of time.
 Denote by $\QData = \{ \q_i^\meas \}_{i = 1}^\nrdies$ the collected data set where $\q_i^\meas \in \real^{\nprocs \times \nsteps}$ stands for one observation (one site) of the \qom.
 It is implied that the placement of each selected site is recorded along with $\QData$.
+
+Note that, if $\oBB$ is the identity function, \ie, $\q \equiv \u$, the proposed technique will primarily focus on the reconstruction of any missing observations (defined in \sref{model-order-reduction}) in $\QData$.
+From this standpoint, our approach is a generalization of those developed in \cite{zhang2010, reda2009}.
 
 For convenience, we denote by $\specification$ all the information relevant to the production and measurement processes including: (a) the layout of the wafer and (b) the floorplan of a die on the wafer.

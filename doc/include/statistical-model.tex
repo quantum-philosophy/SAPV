@@ -4,7 +4,7 @@ The development consists of the five components described below.
 
 \subsubsection{Model of the \qoi}
 The first step is to assign an adequate model to the unknown $\u$.
-We model $\u$ as a Gaussian process \cite{rasmussen2006} since: (a) it is flexible in capturing the correlation patterns induced by the manufacturing process, and (b) it is computationally efficient; and (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, reda2009, juan2012}. Thus, we have
+We model $\u$ as a Gaussian process \cite{rasmussen2006} since: (a) it is flexible in capturing the correlation patterns induced by the manufacturing process; (b) it is computationally efficient; and (c) Gaussian distributions are often natural and accurate models for uncertainties due to process variation \cite{srivastava2010, reda2009, juan2012}. Thus, we have
 \begin{equation} \elabel{u-prior}
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \end{equation}
@@ -20,7 +20,7 @@ where
   \fCov_\SE(\r, \r') = e^{-\frac{\norm{\r - \r'}^2}{\ell_\SE^2}} \hspace{1em} \text{ and } \hspace{1em}
   \fCov_\OU(\r, \r') = e^{- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU}}
 \]
-are the squared exponential and Ornstein-Uhlenbeck correlation functions, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are so-called length-scale parameters; and $\norm{\cdot}$ stands for the Euclidean distance.
+are the squared exponential and Ornstein-Uhlenbeck correlation functions \cite{rasmussen2006}, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are so-called length-scale parameters; and $\norm{\cdot}$ stands for the Euclidean distance.
 The choice of the covariance function $\fCov$ is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between the points that are at the same distance from the center of the wafer.
 $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant.
 Although all the above parameters of the model of $\u$ can be inferred from the data, for simplicity, we shall focus on $\mu_u$ and $\sigma_\u^2$.
@@ -92,4 +92,4 @@ In order to circumvent this problem, we utilize the Metropolis-Hastings (MH) alg
 The algorithm operates on an auxiliary distribution called the proposal distribution, which is chosen to be convenient for sampling.
 Each sample, drawn from this proposal, is then used in \eref{posterior} to evaluate the posterior probability of this sample and decide whether it should be accepted or rejected.\footnote{A reject means that the sequence of samples advances using the last accepted sample; therefore, the chain of samples is never interrupted.}
 The acceptance/rejection strategy of the MH algorithm pushes the produced chain of samples towards regions of high posterior probability, which, after a sufficient number of steps depending on the starting point of the chain and the efficiency of the moves, results in a good approximation of the target posterior distribution in \eref{posterior}.
-The preliminary computations needed for the proposal construction are discussed next, and the further sampling procedure in \sref{sampling}.
+The preliminary computations needed for the proposal construction are discussed next, and the subsequent sampling procedure in \sref{sampling}.

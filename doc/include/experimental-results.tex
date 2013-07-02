@@ -1,8 +1,8 @@
 \input{include/tables/performance.tex}
-In this section, we assess our framework using the example carried through the paper from the very beginning: the inference of the effective channel length $\u$ based on temperature $\q$.
-This choice of $\u$ and $\q$ for illustration is dictated by the fact that such a high-level parameter as temperature constitutes a challenging task for the inference of such a low-level parameter as the effective channel length, which implies an intense assessment of the propose technique.
-In addition, the chosen process parameter is an important target \perse\ as it is affected by process variation the most and considerably impacts the power/heat dissipation \cite{chandrakasan2001, srivastava2010, juan2012}; in particular, it also influences other process-related characteristics such as the threshold voltage.
-The performance of our approach is expected to increase when the auxiliary parameter $\q$ resides ``closer'' to the target parameter $\u$ with respect to the transformation $\q = \oBB{\u}$ (see \sref{data-model}) provided that the quality of the measurement data stay the same.
+In this section, we assess our framework using the inference of the effective channel length $\u$ based on temperature $\q$.
+This choice f or illustration is dictated by the fact that such a high-level parameter as temperature constitutes a challenging task for the inference of such a low-level parameter as the effective channel length, which implies a strong assessment of the proposed technique.
+On the other hand, the effective channel length is an important target \perse\ as it is strongly affected by process variation and considerably impacts the power/heat dissipation \cite{chandrakasan2001, srivastava2010, juan2012}; in particular, it also influences other process-related characteristics such as the threshold voltage.
+The performance of our approach is expected to only increase when the auxiliary parameter $\q$ resides ``closer'' to the target parameter $\u$ with respect to the transformation $\q = \oBB{\u}$.
 For instance, such a ``closer'' quantity $\q$ can be the leakage current, which, however, might not always be the most preferable parameter to measure.
 
 Now we shall describe the default configuration of our setup, which will be later adjusted according to the purpose of each particular experiment.
@@ -64,13 +64,14 @@ In this subsection, we sweep the number of moments of time $\nsteps$ captured by
 The scenarios are 1, 10, 20, 40, 80, and 160 time moments, respectively.
 The results are aggregated in \tref{temporal-measurements}.
 As we see, the growth of the computational time is relatively small.
-One might have expected this time due to $\nsteps$ to be the same as the one due to $\nprocs$ since, formally, the influence of $\nprocs$ and $\nsteps$ on the dimensionality of $\QData$ is identical (recall $\vq^\meas \in \real^{\nrdies \nprocs \nsteps}$).
+One might have expected this growth due to $\nsteps$ to be the same as the one due to $\nprocs$ since, formally, the influence of $\nprocs$ and $\nsteps$ on the dimensionality of $\QData$ is identical (recall $\vq^\meas \in \real^{\nrdies \nprocs \nsteps}$).
 However, the meaning of the two numbers, $\nprocs$ and $\nsteps$, is completely different, and, therefore, the way they manifest themselves in the algorithm is also different.
 Therefore, the corresponding amounts of extra data are being treated differently leading to the discordant timing shown in \tref{processing-elements} and \tref{temporal-measurements}.
 The NRMSE in \tref{temporal-measurements} has a decreasing trend; however, this trend is less steady than the ones discovered before. The finding can be explained as follows.
 The distribution of the time moments in $\QData$ changes since these moments are kept evenly spaced across the corresponding time spans of the input power profiles.
 Some moments of time can be more informative than the other.
 Hence, more or less representative samples can end up in $\QData$ helping or misleading the inference.
+We can also conclude that a larger number of spatial measurements is more advantageous than a larger number of temporal measurements.
 
 \subsection{Deviation of the Measurement Noise}
 Next we vary the standard deviation of the noise (in Kelvins), affecting the data $\QData$, within the set $\{ 0, 0.5, 1, 2 \}$ coherent with the literature \cite{mesa-martinez2007}. Note that the corresponding prior distribution in \eref{priors} is kept unchanged. The results are given in \tref{noise-deviation}.

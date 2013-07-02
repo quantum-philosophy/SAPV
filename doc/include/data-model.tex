@@ -9,8 +9,8 @@ In order to acquire a better understanding of the data model, let us return to t
 In this case, $\u$ stands for the effective channel length, and $\q$ stands for the temperature profile corresponding to a fixed workload.
 The data model $\q = \oBB{\u}$ can be roughly divided into two transitions: (a) the effective channel length $\u$ to the leakage power $\p_\leak$ and (b) the leakage power $\p_\leak$ to the corresponding temperature profile $\q$.
 The first transition is accomplished using one of the leakage models broadly available in the contemporary literature; see, \eg, \cite{chandrakasan2001, srivastava2010, juan2012}.
-In particular, a leakage model can be constructed via a fitting procedure applied a data set of SPICE simulations of reference electrical circuits.
+In particular, a leakage model can be constructed via a fitting procedure applied to a data set of SPICE simulations of reference electrical circuits.
 The only requirement to such a model is that it should be parametrized by $\u$.
 In addition, it can also be parametrized by temperature in order to account for the well-known interdependency between leakage and temperature.
 The second transition is undertaken by combining the leakage power $\p_\leak$ with the dynamic power $\p_\dyn$ that corresponds to the considered workload.
-The obtained total power along with the temperature-related information contained in $\specification$ (mainly, the floorplan and thermal parameters of the die) are fed to a thermal simulator in order to acquire the corresponding temperature $\q$.
+The obtained total power along with the temperature-related information contained in $\specification$ (mainly, the floorplan and thermal parameters of the die) are fed to a thermal simulator (see \sref{experimental-results}) in order to acquire the corresponding temperature $\q$.

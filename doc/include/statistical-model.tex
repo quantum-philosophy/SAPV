@@ -9,17 +9,17 @@ We model $\u$ as a Gaussian process \cite{rasmussen2006} since: (a) it is flexib
   \u | \vparam_\u \sim \gaussianp{\fMean}{\fCov}
 \end{equation}
 where $\fMean(\r)$ and $\fCov(\r, \r')$ are the mean and covariance functions of $\u$, respectively, and $\r, \r' \in \real^2$ denote coordinates on the wafer.
-Hereafter, the vertical bar, pronounced as ``given'', is used to mark the parameters that the probability distribution on the right-hand side depends on. In this case, such parameters are $\vparam_\u$, which we shall identify later on.
+Hereafter, the vertical bar, pronounced as ``given,'' is used to mark the parameters that the probability distribution on the right-hand side depends on. In this case, such parameters are $\vparam_\u$, which we shall identify later on.
 Prior to taking any measurements, $\u$ is assumed to be spatially unbiased; therefore, we let $\fMean$ be a single location-independent parameter $\mu_\u$, \ie, $\fMean{r} = \mu_\u$, $\forall \r \in \real^2$.
 The covariance function $\fCov$ is chosen to be the following composition:
 \begin{equation} \elabel{covariance-function}
-  \fCov{\r, \r'} = \sigma_\u^2 \big( \eta \; \fCov_\SE(\r, \r') + (1 - \eta) \fCov_\OU(\r, \r') \big)
+  \fCov{\r, \r'} = \sigma_\u^2 \left( \eta \; \fCov_\SE(\r, \r') + (1 - \eta) \fCov_\OU(\r, \r') \right)
 \end{equation}
 where
-\[
-  \fCov_\SE(\r, \r') = e^{-\frac{\norm{\r - \r'}^2}{\ell_\SE^2}} \hspace{1em} \text{ and } \hspace{1em}
-  \fCov_\OU(\r, \r') = e^{- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU}}
-\]
+\begin{align*}
+  & \fCov_\SE(\r, \r') = \exp\left(-\frac{\norm{\r - \r'}^2}{\ell_\SE^2}\right) \text{ and} \\
+  & \fCov_\OU(\r, \r') = \exp\left(- \frac{\abs{\,\norm{\r} - \norm{\r'}\,}}{\ell_\OU}\right)
+\end{align*}
 are the squared exponential and Ornstein-Uhlenbeck correlation functions \cite{rasmussen2006}, respectively; $\sigma_\u^2$ represents the variance of $\u$; $\eta \in [0, 1]$ is a weighting coefficient; $\ell_\SE$ and $\ell_\OU > 0$ are so-called length-scale parameters; and $\norm{\cdot}$ stands for the Euclidean distance.
 The choice of the covariance function $\fCov$ is guided by the observations of the correlation structures induced by the fabrication process \cite{chandrakasan2001, cheng2011}: $\fCov_\SE$ imposes similarities between the points on the wafer that are close to each other, and $\fCov_\OU$ imposes similarities between the points that are at the same distance from the center of the wafer.
 $\ell_\SE$ and $\ell_\OU$ control the extend of these similarities, \ie, the range wherein the influence of one point on another is significant.
@@ -72,17 +72,19 @@ The probability density function of this distribution is the likelihood function
 The second component of the posterior in \eref{bayes} is the prior $\f{\vparam}$, which we now need to decide on.
 In this paper, we put the following priors on $\vparam$:
 \begin{align}
-  & \vz \sim \gaussian{\vZero}{\mOne}, \hspace{1em} \mu_\u \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{priors} \\
-  & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and } \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \nonumber
+  & \vz \sim \gaussian{\vZero}{\mOne}, \elabel{z-prior} \\
+  & \mu_\u \sim \gaussian{\mu_0}{\sigma^2_0}, \elabel{mu-u-prior} \\
+  & \sigma^2_\u \sim \sichisquared{\nu_\u}{\tau^2_\u}, \text{ and} \elabel{sigma2-u-prior} \\
+  & \sigma^2_\noise \sim \sichisquared{\nu_\noise}{\tau^2_\noise}. \elabel{sigma2-noise-prior}
 \end{align}
 The prior for $\vz$ is due to the properties of the decomposition in \eref{kl-approximation}.
 The next three priors, \ie, a Gaussian and two scaled inverse chi-squared distributions, are a common choice for a Gaussian model with the mean and variance being unknown.
 The parameters $\mu_0$, $\tau^2_\u$, and $\tau^2_\noise$ represent the presumable values of $\mu_u$, $\sigma^2_\u$, and $\sigma^2_\noise$, respectively, and are set by the user based on the prior knowledge of the technological process and measurement instruments employed. The parameters $\sigma_0$, $\nu_\u$, and $\nu_\noise$ reflect the precision of this prior information.
 When the prior knowledge is weak, non-informative priors can be utilized \cite{gelman2004}.
-Taking the product of the densities in \eref{priors}, we obtain the prior $\f{\vparam}$ completing \eref{bayes}.
+Taking the product of the densities in \eref{z-prior}--\eref{sigma2-noise-prior}, we obtain the prior $\f{\vparam}$ completing \eref{bayes}.
 
 \subsubsection{Posterior}
-At this point, we have obtained the two pieces of the posterior shown in \eref{bayes}: the likelihood function, which is the density in \eref{likelihood}, and the prior, which is the product of the four densities in \eref{priors}. Thus, the posterior is
+At this point, we have obtained the two pieces of the posterior shown in \eref{bayes}: the likelihood function, which is the density in \eref{likelihood}, and the prior, which is the product of the four densities in \eref{z-prior}--\eref{sigma2-noise-prior}. Thus, the posterior is
 \begin{equation} \elabel{posterior}
   \f{\vparam | \QData} \propto \f{\vq^\meas | \vz, \mu_\u, \sigma^2_\u, \sigma^2_\noise} \; \f{\vz} \; \f{\mu_\u} \; \f{\sigma^2_\u} \; \f{\sigma^2_\noise}.
 \end{equation}

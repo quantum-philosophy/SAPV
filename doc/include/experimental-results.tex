@@ -1,6 +1,6 @@
 \input{include/tables/performance.tex}
 In this section, we assess our framework using the inference of the effective channel length $\u$ based on temperature $\q$.
-This choice f or illustration is dictated by the fact that such a high-level parameter as temperature constitutes a challenging task for the inference of such a low-level parameter as the effective channel length, which implies a strong assessment of the proposed technique.
+This choice for illustration is dictated by the fact that such a high-level parameter as temperature constitutes a challenging task for the inference of such a low-level parameter as the effective channel length, which implies a strong assessment of the proposed technique.
 On the other hand, the effective channel length is an important target \perse\ as it is strongly affected by process variation and considerably impacts the power/heat dissipation \cite{chandrakasan2001, srivastava2010, juan2012}; in particular, it also influences other process-related characteristics such as the threshold voltage.
 The performance of our approach is expected to only increase when the auxiliary parameter $\q$ resides ``closer'' to the target parameter $\u$ with respect to the transformation $\q = \oBB{\u}$.
 For instance, such a ``closer'' quantity $\q$ can be the leakage current, which, however, might not always be the most preferable parameter to measure.
@@ -11,19 +11,19 @@ The diameter of the wafer is 20 dies, and the total number of dies $\ndies$ is 3
 The number of measured dies $\nrdies$ is 20, and these dies are chosen by an algorithm, which pursues an even coverage of the wafer.
 The number of processing elements in each die is four, and they are the points of taking measurements, \ie, $\nprocs = 4$.
 The floorplans of the multiprocessor platforms are constructed in such a way that the processing elements form regular grids.
-The dynamic power profiles involved in the experiments are based on simulations of randomly generated task graphs.
-The sampling interval of these profiles is 1~ms.
+The dynamic power profiles involved in the experiments are based on simulations of randomly generated task graphs via TGFF v3.5 \cite{dick1998}.
+The sampling interval of these profiles is 1$\,$ms.
 The leakage model, parametrized by temperature and the effective channel length, is constructed by fitting to SPICE simulations of reference electrical circuits.
-The temperature calculations are undertaken using the approach described in \cite{ukhov2012}, based on HotSpot v5.02 \cite{hotspot}.\footnote{The floorplans of the platforms, task graphs of the applications, thermal configuration of HotSpot, \etc\ are available online at \cite{sources}.}
-The input data set $\UData$ is obtained as follows: (a) draw a sample of $\u$ from a Gaussian distribution with mean 45~nm and the covariance function in \eref{covariance-function} wherein the standard deviation is 5\% \cite{juan2012}; (b) perform one fine-grained temperature simulation per each of the $\nrdies$ selected dies under the corresponding dynamic power profile; (c) shrink the temperature profiles to keep only $\nsteps$, which is equal to 20 by default, evenly spaced moments of time; and (d) perturb the obtained data set using a white Gaussian noise with the standard deviation of $1~\text{K}$ (Kelvin).
+The temperature calculations are undertaken using the approach described in \cite{ukhov2012}, based on HotSpot v5.02 \cite{skadron2004}.\footnote{The floorplans of the platforms, task graphs of the applications, thermal configuration of HotSpot, \etc\ are available online at \cite{sources}.}
+The input data set $\QData$ is obtained as follows: (a) draw a sample of $\u$ from a Gaussian distribution with the mean equal to the nominal value of $\u$ for the considered technological process and the covariance function given by \eref{covariance-function} wherein the standard deviation is 5\% \cite{juan2012}; (b) perform one fine-grained temperature simulation per each of the $\nrdies$ selected dies under the corresponding dynamic power profile; (c) shrink the temperature profiles to keep only $\nsteps$, which is equal to 20 by default, evenly spaced moments of time; and (d) perturb the obtained data set using a white Gaussian noise with the standard deviation of 1$\,$K (Kelvin).
 
 Let us turn to the statistical model in \sref{statistical-model} and summarize the intuition and our assignment for each parameter of this model.
 In the covariance function given by \eref{covariance-function}, the weight parameter $\eta$ and the two length-scale parameters $\ell_\SE$ and $\ell_\OU$ should be set according to the correlation patterns typical for the production process at hand \cite{chandrakasan2001, cheng2011}; we set $\eta$ to 0.7 and $\ell_\SE$ and $\ell_\OU$ to half the radius of the wafer.
 The threshold parameter of the model order reduction procedure described in \sref{model-order-reduction} and utilized in \eref{kl-approximation} should be set high enough to preserve a sufficiently large portion of the variance of the data and, thus, to keep the corresponding results accurate; we set it to 0.99 preserving 99\% of this variance. The resulting dimensionality $\nvars$ of $\vz$ in \eref{kl-approximation} was found to be 27--28.
-The parameters $\mu_0$ and $\tau_\u$ of the priors in \eref{priors} are specific to the considered technological process; we set $\mu_0$ to $45~\text{nm}$ and $\tau_\u$ to 5\% of $\mu_0$ \cite{juan2012}.
-The parameters $\sigma_0$ and $\nu_\u$ determine the precision of the information on $\mu_0$ and $\tau_\u$ and are set according to the beliefs of the user; we set $\sigma_0$ to 1\% of $\mu_0$ and $\nu_\u$ to ten.
+The parameters $\mu_0$ and $\tau_\u$ of the priors in \eref{mu-u-prior} and \eref{sigma2-u-prior}, respectively, are specific to the considered technological process; we set $\mu_0$ to the nominal value of $\u$ and $\tau_\u$ to 5\% of $\mu_0$ \cite{juan2012}.
+The parameters $\sigma_0$ and $\nu_\u$ in \eref{mu-u-prior} and \eref{sigma2-u-prior}, respectively, determine the precision of the information on $\mu_0$ and $\tau_\u$ and are set according to the beliefs of the user; we set $\sigma_0$ to 1\% of $\mu_0$ and $\nu_\u$ to 10.
 The latter can be thought of as the number of imaginary observations that the choice of $\tau_\u$ is based on.
-The parameter $\tau_\noise$ represents the precision (deviation) of the equipments utilized to collect the data set $\QData$ and can be found in the technical specification of these equipments; we set $\tau_\noise$ to $1~\text{K}$. The parameter $\nu_\noise$ has the same interpretation as $\nu_\u$; we set it to ten as well.
+The parameter $\tau_\noise$ in \eref{sigma2-noise-prior} represents the precision (deviation) of the equipments utilized to collect the data set $\QData$ and can be found in the technical specification of these equipments; we set $\tau_\noise$ to 1$\,$K. The parameter $\nu_\noise$ in \eref{sigma2-noise-prior} has the same interpretation as $\nu_\u$ in \eref{sigma2-u-prior}; we set it to 10 as well.
 In \eref{proposal}, $\nu$ and $\alpha$ are tuning parameters, which can be configured based on experiments; we set $\nu$ to eight and $\alpha$ to 0.5.
 The number of sample draws is another tuning parameter, which we set to $10^4$; the first half of these samples is ascribed to the burn-in period leaving $5 \cdot 10^3$ effective samples $\nsamples$.
 For the optimization in \sref{optimization}, we use the Quasi-Newton algorithm \cite{press2007}.
@@ -74,10 +74,10 @@ Hence, more or less representative samples can end up in $\QData$ helping or mis
 We can also conclude that a larger number of spatial measurements is more advantageous than a larger number of temporal measurements.
 
 \subsection{Deviation of the Measurement Noise}
-Next we vary the standard deviation of the noise (in Kelvins), affecting the data $\QData$, within the set $\{ 0, 0.5, 1, 2 \}$ coherent with the literature \cite{mesa-martinez2007}. Note that the corresponding prior distribution in \eref{priors} is kept unchanged. The results are given in \tref{noise-deviation}.
+Next we vary the standard deviation of the noise (in Kelvins), affecting the data $\QData$, within the set $\{ 0, 0.5, 1, 2 \}$ coherent with the literature \cite{mesa-martinez2007}. Note that the corresponding prior distribution in \eref{sigma2-noise-prior} is kept unchanged. The results are given in \tref{noise-deviation}.
 The sampling time is approximately constant. However, we observe an increase of the optimization time with the decrease of the noise level, which can be ascribed to wider possibilities of perfection for the optimization procedure.
 A more important observation, revealed by this experiment, is that, in spite of the fact that the inference operates on indirect and drastically incomplete data, a thoroughly calibrated equipment can considerably improve the quality of predictions.
-However, even with a high level of noise of two degrees---meaning that measurements are dispersed over a wide band of 8~K with a large probability of more than 0.95---the NRMSE is still only 4\%.
+However, even with a high level of noise of two degrees---meaning that measurements are dispersed over a wide band of 8$\,$K with a large probability of more than 0.95---the NRMSE is still only 4\%.
 
 \subsection{Sequential vs. Parallel Sampling}
 Let us summarize the results of the sequential and parallel sampling strategies.

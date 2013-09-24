@@ -6,32 +6,30 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 
+% Balance columns
+\usepackage{flushend}
+
 % Bibliography
 \usepackage{csquotes}
-\usepackage[backend=biber, maxnames=1, sorting=none]{biblatex}
-\renewcommand*{\bibfont}{\small}
+\usepackage[backend=biber, maxnames=10, sorting=none]{biblatex}
 
 % Footnotes below figures
 \usepackage[bottom]{footmisc}
 
 % Format
 \usepackage{anysize}
-\usepackage[a4paper, top=20mm, bottom=20mm, left=15mm, right=15mm]{geometry}
-\columnsep 4mm
-\linespread{0.987}
-% \usepackage[a4paper, top=29mm, bottom=30mm, left=15mm, right=15mm]{geometry}
-% \columnsep 5mm
-% \linespread{1}
+\usepackage[%
+  paperwidth=8.5in,%
+  paperheight=11in,%
+  top=0.58in,%
+  bottom=0.58in,%
+  left=0.685in,%
+  right=0.685in%
+]{geometry}
 
 % Spacing
-\setlength{\topsep}{0pt}
-\setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{0pt}
 \renewcommand{\arraystretch}{1.0}
 \setlength{\tabcolsep}{4pt}
-
-\setlength\abovedisplayskip{4pt}
-\setlength\belowdisplayskip{4pt}
 
 % Text
 \newcommand{\qoi}{QOI}
@@ -40,9 +38,9 @@
 \newcommand{\qom}{QOM}
 \newcommand{\qoms}{QOMs}
 
-\newcommand{\ie}{\emph{i.e.}}
-\newcommand{\eg}{\emph{e.g.}}
-\newcommand{\etc}{\emph{etc.}}
+\newcommand{\ie}{i.e.}
+\newcommand{\eg}{e.g.}
+\newcommand{\etc}{etc.}
 \newcommand{\perse}{\emph{per se}}
 
 \makeatletter
@@ -50,8 +48,6 @@
 \def\stageSingle#1{Stage~#1}
 \def\stageDouble#1#2{Stage~#1.\hspace{0.5em}\emph{#2}}
 \makeatother
-
-\newcommand{\blindreview}{\textnormal{HIDDEN FOR BLIND REVIEW}}
 
 \usepackage{array}
 \newcolumntype{=}{>{\global\let\currentrowstyle\relax}}
